@@ -1,0 +1,54 @@
+SERVER:
+  TYPE: "Lobby"
+
+CHAT:
+  STAFF_CHAT: "&9[S] &b[{0}] &r{1}&7: &b{2}"
+  ADMIN_CHAT: "&4[A] &c[{0}] &r{1}&7: &c{2}"
+  CLEAR_CHAT_BROADCAST: "&eThe chat has been cleared by {0}"
+  CHAT_MUTED: "&cThe chat has been muted by {0}"
+  CHAT_UNMUTED: "&aThe chat has been unmuted by {0}"
+
+COMMON_ERRORS:
+  PLAYER_ONLY: "&cThis command can only be executed by a player."
+  CONSOLE_ONLY: "&cThis command can only be executed by the console."
+  FAILED_TO_LOAD_PROFILE: "&cFailed to load your profile. Try again later."
+  COULD_NOT_RESOLVE_PLAYER: "&cCould not resolve player information."
+  RANK_NOT_FOUND: "&cA rank with that name could not be found."
+
+CONVERSATION:
+  SEND_MESSAGE: "&7(To &r{0}&7) {1}"
+  RECEIVE_MESSAGE: "&7(From &r{0}&7) {1}"
+
+OPTIONS:
+  STAFF_CHAT_MESSAGES_ENABLED: "&aYou can now see staff chat messages."
+  STAFF_CHAT_MESSAGES_DISABLED: "&cYou will no longer see staff chat messages."
+  GLOBAL_CHAT_ENABLED: "&aYou can now see global chat."
+  GLOBAL_CHAT_DISABLED: "&cYou can no longer see global chat."
+  PRIVATE_MESSAGES_ENABLED: "&aYou can now receive new conversations."
+  PRIVATE_MESSAGES_DISABLED: "&cYou can no longer receive new conversations."
+  PRIVATE_MESSAGE_SOUNDS_ENABLED: "&aYou will now receive private message sounds."
+  PRIVATE_MESSAGE_SOUNDS_DISABLED: "&cYou will no longer receive private message sounds."
+
+HUBS:
+  - "Lobby"
+
+TEBEX:
+  SECRET: ""
+  URL: ""
+
+DISCORD:
+  GUILDID: ""
+  CHANNELS:
+    NOTIFICATIONS: ""
+    REPORTS: ""
+    HELPOPS: ""
+    PUNISHMENTS: ""
+  SYNC:
+    CHANNELID: ""
+    BOOSTER:
+      RANKID: ""
+      ROLEID: ""
+    RANKS:
+      UNKNOWNRANK:
+        RANKID: ""
+        ROLEID: ""
