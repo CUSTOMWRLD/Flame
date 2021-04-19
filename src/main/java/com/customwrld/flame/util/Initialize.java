@@ -38,8 +38,6 @@ import com.customwrld.flame.profile.AuthListener;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.ProfileListener;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
 import com.customwrld.flame.rank.Rank;
 import com.customwrld.flame.store.tebex.TebexAPI;
 import com.customwrld.flame.sync.AccountSync;
@@ -164,7 +162,7 @@ public class Initialize {
 
         DiscordSync discordSync = AccountSync.getDiscordSync();
 
-        discordSync.guild = customLib.getJda().getGuildById(config.getString("DISCORD.SYNC.GUILDID"));
+        discordSync.guild = customLib.getJda().getGuildById(config.getString("DISCORD.GUILDID"));
 
         if (discordSync.guild != null) {
             discordSync.channel = discordSync.guild.getTextChannelById(config.getString("DISCORD.SYNC.CHANNELID"));
@@ -190,8 +188,6 @@ public class Initialize {
                                     Grant.expireGrant(profile.getPlayer(), grant);
                                 }
                             }
-
-                            Punishment punishment = profile.getActivePunishmentByType(PunishmentType.MUTE);
                         }
                     }
                 }.runTaskTimer(Flame.get(), 0, 20),

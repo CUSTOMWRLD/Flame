@@ -1,7 +1,9 @@
 package com.customwrld.flame.chat;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.DiscordWebhook;
+import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.menus.grants.ConfirmGrantMenu;
 import com.customwrld.flame.menus.grants.DeleteGrantMenu;
@@ -15,9 +17,14 @@ import com.customwrld.flame.profile.grant.procedure.GrantProcedureType;
 import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedure;
 import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureStage;
 import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureType;
+import com.customwrld.flame.sync.discord.DiscordSync;
 import com.customwrld.flame.util.Duration;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import lombok.SneakyThrows;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -29,20 +36,35 @@ public class ChatProcedure {
     @SneakyThrows
     public static void handleAuthentication(Player player, Profile profile, String message) {
         int code = Integer.parseInt(message);
-        if (correctCode(profile, code)) {
-            DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/827599415359045673/AB50u8FABWq50KLLFhDh6QnkfDTzVzak6I-6CeiDKTQn4DjGJibkm6-pWZkWHKQqGS0d");
-            webhook.addEmbed(new DiscordWebhook.EmbedObject()
-                    .setColor(Color.GREEN)
-                    .addField("**2FA Code Correct**", player.getName() + " has correctly entered their 2FA Code.", false));
-            webhook.execute();
-            Arrays.asList(CC.CHAT_BAR, CC.GREEN + "Access Granted! Thank you for Authenticating!", CC.CHAT_BAR).forEach(player::sendMessage);
-        } else {
-            DiscordWebhook webhook = new DiscordWebhook(Flame.get().getMainConfig().getString("DISCORD.WEBHOOKS.NOTIFICATIONS"));
-            webhook.setContent("> <@&826982162900975666>");
-            webhook.addEmbed(new DiscordWebhook.EmbedObject()
-                    .setColor(Color.RED).addField("**2FA Code Incorrect**", player.getName() + " has incorrectly entered their 2FA Code.", false));
-            webhook.execute();
-            Bukkit.getScheduler().runTask(Flame.get(), () -> player.kickPlayer(CC.RED + "Incorrect or expired code!"));
+        JDA jda = CustomLib.getInstance().getJda();
+
+        Guild guild = jda.getGuildById(Config.DISCORD_GUILD.format());
+
+        if (guild != null) {
+            TextChannel channel = guild.getTextChannelById(Config.DISCORD_NOTIFICATIONS.format());
+
+            if (channel != null) {
+                if (correctCode(profile, code)) {
+                    EmbedBuilder builder = new EmbedBuilder();
+
+                    builder.setColor(Color.GREEN)
+                            .addField("**2FA Code Correct**", player.getName() + " has correctly entered their 2FA Code.", false);
+                    channel.sendMessage(builder.build()).queue();
+
+                    player.sendMessage(CC.CHAT_BAR);
+                    player.sendMessage(CC.GREEN + "Access Granted! Thank you for Authenticating!");
+                    player.sendMessage(CC.CHAT_BAR);
+                } else {
+                    EmbedBuilder builder = new EmbedBuilder();
+
+                    channel.sendMessage("> <@&" + Flame.get().getMainConfig().getString("DISCORD.SYNC.RANKS.OWNER.ROLEID") + ">").queue();
+                    builder.setColor(Color.RED)
+                            .addField("**2FA Code Incorrect**", player.getName() + " has incorrectly entered their 2FA Code.", false);
+                    channel.sendMessage(builder.build()).queue();
+
+                    Bukkit.getScheduler().runTask(Flame.get(), () -> player.kickPlayer(CC.RED + "Incorrect or expired 2FA code!"));
+                }
+            }
         }
     }
 
