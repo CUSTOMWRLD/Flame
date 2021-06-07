@@ -5,7 +5,7 @@ import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
@@ -17,9 +17,9 @@ import org.bukkit.entity.Player;
 
 public class GrantTimeMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
-    private Profile profile;
-    private GrantProcedure procedure;
+    private final SmartInventory inventory;
+    private final Profile profile;
+    private final GrantProcedure procedure;
 
 
     public GrantTimeMenu(Player player, Profile profile, GrantProcedure procedure) {
@@ -28,7 +28,7 @@ public class GrantTimeMenu implements InventoryProvider {
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
-                .title(CC.WHITE + "\uF801\uE8CB\uF802\uE8C5\uF807GRANTTIMEMENU")
+                .title(CC.WHITE + "Grant Duration")
                 .build();
         this.inventory.open(player, 0);
     }
@@ -37,8 +37,8 @@ public class GrantTimeMenu implements InventoryProvider {
     public void init(Player player, InventoryContents contents) {
         Grant grant = procedure.getGrant();
 
-        contents.set(0, 1, ClickableItem.of(new ItemBuilder(Material.LIME_WOOL)
-                        .title(CC.GREEN + "7 Days")
+        contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
+                        .setName(CC.GREEN + "7 Days")
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("7d");
@@ -52,8 +52,8 @@ public class GrantTimeMenu implements InventoryProvider {
                     new GrantReasonMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_WOOL)
-                        .title(CC.YELLOW + "30 Days")
+        contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
+                        .setName(CC.YELLOW + "30 Days")
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("30d");
@@ -67,8 +67,8 @@ public class GrantTimeMenu implements InventoryProvider {
                     new GrantReasonMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 5, ClickableItem.of(new ItemBuilder(Material.ORANGE_WOOL)
-                        .title(CC.GOLD + "Permanent")
+        contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
+                        .setName(CC.GOLD + "Permanent")
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("perm");
@@ -82,8 +82,8 @@ public class GrantTimeMenu implements InventoryProvider {
                     new GrantReasonMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 7, ClickableItem.of(new ItemBuilder(Material.RED_WOOL)
-                        .title(CC.RED + "Custom")
+        contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
+                        .setName(CC.RED + "Custom")
                         .build(),
                 e -> {
                     procedure.setStage(GrantProcedureStage.PROVIDE_CUSTOM_TIME);
@@ -95,6 +95,5 @@ public class GrantTimeMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {
-    }
+    public void update(Player player, InventoryContents contents) {}
 }

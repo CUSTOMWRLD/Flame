@@ -1,6 +1,7 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.customlib.CustomLib;
+import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.rank.Rank;
@@ -51,7 +52,7 @@ public class Placeholders extends PlaceholderExpansion {
             case ("name") -> FlameAPI.getColoredName(Profile.getByUuid(player.getUniqueId()));
             case ("prefix") -> FlameAPI.getColoredPrefix(Profile.getByUuid(player.getUniqueId()));
             case ("rank") -> rank.getColor() + rank.getName();
-            case ("server") -> CustomLib.getInstance().getServerName();
+            case ("server") -> Config.SERVER_NAME.format();
             case ("weight") -> String.valueOf(rank.getWeight());
             default -> null;
         };

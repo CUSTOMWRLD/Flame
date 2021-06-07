@@ -1,9 +1,9 @@
 package com.customwrld.flame.chat;
 
 import com.customwrld.customlib.util.CC;
+import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.Config;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
 import com.customwrld.flame.profile.punishment.Punishment;
@@ -52,21 +52,16 @@ public class ChatListener implements Listener {
             return;
         }
 
-        if (!player.hasPermission("flame.bypasschat")) {
-            Punishment muted = profile.getActivePunishmentByType(PunishmentType.MUTE);
+        if (!player.hasPermission("flame.staff")) {
+            Punishment punishment = profile.getActivePunishmentByType(PunishmentType.MUTE);
 
-            if (Flame.get().isChatMuted()) {
-                player.sendMessage(CC.RED + "Chat is currently muted.");
+            if (FlameAPI.isChatMuted()) {
+                player.sendMessage(CC.RED + "The chat is currently muted.");
                 return;
             }
 
-            if (muted != null) {
-                if (muted.isPermanent()) {
-                    player.sendMessage(CC.RED + "You are permanently muted.");
-                } else {
-                    player.sendMessage(CC.RED + "You are muted for another " + muted.getTimeRemaining() + ".");
-                }
-                player.sendMessage(CC.RED + "Reason: " + muted.getAddedReason());
+            if (punishment != null) {
+                punishment.getMuteMessage().forEach(player::sendMessage);
                 return;
             }
 
@@ -84,7 +79,7 @@ public class ChatListener implements Listener {
         Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
             Profile playerProfile = Profile.getByUuid(onlinePlayer.getUniqueId());
 
-            if (playerProfile.getOptions().publicChatEnabled()) {
+            if (playerProfile.getOptions().isReceivingPublicChat()) {
                 onlinePlayer.sendMessage(formatChat(profile, message));
             }
         });

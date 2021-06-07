@@ -4,14 +4,21 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.grants.RankSelectionMenu;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import org.bukkit.entity.Player;
 
-public class GrantCommand {
+public class GrantCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("grant")
-                .withPermission("flame.grant")
+    public GrantCommand() {
+        this.command = "grant";
+        this.permission = "flame.grant";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {

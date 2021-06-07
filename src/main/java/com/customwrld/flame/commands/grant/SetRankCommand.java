@@ -6,6 +6,7 @@ import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.rank.Rank;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Duration;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -13,11 +14,17 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class SetRankCommand {
+public class SetRankCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("setrank")
-                .withPermission("flame.setrank")
+    public SetRankCommand() {
+        this.command = "setrank";
+        this.permission = "flame.setrank";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(Arguments.durationArgument("duration"))

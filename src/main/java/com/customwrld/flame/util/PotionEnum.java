@@ -11,7 +11,7 @@ public enum PotionEnum {
     SPLASHABLE("splashable", "Splash Potion of", Material.SPLASH_POTION),
     LINGERING("lingering", "Lingering Potion of", Material.LINGERING_POTION);
 
-    private String display;
-    private String name;
-    private Material material;
+    private final String display;
+    private final String name;
+    private final Material material;
 }

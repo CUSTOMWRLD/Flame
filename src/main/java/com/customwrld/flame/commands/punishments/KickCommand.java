@@ -1,22 +1,29 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class KickCommand {
+public class KickCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("kick")
-                .withPermission("flame.kick")
+    public KickCommand() {
+        this.command = "kick";
+        this.permission = "flame.kick";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(new GreedyStringArgument("reason"))
                 .executes((sender, args) -> {
@@ -51,7 +58,7 @@ public class KickCommand {
                         new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
                     }
 
-                    punishment.sendEmbed(profile);
+                    punishment.sendEmbed(profile.getUuid());
                 });
     }
 

@@ -3,16 +3,22 @@ package com.customwrld.flame.commands.punishments;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandPermission;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 
-public class ClearPunishmentsCommand {
+public class ClearPunishmentsCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("clearhistory")
-                .withPermission(CommandPermission.OP)
+    public ClearPunishmentsCommand() {
+        this.command = "clearhistory";
+        this.permission = "flame.clearhistory";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withAliases("clearhis", "clearpunishments")
                 .executes((sender, args) -> {

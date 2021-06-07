@@ -2,17 +2,24 @@ package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class RenameCommand {
+public class RenameCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("rename")
-                .withPermission("flame.rename")
+    public RenameCommand() {
+        this.command = "rename";
+        this.permission = "flame.rename";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(new GreedyStringArgument("name"))
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {

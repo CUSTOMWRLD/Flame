@@ -1,23 +1,30 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.flame.util.Duration;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
+import com.customwrld.flame.util.Duration;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class BanCommand {
+public class BanCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("ban")
-                .withPermission("flame.ban")
+    public BanCommand() {
+        this.command = "ban";
+        this.permission = "flame.ban";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(Arguments.durationArgument("duration"))
                 .withArguments(new GreedyStringArgument("reason"))
@@ -56,7 +63,7 @@ public class BanCommand {
                         new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
                     }
 
-                    punishment.sendEmbed(profile);
+                    punishment.sendEmbed(profile.getUuid());
                 });
     }
 

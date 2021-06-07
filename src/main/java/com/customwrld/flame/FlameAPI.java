@@ -13,15 +13,19 @@ import java.util.UUID;
 
 public class FlameAPI {
 
-    @Getter private static ArrayList<UUID> frozenPlayers = new ArrayList<>();
+
+    @Getter private static final ArrayList<UUID> frozenPlayers = new ArrayList<>();
     @Getter @Setter private static boolean serverFrozen = false;
+    @Getter @Setter private static boolean chatMuted = false;
+    @Getter @Setter private static boolean shuttingDown = false;
+
 
     public static boolean canStartProcedure(Player player) {
         return GrantProcedure.getByPlayer(player) == null && PunishmentProcedure.getByPlayer(player) == null;
     }
 
     public static String getChatFormat(Profile profile) {
-        return getColoredPrefix(profile) + " \uF806" + getColoredName(profile);
+        return getColoredPrefix(profile) + " " + getColoredName(profile);
     }
 
     public static String getColoredName(Profile profile) {
@@ -33,14 +37,14 @@ public class FlameAPI {
         Rank rank = profile.getActiveRank();
         String prefix = rank.getPrefix();
 
-        if(prefix.equals("null")) {
+        if (prefix.equals("null")) {
             return "";
         } else {
             String str = prefix.split(" ")[0];
-            str = str.replace("\\","");
+            str = str.replace("\\", "");
             String[] arr = str.split("u");
             StringBuilder charPrefix = new StringBuilder();
-            for(int i = 1; i < arr.length; i++) {
+            for (int i = 1; i < arr.length; i++) {
                 int hexVal = Integer.parseInt(arr[i], 16);
                 charPrefix.append((char) hexVal);
             }

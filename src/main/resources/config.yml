@@ -1,10 +1,20 @@
+# TODO TURN EVERYTHING INTO A CONIFG LIKE STOREMANAGER AND TEBEX
+
 SERVER:
-  TYPE: "Lobby"
+  ADDRESS: "127.0.0.1"
+  PORT: "25565"
+  NAME: "Lobby-1"
+  TYPE: "LOBBY"
 
 CHAT:
+  SERVER_ONLINE: "&8[&bProxy&8] &a{0} has came Online."
+  SERVER_OFFLINE: "&8[&bProxy&8] &c{0} has went Offline."
   STAFF_CHAT: "&9[S] &b[{0}] &r{1}&7: &b{2}"
   ADMIN_CHAT: "&4[A] &c[{0}] &r{1}&7: &c{2}"
-  CLEAR_CHAT_BROADCAST: "&eThe chat has been cleared by {0}"
+  STAFF_JOIN: "&9[S] &b{0} &9has joined &b{1}"
+  STAFF_LEAVE: "&9[S] &b{0} &9has left the network."
+  STAFF_SWITCH_SERVER: "&9[S] &b{0} &9has switched to &b{1} &9from &b{2}"
+  CHAT_CLEAR_BROADCAST: "&cThe chat has been cleared by {0}"
   CHAT_MUTED: "&cThe chat has been muted by {0}"
   CHAT_UNMUTED: "&aThe chat has been unmuted by {0}"
 
@@ -29,14 +39,16 @@ OPTIONS:
   PRIVATE_MESSAGE_SOUNDS_ENABLED: "&aYou will now receive private message sounds."
   PRIVATE_MESSAGE_SOUNDS_DISABLED: "&cYou will no longer receive private message sounds."
 
-HUBS:
-  - "Lobby"
+REFLECTION:
+  COMMAND_PACKAGE: "com.customwrld.flame.commands"
+  PAYLOAD_PACKAGE: "com.customwrld.flame.pigeon.payloads"
 
 TEBEX:
   SECRET: ""
   URL: ""
 
 DISCORD:
+  COLOR: 9568140
   GUILDID: ""
   CHANNELS:
     NOTIFICATIONS: ""

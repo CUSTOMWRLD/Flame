@@ -1,6 +1,7 @@
 package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import org.bukkit.Material;
@@ -10,11 +11,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class FixCommand {
+public class FixCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("fix")
-                .withPermission("flame.fix")
+    public FixCommand() {
+        this.command = "fix";
+        this.permission = "flame.fix";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withOptionalArgument(new PlayerArgument("player"), () -> null)
                 .executes((sender, args) -> {
                     Player player;
@@ -40,10 +47,9 @@ public class FixCommand {
                     meta.setDamage(0);
                     item.setItemMeta((ItemMeta) meta);
                     player.sendMessage(CC.GREEN + "The item in your hand has been fixed!");
-                    if(!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
+                    if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                         sender.sendMessage(CC.GREEN + "You have fixed " + player.getName() + "'s hand!");
                     }
                 });
     }
-
 }

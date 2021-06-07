@@ -1,13 +1,14 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.SlotPos;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
-import com.customwrld.flame.pigeon.payloads.GrantAddPayload;
+import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.flame.pigeon.payloads.RecalculateProfilePayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
@@ -18,9 +19,9 @@ import org.bukkit.entity.Player;
 
 public class ConfirmGrantMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
-    private Profile profile;
-    private GrantProcedure procedure;
+    private final SmartInventory inventory;
+    private final Profile profile;
+    private final GrantProcedure procedure;
 
     public ConfirmGrantMenu(Player player, Profile profile, GrantProcedure procedure) {
         this.profile = profile;
@@ -28,7 +29,7 @@ public class ConfirmGrantMenu implements InventoryProvider {
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
-                .title(CC.WHITE + "\uF801\uE8CA\uF802\uE8C0\uF807GRANTCONFIRMMENU")
+                .title("Grant Confirmation")
                 .build();
         inventory.open(player);
     }
@@ -39,31 +40,31 @@ public class ConfirmGrantMenu implements InventoryProvider {
         Rank rank = procedure.getGrant().getRank();
 
         for (int i = 1; i <= 3; i++)
-            contents.set(SlotPos.of(0, i), ClickableItem.of(new ItemBuilder()
-                    .material(Material.PAPER)
-                    .title("&aConfirm Grant Procedure")
-                    .modelData(1)
+            contents.set(SlotPos.of(0, i), ClickableItem.of(new ItemFactory(Material.PAPER)
+                    .setName("&aConfirm Grant Procedure")
                     .build(), e -> {
                 Grant grant = procedure.getGrant();
 
                 grant.setAddedAt(System.currentTimeMillis());
 
-                profile.getGrants().add(grant);
-                profile.save();
+                this.profile.getGrants().add(grant);
+                this.profile.save();
 
-                new GrantAddPayload(procedure.getRecipient().getUuid(), procedure.getGrant()).send();
+                if(Profile.profiles.containsKey(profile.getUuid())) {
+                    profile.reload();
+                } else {
+                    CustomLib.getCustomLib().getPigeon().broadcast(new RecalculateProfilePayload(profile.getUuid()));
+                }
 
-                procedure.finish();
+                this.procedure.finish();
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                inventory.close(player);
+                this.inventory.close(player);
                 player.sendMessage(CC.GREEN + "You have updated " + profile.getName() + CC.GREEN + " rank to " + rank.getName());
             }));
 
         for (int i = 5; i <= 7; i++)
-            contents.set(SlotPos.of(0, i), ClickableItem.of(new ItemBuilder()
-                    .material(Material.PAPER)
-                    .title("&cCancel Grant Procedure")
-                    .modelData(1)
+            contents.set(SlotPos.of(0, i), ClickableItem.of(new ItemFactory(Material.PAPER)
+                    .setName("&cCancel Grant Procedure")
                     .build(), e -> {
                 procedure.cancel();
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
@@ -73,7 +74,6 @@ public class ConfirmGrantMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {
-    }
+    public void update(Player player, InventoryContents contents) {}
 
 }

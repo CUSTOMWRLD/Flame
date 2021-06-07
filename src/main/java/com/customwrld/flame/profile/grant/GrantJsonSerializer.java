@@ -22,7 +22,7 @@ public class GrantJsonSerializer implements JsonSerializer<Grant> {
         object.put("removedAt", String.valueOf(grant.getRemovedAt()));
         object.put("removedReason", grant.getRemovedReason());
         object.put("removed", String.valueOf(grant.isRemoved()));
-        return CustomLib.GSON.toJson(object);
+        return CustomLib.getCustomLib().getGson().toJson(object);
     }
 
 }

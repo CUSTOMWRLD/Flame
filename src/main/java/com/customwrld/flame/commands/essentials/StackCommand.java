@@ -2,17 +2,24 @@ package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class StackCommand {
+public class StackCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("stack")
-                .withPermission("flame.stack")
+    public StackCommand() {
+        this.command = "stack";
+        this.permission = "flame.stack";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withOptionalArgument(new IntegerArgument("amount", 1, 127), () -> 64)
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {

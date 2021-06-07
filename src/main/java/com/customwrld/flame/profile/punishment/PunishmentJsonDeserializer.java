@@ -12,9 +12,7 @@ public class PunishmentJsonDeserializer implements JsonDeserializer<Punishment> 
 
     @Override
     public Punishment deserialize(String json) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        Map<String, String> object = CustomLib.GSON.fromJson(json, type);
+        Map<String, String> object = CustomLib.getCustomLib().getGson().fromJson(json, CustomLib.MAP_STRING_TYPE);
 
         Punishment punishment = new Punishment(
                 UUID.fromString(object.get("uuid")),

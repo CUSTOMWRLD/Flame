@@ -4,17 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Accessors(fluent = true)
+@Getter @Setter
 public class OptionsProfile {
 
-    @Getter
-    @Setter
-    private boolean publicChatEnabled = true;
-    @Getter
-    @Setter
-    private boolean conversationsEnabled = true;
-    @Getter
-    @Setter
-    private boolean soundsEnabled = true;
+    private boolean receivingFriendRequests = true;
+    private boolean receivingPublicChat = true;
+    private boolean receivingConversations = true;
+    private boolean receivingMessageSounds = true;
 
 }

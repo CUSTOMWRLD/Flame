@@ -2,8 +2,9 @@ package com.customwrld.flame.commands.player;
 
 import com.customwrld.customlib.util.AlignUtil;
 import com.customwrld.customlib.util.ChatUtil;
-import com.customwrld.flame.Flame;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.Flame;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import net.md_5.bungee.api.ChatColor;
@@ -11,12 +12,19 @@ import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 
-public class StoreCommand {
+public class StoreCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("store")
-                .withPermission(CommandPermission.NONE)
-                .withAliases("buy")
+    public StoreCommand() {
+        this.command = "store";
+        this.permission = "flame.store";
+        this.aliases = new String[]{"buy"};
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
+                .withAliases(this.aliases)
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
@@ -35,7 +43,7 @@ public class StoreCommand {
                     component.setItalic(true);
                     message.addExtra(AlignUtil.centerAlignMessage(component));
 
-                    String domain = Flame.get().getStoreManager().getDomain();
+                    String domain = Flame.getFlame().getStoreManager().getDomain();
 
                     component = new TextComponent("Click here to visit!\n");
                     component.setColor(ChatColor.YELLOW);

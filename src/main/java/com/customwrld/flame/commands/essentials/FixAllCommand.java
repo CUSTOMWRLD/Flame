@@ -1,6 +1,7 @@
 package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import org.bukkit.Material;
@@ -11,11 +12,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class FixAllCommand {
+public class FixAllCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("fixall")
-                .withPermission("flame.fixall")
+    public FixAllCommand() {
+        this.command = "fixall";
+        this.permission = "flame.fixall";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withOptionalArgument(new PlayerArgument("player"), () -> null)
                 .executes((sender, args) -> {
                     Player player;
@@ -32,7 +39,7 @@ public class FixAllCommand {
 
                     Inventory inventory = player.getInventory();
 
-                    for(ItemStack item : inventory) {
+                    for (ItemStack item : inventory) {
                         if (item == null || item.getItemMeta() == null || item.getType() == Material.AIR || !(item.getItemMeta() instanceof Damageable))
                             continue;
                         Damageable meta = ((Damageable) item.getItemMeta());
@@ -41,7 +48,7 @@ public class FixAllCommand {
                     }
 
                     player.sendMessage(CC.GREEN + "Your inventory has been fixed!");
-                    if(!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
+                    if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                         sender.sendMessage(CC.GREEN + "You have fixed " + player.getName() + "'s inventory!");
                     }
                 });

@@ -14,13 +14,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class TebexAPI {
     @Getter
-    private static String endpoint = "https://plugin.tebex.io";
+    private static final String endpoint = "https://plugin.tebex.io";
     @Getter
     @Setter
     private static String secret;
@@ -28,7 +29,7 @@ public class TebexAPI {
     public static TebexAccount getAccountInformation() {
         String json = performAPI("/information", "GET");
 
-        JsonObject info = CustomLib.GSON.fromJson(json, JsonObject.class);
+        JsonObject info = CustomLib.getCustomLib().getGson().fromJson(json, JsonObject.class);
 
         if (info.has("account")) {
             return new TebexAccount(info.getAsJsonObject("account"));
@@ -40,7 +41,7 @@ public class TebexAPI {
     public static List<TebexPackage> getPackages() {
         String json = performAPI("/packages?verbose=true", "GET");
 
-        JsonArray array = CustomLib.GSON.fromJson(json, JsonArray.class);
+        JsonArray array = CustomLib.getCustomLib().getGson().fromJson(json, JsonArray.class);
 
         List<TebexPackage> packages = new ArrayList<>();
         for (JsonElement element : array) {
@@ -91,9 +92,9 @@ public class TebexAPI {
             else
                 result.append("&");
 
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
 
         return result.toString();

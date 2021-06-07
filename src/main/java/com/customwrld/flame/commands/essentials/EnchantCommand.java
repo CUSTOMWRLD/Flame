@@ -1,6 +1,7 @@
 package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EnchantmentArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
@@ -10,11 +11,17 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class EnchantCommand {
+public class EnchantCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("enchant")
-                .withPermission("flame.enchant")
+    public EnchantCommand() {
+        this.command = "enchant";
+        this.permission = "flame.enchant";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(new PlayerArgument("player"))
                 .withArguments(new EnchantmentArgument("enchantment"))
                 .withArguments(new IntegerArgument("level", 0, 32767))

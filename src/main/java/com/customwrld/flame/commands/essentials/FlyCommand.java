@@ -1,14 +1,21 @@
 package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-public class FlyCommand {
+public class FlyCommand extends Command {
 
-    public static CommandAPICommand command() {
+    public FlyCommand() {
+        this.command = "replace";
+        this.permission = "flame.replace";
+    }
+
+    @Override
+    public CommandAPICommand command() {
         return new CommandAPICommand("fly")
                 .withPermission("flame.fly")
                 .withOptionalArgument(new PlayerArgument("player"), () -> null)
@@ -29,13 +36,13 @@ public class FlyCommand {
                     if (player.isFlying()) {
                         player.setFlying(false);
                         player.sendMessage(CC.RED + "Fly mode has been disabled!");
-                        if(!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
+                        if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                             sender.sendMessage(CC.GREEN + "You disabled " + player.getName() + "'s fly!");
                         }
                     } else {
                         player.setFlying(true);
                         player.sendMessage(CC.GREEN + "Fly mode has been enabled");
-                        if(!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
+                        if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                             sender.sendMessage(CC.GREEN + "You enabled " + player.getName() + "'s fly!");
                         }
                     }

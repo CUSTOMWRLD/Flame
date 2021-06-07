@@ -6,6 +6,7 @@ import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.rank.Rank;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import org.bukkit.ChatColor;
@@ -13,11 +14,17 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.UUID;
 
-public class ClearGrantsCommand {
+public class ClearGrantsCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("cleargrants")
-                .withPermission(CommandPermission.OP)
+    public ClearGrantsCommand() {
+        this.command = "cleargrants";
+        this.permission = "flame.cleargrants";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .executes((sender, args) -> {
                     if (!(sender instanceof ConsoleCommandSender)) {

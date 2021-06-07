@@ -21,10 +21,10 @@ public class Currencies {
         GOLD("gold", "G", "Gold", ComponentFormatting.builder().color(ChatColor.GOLD).build()),
         GMGOLD("gmgold", "GG", "Gamemode Gold", ComponentFormatting.builder().color(ChatColor.RED).build());
 
-        private String id;
-        private String suffix;
-        private String fullname;
-        private ComponentFormatting format;
+        private final String id;
+        private final String suffix;
+        private final String fullname;
+        private final ComponentFormatting format;
 
         public boolean canAfford(Profile profile, @Nullable String serverType, int amount) {
             return switch (this) {

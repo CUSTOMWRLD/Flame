@@ -18,13 +18,13 @@ public class RankJsonSerializer implements JsonSerializer<Rank> {
         object.put("defaultRank", String.valueOf(rank.isDefaultRank()));
         object.put("color", rank.getColor().getName());
         object.put("weight", String.valueOf(rank.getWeight()));
-        object.put("permissions", CustomLib.GSON.toJson(rank.getAllPermissions()));
-        object.put("inherits", CustomLib.GSON.toJson(rank.getInherited()
+        object.put("permissions", CustomLib.getCustomLib().getGson().toJson(rank.getAllPermissions()));
+        object.put("inherits", CustomLib.getCustomLib().getGson().toJson(rank.getInherited()
                 .stream()
                 .map(Rank::getUuid)
                 .map(UUID::toString)
                 .collect(Collectors.toList())));
-        return CustomLib.GSON.toJson(object);
+        return CustomLib.getCustomLib().getGson().toJson(object);
     }
 
 }

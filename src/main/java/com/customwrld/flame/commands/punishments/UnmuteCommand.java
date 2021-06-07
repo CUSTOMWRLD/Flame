@@ -1,20 +1,27 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 
-public class UnmuteCommand {
+public class UnmuteCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("unmute")
-                .withPermission("flame.unmute")
+    public UnmuteCommand() {
+        this.command = "unmute";
+        this.permission = "flame.unmute";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(new GreedyStringArgument("reason"))
                 .executes((sender, args) -> {
@@ -45,7 +52,7 @@ public class UnmuteCommand {
                         new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
                     }
 
-                    punishment.sendEmbed(profile);
+                    punishment.sendEmbed(profile.getUuid());
                 });
     }
 

@@ -4,7 +4,7 @@ import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.*;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
@@ -29,7 +29,7 @@ public class RankSelectionMenu implements InventoryProvider {
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(4, 9)
-                .title(CC.WHITE + "\uF801\uE8CC\uF802\uE8C4\uF807RANKSELECTIONMENU")
+                .title(CC.WHITE + "Rank Selection")
                 .build();
         this.inventory.open(player);
     }
@@ -52,9 +52,9 @@ public class RankSelectionMenu implements InventoryProvider {
                 lore.add("&7Click to grant " + rank.getColor() + rank.getName() + " &7to " + FlameAPI.getColoredName(profile));
                 lore.add(CC.MENU_BAR);
 
-                items[i] = ClickableItem.of(new ItemBuilder(CC.toMaterial(rank.getColor()))
-                                .title(rank.getColor() + rank.getName())
-                                .lores(lore)
+                items[i] = ClickableItem.of(new ItemFactory(CC.toMaterial(rank.getColor()))
+                                .setName(rank.getColor() + rank.getName())
+                                .setLore(lore)
                                 .build(),
                         e -> {
                             if (FlameAPI.canStartProcedure(player)) {
@@ -86,6 +86,5 @@ public class RankSelectionMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {
-    }
+    public void update(Player player, InventoryContents contents) {}
 }

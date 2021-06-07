@@ -7,10 +7,10 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.customlib.util.TextSplitter;
 import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.rank.comparator.RankComparator;
+import com.customwrld.flame.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,7 +26,6 @@ public class RankListMenu implements InventoryProvider {
 
     public RankListMenu(Player player) {
         inventory = SmartInventory.builder()
-                .id("rankMenu")
                 .provider(this)
                 .size(5, 9)
                 .title("Ranks")
@@ -40,14 +39,12 @@ public class RankListMenu implements InventoryProvider {
 
         ClickableItem[] items = new ClickableItem[Rank.getRanks().size()];
 
-        contents.fill(ClickableItem.empty(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
-                .title(" ")
-                .build()));
+        contents.fill(ClickableItem.empty(Constants.filler));
 
         int i = 0;
 
         List<Rank> sortedRanks = new ArrayList<>(Rank.getRanks().values());
-        sortedRanks.sort(new RankComparator());
+        sortedRanks.sort(Rank.COMPARATOR);
 
         for (Rank rank : sortedRanks) {
             List<String> lore = new ArrayList<>();
@@ -70,7 +67,7 @@ public class RankListMenu implements InventoryProvider {
 
             if (!rank.getInherited().isEmpty()) {
                 List<String> rankNames = rank.getInherited()
-                        .stream().sorted(new RankComparator())
+                        .stream().sorted(Rank.COMPARATOR)
                         .map(inheritedRank -> ChatColor.WHITE + inheritedRank.getName())
                         .collect(Collectors.toList());
 
@@ -79,9 +76,9 @@ public class RankListMenu implements InventoryProvider {
 
             lore.add(CC.MENU_BAR);
 
-            items[i] = ClickableItem.of(new ItemBuilder(CC.toMaterial(rank.getColor()))
-                    .title(rank.getColor() + rank.getName())
-                    .lores(lore)
+            items[i] = ClickableItem.of(new ItemFactory(CC.toMaterial(rank.getColor()))
+                    .setName(rank.getColor() + rank.getName())
+                    .setLore(lore)
                     .build(), e -> {
             });
             i++;
@@ -92,13 +89,13 @@ public class RankListMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemBuilder(Material.ARROW)
-                        .title("&6Previous Page")
+        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
+                        .setName("&6Previous Page")
                         .build(),
                 e -> inventory.open(player, pagination.previous().getPage())));
 
-        contents.set(0, 8, ClickableItem.of(new ItemBuilder(Material.ARROW)
-                        .title("&6Next Page")
+        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
+                        .setName("&6Next Page")
                         .build(),
                 e -> inventory.open(player, pagination.next().getPage())));
     }

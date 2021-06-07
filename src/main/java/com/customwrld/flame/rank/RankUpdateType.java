@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum UpdateType {
+public enum RankUpdateType {
 
     CREATED("Rank has been Created!"),
     DELETED("Rank has been Deleted!"),
@@ -22,7 +22,7 @@ public enum UpdateType {
     private final String text;
 
     public String format(String rank) {
-        return CC.translate("&8[&3Global Ranks&8] &7(" + rank + ") -> " + text);
+        return CC.translate(CC.AQUA + CC.BOLD + "CUSTOMWRLD " + CC.DARK_GRAY + " - " + CC.GRAY + "(" + rank + ") -> " + text);
     }
 
 }

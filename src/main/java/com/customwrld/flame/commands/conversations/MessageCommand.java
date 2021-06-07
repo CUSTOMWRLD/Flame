@@ -1,15 +1,15 @@
 package com.customwrld.flame.commands.conversations;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.conversation.Conversation;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 
-public class MessageCommand {
+public class MessageCommand extends Command {
 
     public static CommandAPICommand command() {
         return new CommandAPICommand("message")

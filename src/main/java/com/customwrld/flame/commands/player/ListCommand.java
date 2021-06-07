@@ -5,6 +5,7 @@ import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.rank.Rank;
 import com.customwrld.flame.rank.comparator.RankComparator;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import org.apache.commons.lang.StringUtils;
@@ -14,11 +15,17 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListCommand {
+public class ListCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("list")
-                .withPermission(CommandPermission.NONE)
+    public ListCommand() {
+        this.command = "list";
+        this.permission = "flame.list";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .executes((sender, args) -> {
                     List<Player> sortedPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
                     sortedPlayers.sort((player1, player2) -> {

@@ -21,7 +21,7 @@ public class PunishmentProcedure {
     @Getter
     private final PunishmentProcedureType type;
     @Getter
-    private PunishmentProcedureStage stage;
+    private final PunishmentProcedureStage stage;
     @Getter
     @Setter
     private Punishment punishment;

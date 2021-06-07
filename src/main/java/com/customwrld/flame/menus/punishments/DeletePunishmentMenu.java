@@ -5,16 +5,16 @@ import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedure;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class DeletePunishmentMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
-    private PunishmentProcedure procedure;
-    private String reason;
+    private final SmartInventory inventory;
+    private final PunishmentProcedure procedure;
+    private final String reason;
 
     public DeletePunishmentMenu(Player player, PunishmentProcedure procedure, String reason) {
         this.procedure = procedure;
@@ -31,12 +31,12 @@ public class DeletePunishmentMenu implements InventoryProvider {
     @Override
     public void init(Player player, InventoryContents contents) {
 
-        contents.fill(ClickableItem.empty(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
+        contents.fill(ClickableItem.empty(new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
                 .title(" ")
                 .build()));
 
         for (int x = 0; x < 4; x++) {
-            contents.set(0, x, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
+            contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_STAINED_GLASS_PANE)
                             .title(CC.GREEN + "Confirm Punishment Removal")
                             .build(),
                     e -> {
@@ -48,7 +48,7 @@ public class DeletePunishmentMenu implements InventoryProvider {
                         inventory.close(player);
                         player.sendMessage(CC.GREEN + "The punishment has been pardoned.");
                     }));
-            contents.set(0, 5 + x, ClickableItem.of(new ItemBuilder(Material.RED_STAINED_GLASS_PANE)
+            contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
                             .title(CC.RED + "Cancel Punishment Removal")
                             .build(),
                     e -> {

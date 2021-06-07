@@ -17,24 +17,24 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Getter @Setter
 public class Rank {
 
-    @Getter
-    private static final Map<UUID, Rank> ranks = new HashMap<>();
+    public static MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("ranks");
+    public static final Map<UUID, Rank> ranks = new HashMap<>();
 
     public static RankJsonSerializer SERIALIZER = new RankJsonSerializer();
     public static RankJsonDeserializer DESERIALIZER = new RankJsonDeserializer();
+    public static Comparator<Rank> COMPARATOR = (rank1, rank2) -> rank2.getWeight() - rank1.getWeight();
 
-    public static MongoCollection<Document> collection;
-
-    @Getter private final UUID uuid;
-    @Getter private final String name;
-    @Getter @Setter private ChatColor color;
-    @Setter private String prefix;
-    @Getter @Setter private int weight;
-    @Setter private boolean defaultRank;
-    @Getter private final List<Rank> inherited = new ArrayList<>();
-    @Getter private final List<String> permissions = new ArrayList<>();
+    private final UUID uuid;
+    private final String name;
+    private final List<Rank> inherited = new ArrayList<>();
+    private final List<String> permissions = new ArrayList<>();
+    private ChatColor color;
+    private String prefix;
+    private int weight;
+    private boolean defaultRank;
 
     public Rank(String name) {
         this.uuid = UUID.randomUUID();
@@ -63,12 +63,77 @@ public class Rank {
         ranks.put(uuid, this);
     }
 
-    public String getPrefix() {
-        return ChatColor.WHITE + prefix;
-    }
-
     public static Rank findByName(String name) {
         return ranks.values().stream().filter(rank -> rank.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
+
+    public static void init() {
+        Map<Rank, List<UUID>> inheritanceReferences = new HashMap<>();
+
+        try (MongoCursor<Document> cursor = collection.find().iterator()) {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+
+                Rank rank = new Rank(UUID.fromString(document.getString("uuid")), document.getString("name"));
+                rank.load(document);
+                rank.inherited.clear();
+
+                List<UUID> ranksToInherit = new ArrayList<>();
+
+                CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
+                        .stream()
+                        .map(UUID::fromString)
+                        .forEach(ranksToInherit::add);
+
+                inheritanceReferences.put(rank, ranksToInherit);
+
+                ranks.put(rank.getUuid(), rank);
+            }
+        }
+
+        inheritanceReferences.forEach((rank, list) -> list.forEach(uuid -> {
+            Rank inherited = ranks.get(uuid);
+
+            if (inherited != null) {
+                rank.getInherited().add(inherited);
+            }
+        }));
+
+        getDefaultRank();
+    }
+
+    public static Rank getRankByUuid(UUID uuid) {
+        return ranks.get(uuid);
+    }
+
+    public static Rank getRankByName(String name) {
+        for (Rank rank : ranks.values()) {
+            if (rank.getName().equalsIgnoreCase(name)) {
+                return rank;
+            }
+        }
+
+        return null;
+    }
+
+    public static Rank getDefaultRank() {
+        for (Rank rank : ranks.values()) {
+            if (rank.isDefaultRank()) {
+                return rank;
+            }
+        }
+
+        Rank defaultRank = new Rank("Default");
+        defaultRank.setDefaultRank(true);
+        defaultRank.save();
+
+        ranks.put(defaultRank.getUuid(), defaultRank);
+
+        return defaultRank;
+    }
+
+    public String getPrefix() {
+        return ChatColor.WHITE + prefix;
     }
 
     public boolean isDefaultRank() {
@@ -140,11 +205,11 @@ public class Rank {
         defaultRank = document.getBoolean("defaultRank");
 
         permissions.clear();
-        permissions.addAll(CustomLib.GSON.<List<String>>fromJson(document.getString("permissions"), CustomLib.LIST_STRING_TYPE));
+        permissions.addAll(CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("permissions"), CustomLib.LIST_STRING_TYPE));
 
         inherited.clear();
 
-        CustomLib.GSON.<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
+        CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
                 .stream()
                 .map(s -> Rank.getRankByUuid(UUID.fromString(s)))
                 .filter(Objects::nonNull)
@@ -159,8 +224,8 @@ public class Rank {
         document.put("prefix", prefix);
         document.put("weight", weight);
         document.put("defaultRank", defaultRank);
-        document.put("permissions", CustomLib.GSON.toJson(permissions));
-        document.put("inherits", CustomLib.GSON.toJson(inherited
+        document.put("permissions", CustomLib.getCustomLib().getGson().toJson(permissions));
+        document.put("inherits", CustomLib.getCustomLib().getGson().toJson(inherited
                 .stream()
                 .map(Rank::getUuid)
                 .map(UUID::toString)
@@ -172,89 +237,7 @@ public class Rank {
 
     public void delete() {
         ranks.remove(uuid);
-        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flame.get(), () -> collection.deleteOne(Filters.eq("uuid", uuid.toString())), (20 * 5));
-    }
-
-    public void refreshPlayers() {
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Profile profile = Profile.getByUuid(player.getUniqueId());
-
-            profile.getGrants().stream().filter(grant -> !grant.isRemoved()).forEach(grant -> {
-                if (grant.getRank().getName().equals(this.getName())) {
-                    grant.setRank(this);
-                    profile.recalculatePlayer(player);
-                }
-            });
-        }
-    }
-
-    public static void init() {
-        collection = CustomLib.getInstance().getMongoDatabase().getCollection("ranks");
-
-        Map<Rank, List<UUID>> inheritanceReferences = new HashMap<>();
-
-        try (MongoCursor<Document> cursor = collection.find().iterator()) {
-            while (cursor.hasNext()) {
-                Document document = cursor.next();
-
-                Rank rank = new Rank(UUID.fromString(document.getString("uuid")),
-                        document.getString("name"));
-                rank.load(document);
-                rank.inherited.clear();
-
-                List<UUID> ranksToInherit = new ArrayList<>();
-
-                CustomLib.GSON.<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
-                        .stream()
-                        .map(UUID::fromString)
-                        .forEach(ranksToInherit::add);
-
-                inheritanceReferences.put(rank, ranksToInherit);
-
-                ranks.put(rank.getUuid(), rank);
-            }
-        }
-
-        inheritanceReferences.forEach((rank, list) -> list.forEach(uuid -> {
-            Rank inherited = ranks.get(uuid);
-
-            if (inherited != null) {
-                rank.getInherited().add(inherited);
-            }
-        }));
-
-        getDefaultRank();
-    }
-
-    public static Rank getRankByUuid(UUID uuid) {
-        return ranks.get(uuid);
-    }
-
-    public static Rank getRankByName(String name) {
-        for (Rank rank : ranks.values()) {
-            if (rank.getName().equalsIgnoreCase(name)) {
-                return rank;
-            }
-        }
-
-        return null;
-    }
-
-    public static Rank getDefaultRank() {
-        for (Rank rank : ranks.values()) {
-            if (rank.isDefaultRank()) {
-                return rank;
-            }
-        }
-
-        Rank defaultRank = new Rank("Default");
-        defaultRank.setDefaultRank(true);
-        defaultRank.save();
-
-        ranks.put(defaultRank.getUuid(), defaultRank);
-
-        return defaultRank;
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flame.getFlame(), () -> collection.deleteOne(Filters.eq("uuid", uuid.toString())), (20 * 5));
     }
 
 }

@@ -4,6 +4,7 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.PotionUtil;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.PotionEnum;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
@@ -15,11 +16,17 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class PotionCommand {
+public class PotionCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("potion")
-                .withPermission("flame.potion")
+    public PotionCommand() {
+        this.command = "potion";
+        this.permission = "flame.potion";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(new PotionEffectArgument("effect"))
                 .withArguments(new IntegerArgument("duration", 1, 10000000))
                 .withArguments(new IntegerArgument("potency", 1, 128))

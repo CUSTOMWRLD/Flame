@@ -15,7 +15,7 @@ public enum ServerType {
     WOOLWARS("WoolWars", "ww", Material.WHITE_WOOL),
     BEDWARS("BedWars", "bw", Material.RED_BED);
 
-    private String display;
-    private String prefix;
-    private Material icon;
+    private final String display;
+    private final String prefix;
+    private final Material icon;
 }

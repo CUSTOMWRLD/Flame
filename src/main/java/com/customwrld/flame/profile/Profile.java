@@ -2,6 +2,7 @@ package com.customwrld.flame.profile;
 
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CollectionsUtil;
+import com.customwrld.customlib.util.UUIDUtil;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.profile.conversation.ProfileConversations;
 import com.customwrld.flame.profile.grant.Grant;
@@ -24,41 +25,44 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
+@Getter @Setter
 public class Profile {
 
-    @Getter private static Map<UUID, Profile> profiles = new HashMap<>();
-    @Getter private static MongoCollection<Document> collection = CustomLib.getInstance().getMongoDatabase().getCollection("profiles");
+    public static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("profiles");
+    public static final Map<UUID, Profile> profiles = new HashMap<>();
 
-    @Getter private final UUID uuid;
-    @Getter private final List<UUID> knownAlts;
+    private final UUID uuid;
 
-    @Getter @Setter private String name;
-    @Getter @Setter private String currentAddress;
-    @Getter @Setter private String discord;
-    @Getter @Setter private String currentServer;
+    private final List<String> ipAddresses;
+    private final List<String> permissions;
 
-    @Getter @Setter private Long firstSeen;
-    @Getter @Setter private Long lastSeen;
+    private final List<Punishment> punishments;
+    private final List<Grant> grants;
 
-    @Getter private final List<String> ipAddresses;
-    @Getter private final List<String> permissions;
-    @Getter private final List<Punishment> punishments;
-    @Getter private final List<Grant> grants;
-    @Getter private final List<Profile> ignored;
+    private final List<UUID> knownAlts;
+    private final List<UUID> ignored;
+    private final List<UUID> friends;
 
-    @Getter private final OptionsProfile options;
-    @Getter private final StaffProfile staffProfile;
-    @Getter private final ProfileConversations conversations;
+    private final OptionsProfile options;
+    private final StaffProfile staffProfile;
+    private final ProfileConversations conversations;
 
-    @Getter @Setter private boolean online;
-    @Getter @Setter private boolean loaded;
+    private Grant activeGrant;
 
-    @Getter private Grant activeGrant;
+    private String name;
+    private String currentAddress;
+    private String discordId;
 
-    @Getter @Setter private int gold;
-    @Getter @Setter private Map<String, Integer> gamemodeGold;
-    @Getter @Setter private long experience;
+    private Long firstSeen;
+    private Long lastSeen;
+
+    private boolean loaded;
+
+    private int gold;
+    private Map<String, Integer> gamemodeGold;
+    private long experience;
 
     public Profile(String username, UUID uuid) {
         this.uuid = uuid;
@@ -69,11 +73,13 @@ public class Profile {
         this.ipAddresses = new ArrayList<>();
         this.knownAlts = new ArrayList<>();
         this.ignored = new ArrayList<>();
+        this.friends = new ArrayList<>();
         this.gamemodeGold = new HashMap<>();
         this.options = new OptionsProfile();
         this.conversations = new ProfileConversations(this);
         this.staffProfile = new StaffProfile();
-        load();
+
+        reload();
     }
 
     public static Profile getByUuid(UUID uuid) {
@@ -91,17 +97,15 @@ public class Profile {
             return profiles.get(player.getUniqueId());
         }
 
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
+        UUIDUtil.UUIDPair uuidPair;
 
-        if (offlinePlayer.hasPlayedBefore()) {
-            if (profiles.containsKey(offlinePlayer.getUniqueId())) {
-                return profiles.get(offlinePlayer.getUniqueId());
-            }
-
-            return new Profile(offlinePlayer.getName(), offlinePlayer.getUniqueId());
+        try {
+            uuidPair = UUIDUtil.getUUID(username).get();
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
         }
 
-        return null;
+        return new Profile(uuidPair.getName(), uuidPair.getUuid());
     }
 
     public static List<Profile> getByIpAddress(String ipAddress) {
@@ -121,7 +125,7 @@ public class Profile {
 
     public static List<Profile> getByDiscord(String discord) {
         List<Profile> profiles = new ArrayList<>();
-        Bson filter = Filters.eq("discord", discord);
+        Bson filter = Filters.eq("discordId", discord);
 
         try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
             while (cursor.hasNext()) {
@@ -135,7 +139,7 @@ public class Profile {
     }
 
     public boolean isSyncedWithDiscord() {
-        return discord != null && !discord.isEmpty();
+        return this.discordId != null && !this.discordId.isEmpty();
     }
 
     public boolean isIgnoring(Profile profile) {
@@ -160,14 +164,14 @@ public class Profile {
         return null;
     }
 
-    public void checkExpiredPunishments() {
+    private void checkPunishments() {
         for (Punishment punishment : punishments) {
             if (!punishment.isRemoved() && punishment.hasExpired()) {
                 punishment.setRemovedAt(System.currentTimeMillis());
                 punishment.setRemovedReason("Punishment Expired");
                 punishment.setRemoved(true);
                 punishment.setRemovedBy(null);
-                punishment.sendEmbed(this);
+                punishment.sendEmbed(this.uuid);
                 punishment.broadcast(true, this);
             }
         }
@@ -177,25 +181,26 @@ public class Profile {
         return activeGrant.getRank();
     }
 
-    public void checkGrants() {
+    private void checkGrants() {
         Player player = getPlayer();
 
-        List<Grant> removableGrants = new ArrayList<>();
+        Iterator<Grant> iterator = this.grants.iterator();
         List<Grant> activeGrants = new ArrayList<>();
 
-        for (Grant grant : grants) {
-            if (grant.getRank() == null || Rank.getRanks().get(grant.getRank().getUuid()) == null) {
-                removableGrants.add(grant);
+        while (iterator.hasNext()) {
+            Grant grant = iterator.next();
+
+            if (grant.getRank() == null || Rank.ranks.get(grant.getRank().getUuid()) == null) {
+                iterator.remove();
             } else if (!grant.isRemoved() && !grant.hasExpired()) {
                 activeGrants.add(grant);
             }
+
         }
 
-        grants.removeAll(removableGrants);
+        activeGrants.sort(Grant.COMPARATOR);
 
-        activeGrants.sort((rank1, rank2) -> rank2.getRank().getWeight() - rank1.getRank().getWeight());
-
-        for (Grant grant : grants) {
+        for (Grant grant : this.grants) {
             if (!grant.isRemoved() && grant.hasExpired()) {
                 grant.setRemovedAt(System.currentTimeMillis());
                 grant.setRemovedReason("Grant Expired");
@@ -210,14 +215,14 @@ public class Profile {
         if (activeGrants.isEmpty()) {
             Grant defaultGrant = new Grant(UUID.randomUUID(), Rank.getDefaultRank(), null, System.currentTimeMillis(), "Default", Integer.MAX_VALUE);
 
-            grants.add(defaultGrant);
-            activeGrant = defaultGrant;
+            this.grants.add(defaultGrant);
+            this.activeGrant = defaultGrant;
 
             if (player != null) {
                 Grant.loadNewGrant(this, player, defaultGrant);
             }
         } else {
-            activeGrant = activeGrants.get(0);
+            this.activeGrant = activeGrants.get(0);
         }
 
         this.save();
@@ -225,8 +230,8 @@ public class Profile {
 
     public List<String> getAllPermissions() {
         List<String> permissions = new ArrayList<>();
-        permissions.addAll(this.getRankPermissions());
 
+        permissions.addAll(this.getRankPermissions());
         permissions.addAll(this.getPermissions());
 
         return permissions;
@@ -250,32 +255,24 @@ public class Profile {
         return i;
     }
 
-    public void recalculatePlayer(Player player) {
+    private void checkPlayer() {
+        Player player = getPlayer();
+
         if (player == null) {
             return;
         }
 
-        Flame plugin = Flame.get();
-
-        player.setOp(staffProfile.operator());
-
-        checkGrants();
-
-        if (!player.hasPermission("minecraft.command.gamemode") && player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> player.setGameMode(GameMode.SURVIVAL));
-        }
+        player.setOp(this.staffProfile.operator());
 
         for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-            if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(Flame.get())) {
+            if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(Flame.getFlame())) {
                 continue;
             }
 
-            attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> {
-                attachmentInfo.getAttachment().unsetPermission(permission);
-            });
+            attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> attachmentInfo.getAttachment().unsetPermission(permission));
         }
 
-        PermissionAttachment attachment = player.addAttachment(Flame.get());
+        PermissionAttachment attachment = player.addAttachment(Flame.getFlame());
 
         for (String permission : this.getAllPermissions()) {
             attachment.setPermission(permission, true);
@@ -284,65 +281,78 @@ public class Profile {
         player.recalculatePermissions();
     }
 
-    private void load() {
+    public void reload() {
         Document document = collection.find(Filters.eq("uuid", uuid.toString())).first();
 
         if (document != null) {
-            if (name == null) {
-                name = document.getString("name");
+            if (this.name == null) {
+                this.name = document.getString("name");
             }
 
-            firstSeen = Long.parseLong(document.getString("firstSeen"));
-            lastSeen = Long.parseLong(document.getString("lastSeen"));
-            currentAddress = document.getString("currentAddress");
+            this.firstSeen = Long.parseLong(document.getString("firstSeen"));
+            this.lastSeen = Long.parseLong(document.getString("lastSeen"));
+            this.currentAddress = document.getString("currentAddress");
 
             Document optionsDocument = (Document) document.get("options");
-            options.publicChatEnabled(optionsDocument.getBoolean("publicChatEnabled"));
-            options.conversationsEnabled(optionsDocument.getBoolean("conversationsEnabled"));
-            options.soundsEnabled(optionsDocument.getBoolean("soundsEnabled"));
+            this.options.setReceivingFriendRequests(optionsDocument.getBoolean("receivingFriendRequests"));
+            this.options.setReceivingPublicChat(optionsDocument.getBoolean("receivingPublicChat"));
+            this.options.setReceivingConversations(optionsDocument.getBoolean("receivingConversations"));
+            this.options.setReceivingMessageSounds(optionsDocument.getBoolean("receivingMessageSounds"));
 
             Document staffDocument = (Document) document.get("staff");
-            staffProfile.authKey(staffDocument.getString("authKey"));
-            staffProfile.operator(staffDocument.getBoolean("operator"));
-            staffProfile.staffMessagesEnabled(staffDocument.getBoolean("staffMessagesEnabled"));
-            staffProfile.authEnabled(staffDocument.getBoolean("authEnabled"));
-            staffProfile.locked(staffDocument.getBoolean("locked"));
+            this.staffProfile.authKey(staffDocument.getString("authKey"));
+            this.staffProfile.operator(staffDocument.getBoolean("operator"));
+            this.staffProfile.staffMessagesEnabled(staffDocument.getBoolean("staffMessagesEnabled"));
+            this.staffProfile.authEnabled(staffDocument.getBoolean("authEnabled"));
+            this.staffProfile.locked(staffDocument.getBoolean("locked"));
 
-            discord = document.getString("discord");
+            this.discordId = document.getString("discordId");
 
-            online = document.getBoolean("isOnline");
-            currentServer = document.getString("currentServer");
+            this.gold = document.getInteger("gold");
 
-            gold = document.getInteger("gold");
+            this.gamemodeGold.clear();
+            this.gamemodeGold = CollectionsUtil.genericMapToType(document.get("gamemodeGold", Map.class), String.class, Integer.class);
 
-            gamemodeGold = CollectionsUtil.genericMapToType(document.get("gamemodeGold", Map.class), String.class, Integer.class);
+            this.experience = document.getLong("experience");
 
-            experience = document.getLong("experience");
+            this.ipAddresses.clear();
+            this.ipAddresses.addAll(document.getList("ipAddresses", String.class, new ArrayList<>()));
 
-            ipAddresses.addAll(document.getList("ipAddresses", String.class, new ArrayList<>()));
-
+            this.grants.clear();
             for (Map<?, ?> obj : document.getList("grants", Map.class, new ArrayList<>())) {
                 this.grants.add(Grant.fromSimple(
                         CollectionsUtil.genericMapToType(obj, String.class, String.class)));
             }
 
+            this.punishments.clear();
             for (Map<?, ?> obj : document.getList("punishments", Map.class, new ArrayList<>())) {
                 this.punishments.add(Punishment.fromSimple(
                         CollectionsUtil.genericMapToType(obj, String.class, String.class)));
             }
 
+            this.ignored.clear();
             for (String uuid : document.getList("ignored", String.class)) {
                 UUID ignoredUUID = UUID.fromString(uuid);
-                this.ignored.add(Profile.getByUuid(ignoredUUID));
+                this.ignored.add(ignoredUUID);
             }
 
-            permissions.clear();
-            permissions.addAll(document.getList("permissions", String.class));
+            this.friends.clear();
+            for (String uuid : document.getList("friends", String.class)) {
+                UUID friendUUID = UUID.fromString(uuid);
+                this.friends.add(friendUUID);
+            }
 
-            checkExpiredPunishments();
+            this.permissions.clear();
+            this.permissions.addAll(document.getList("permissions", String.class));
+
+            checkPunishments();
+            checkGrants();
+            checkPlayer();
+
+            this.loaded = true;
+        } else {
+            this.loaded = false;
         }
-
-        loaded = true;
     }
 
     public void save() {
@@ -355,9 +365,10 @@ public class Profile {
         document.put("ipAddresses", ipAddresses);
 
         Document optionsDocument = new Document();
-        optionsDocument.put("publicChatEnabled", options.publicChatEnabled());
-        optionsDocument.put("conversationsEnabled", options.conversationsEnabled());
-        optionsDocument.put("soundsEnabled", options.soundsEnabled());
+        optionsDocument.put("receivingFriendRequests", options.isReceivingFriendRequests());
+        optionsDocument.put("receivingPublicChat", options.isReceivingPublicChat());
+        optionsDocument.put("receivingConversations", options.isReceivingConversations());
+        optionsDocument.put("receivingMessageSounds", options.isReceivingMessageSounds());
         document.put("options", optionsDocument);
 
         Document staffDocument = new Document();
@@ -368,10 +379,7 @@ public class Profile {
         staffDocument.put("locked", staffProfile.locked());
         document.put("staff", staffDocument);
 
-        document.put("discord", discord);
-
-        document.put("isOnline", online);
-        document.put("currentServer", currentServer);
+        document.put("discord", discordId);
 
         document.put("gold", gold);
         document.put("gamemodeGold", gamemodeGold);
@@ -386,20 +394,18 @@ public class Profile {
         document.put("grants", simpleGrants);
 
         List<HashMap<String, String>> simplePunishments = new ArrayList<>();
+
         for (Punishment punishment : punishments) {
             simplePunishments.add(punishment.simplify());
         }
+
         document.put("punishments", simplePunishments);
 
         document.put("permissions", permissions);
 
-        List<String> simpleIgnored = new ArrayList<>();
+        document.put("ignored", ignored);
 
-        for (Profile profile : ignored) {
-            simpleIgnored.add(profile.getUuid().toString());
-        }
-
-        document.put("ignored", simpleIgnored);
+        document.put("friends", friends);
 
         collection.replaceOne(Filters.eq("uuid", uuid.toString()), document, new ReplaceOptions().upsert(true));
     }

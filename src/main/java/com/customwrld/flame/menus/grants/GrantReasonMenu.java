@@ -5,7 +5,7 @@ import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
@@ -16,9 +16,9 @@ import org.bukkit.entity.Player;
 
 public class GrantReasonMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
-    private Profile profile;
-    private GrantProcedure procedure;
+    private final SmartInventory inventory;
+    private final Profile profile;
+    private final GrantProcedure procedure;
 
 
     public GrantReasonMenu(Player player, Profile profile, GrantProcedure procedure) {
@@ -27,7 +27,7 @@ public class GrantReasonMenu implements InventoryProvider {
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
-                .title(CC.WHITE + "\uF801\uE8CB\uF802\uE8C6\uF807GRANTREASONMENU")
+                .title(CC.WHITE + "Grant Reason")
                 .build();
         this.inventory.open(player, 0);
     }
@@ -36,8 +36,8 @@ public class GrantReasonMenu implements InventoryProvider {
     public void init(Player player, InventoryContents contents) {
         Grant grant = procedure.getGrant();
 
-        contents.set(0, 1, ClickableItem.of(new ItemBuilder(Material.LIME_WOOL)
-                        .title(CC.GREEN + "Promoted").build(),
+        contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
+                        .setName(CC.GREEN + "Promoted").build(),
                 e -> {
                     grant.setAddedReason("Promoted");
                     procedure.setGrant(grant);
@@ -48,8 +48,8 @@ public class GrantReasonMenu implements InventoryProvider {
                     new ConfirmGrantMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_WOOL)
-                        .title(CC.YELLOW + "Demoted").build(),
+        contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
+                        .setName(CC.YELLOW + "Demoted").build(),
                 e -> {
                     grant.setAddedReason("Demoted");
                     procedure.setGrant(grant);
@@ -60,8 +60,8 @@ public class GrantReasonMenu implements InventoryProvider {
                     new ConfirmGrantMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 5, ClickableItem.of(new ItemBuilder(Material.ORANGE_WOOL)
-                        .title(CC.GOLD + "Granted").build(),
+        contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
+                        .setName(CC.GOLD + "Granted").build(),
                 e -> {
 
                     grant.setAddedReason("Granted");
@@ -73,8 +73,8 @@ public class GrantReasonMenu implements InventoryProvider {
                     new ConfirmGrantMenu(player, profile, procedure);
                 }));
 
-        contents.set(0, 7, ClickableItem.of(new ItemBuilder(Material.RED_WOOL)
-                        .title(CC.RED + "Custom").build(),
+        contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
+                        .setName(CC.RED + "Custom").build(),
                 e -> {
                     procedure.setGrant(grant);
 
@@ -88,6 +88,5 @@ public class GrantReasonMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {
-    }
+    public void update(Player player, InventoryContents contents) {}
 }

@@ -11,15 +11,13 @@ import java.util.Map;
 @Getter
 public class Server {
 
-    @Getter static private Map<String, Server> servers = new HashMap<>();
-
-    private String serverName;
-    private String playerList;
-    private long lastUpdate;
-    private long uptime;
-    private double tps;
-    private int online;
-    private int max;
+    private final String serverName;
+    private final String playerList;
+    private final long lastUpdate;
+    private final long uptime;
+    private final double tps;
+    private final int online;
+    private final int max;
 
     public Server(UpdateServerInfoPayload payload) {
         serverName = payload.serverName;
@@ -31,37 +29,4 @@ public class Server {
         max = payload.max;
     }
 
-    public static Server getServerByPlayer(String player) {
-        for (Map.Entry<String, Server> ent : getServers().entrySet()) {
-            Server server = ent.getValue();
-
-            if (server.getPlayerList().toLowerCase().contains(player.toLowerCase())) {
-                return server;
-            }
-        }
-        return null;
-    }
-
-    public static Server getServerByName(String name) {
-        for (Map.Entry<String, Server> ent : getServers().entrySet()) {
-            Server server = ent.getValue();
-
-            if (server.getServerName().equalsIgnoreCase(name)) {
-                return server;
-            }
-        }
-        return null;
-    }
-
-    public static int globalPlayerCount() {
-        int count = 0;
-
-        for (Map.Entry<String, Server> ent : getServers().entrySet()) {
-            Server server = ent.getValue();
-
-            count += server.getOnline();
-        }
-
-        return count;
-    }
 }

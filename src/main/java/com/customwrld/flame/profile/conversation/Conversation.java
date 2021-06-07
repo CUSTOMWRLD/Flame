@@ -1,7 +1,7 @@
 package com.customwrld.flame.profile.conversation;
 
-import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -12,14 +12,10 @@ import java.util.UUID;
 
 public class Conversation {
 
-    @Getter
-    private final UUID initiatedBy;
-    @Getter
-    private final UUID target;
-    @Getter
-    private long lastMessageSentAt;
-    @Getter
-    private UUID lastMessageSentBy;
+    @Getter private final UUID initiatedBy;
+    @Getter private final UUID target;
+    @Getter private long lastMessageSentAt;
+    @Getter private UUID lastMessageSentBy;
 
     public Conversation(UUID initiatedBy, UUID target) {
         this.initiatedBy = initiatedBy;

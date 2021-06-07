@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 
 public class Duration {
 
-    @Getter
-    private long value;
+    @Getter private final long value;
 
     public Duration(long value) {
         this.value = value;
@@ -25,7 +24,7 @@ public class Duration {
 
         while (matcher.find()) {
             String s = matcher.group();
-            Long value = Long.parseLong(s.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)")[0]);
+            long value = Long.parseLong(s.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)")[0]);
             String type = s.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)")[1];
 
             switch (type) {

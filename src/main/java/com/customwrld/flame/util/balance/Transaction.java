@@ -16,17 +16,16 @@ import java.util.*;
 
 @Getter
 public class Transaction {
-    @Getter
-    private static MongoCollection<Document> collection = CustomLib.getInstance().getMongoDatabase().getCollection("transactions");
 
-    @Nullable
-    private ObjectId id;
-    private UUID owner;
+    private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("transactions");
 
-    private List<TransactionEntry> entries;
-    private Map<String, String> data;
+    @Nullable private ObjectId id;
+    private final UUID owner;
 
-    private long timestamp;
+    private final List<TransactionEntry> entries;
+    private final Map<String, String> data;
+
+    private final long timestamp;
 
     public Transaction(@Nullable ObjectId id, UUID owner, List<TransactionEntry> entries, long timestamp, Map<String, String> data) {
         this.owner = owner;
@@ -65,6 +64,22 @@ public class Transaction {
         );
     }
 
+    public static List<Transaction> getPlayerTransactions(UUID playerUUID) {
+        ArrayList<Transaction> transactions = new ArrayList<>();
+        for (Document document : collection.find(Filters.eq("owner", playerUUID.toString()))) {
+            transactions.add(load(document));
+        }
+        return transactions;
+    }
+
+    public static List<Transaction> getWithQuery(Bson query) {
+        ArrayList<Transaction> transactions = new ArrayList<>();
+        for (Document document : collection.find(query)) {
+            transactions.add(load(document));
+        }
+        return transactions;
+    }
+
     public void save() {
         Document document = new Document();
         if (id != null) {
@@ -87,21 +102,5 @@ public class Transaction {
         } else {
             collection.replaceOne(Filters.eq("_id", id.toString()), document, new ReplaceOptions().upsert(true));
         }
-    }
-
-    public static List<Transaction> getPlayerTransactions(UUID playerUUID) {
-        ArrayList<Transaction> transactions = new ArrayList<>();
-        for (Document document : collection.find(Filters.eq("owner", playerUUID.toString()))) {
-            transactions.add(load(document));
-        }
-        return transactions;
-    }
-
-    public static List<Transaction> getWithQuery(Bson query) {
-        ArrayList<Transaction> transactions = new ArrayList<>();
-        for (Document document : collection.find(query)) {
-            transactions.add(load(document));
-        }
-        return transactions;
     }
 }

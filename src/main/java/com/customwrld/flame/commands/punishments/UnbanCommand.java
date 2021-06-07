@@ -1,20 +1,27 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
 
-public class UnbanCommand {
+public class UnbanCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("unban")
-                .withPermission("flame.unban")
+    public UnbanCommand() {
+        this.command = "unban";
+        this.permission = "flame.unban";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(new GreedyStringArgument("reason"))
                 .executes((sender, args) -> {
@@ -45,8 +52,7 @@ public class UnbanCommand {
                         new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
                     }
 
-                    punishment.sendEmbed(profile);
+                    punishment.sendEmbed(profile.getUuid());
                 });
     }
-
 }

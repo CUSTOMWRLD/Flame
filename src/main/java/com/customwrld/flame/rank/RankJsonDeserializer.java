@@ -15,9 +15,7 @@ public class RankJsonDeserializer implements JsonDeserializer<Rank> {
 
     @Override
     public Rank deserialize(String json) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        Map<String, String> object = CustomLib.GSON.fromJson(json, type);
+        Map<String, String> object = CustomLib.getCustomLib().getGson().fromJson(json, CustomLib.MAP_STRING_TYPE);
 
         Rank rank = new Rank(
                 UUID.fromString(object.get("uuid")),
@@ -27,11 +25,11 @@ public class RankJsonDeserializer implements JsonDeserializer<Rank> {
                 Boolean.parseBoolean(object.get("defaultRank")));
 
         rank.getPermissions().clear();
-        rank.getPermissions().addAll(CustomLib.GSON.<List<String>>fromJson(object.get("permissions"), CustomLib.LIST_STRING_TYPE));
+        rank.getPermissions().addAll(CustomLib.getCustomLib().getGson().<List<String>>fromJson(object.get("permissions"), CustomLib.LIST_STRING_TYPE));
 
         rank.getInherited().clear();
 
-        CustomLib.GSON.<List<String>>fromJson(object.get("inherits"), CustomLib.LIST_STRING_TYPE)
+        CustomLib.getCustomLib().getGson().<List<String>>fromJson(object.get("inherits"), CustomLib.LIST_STRING_TYPE)
                 .stream()
                 .map(s -> Rank.getRankByUuid(UUID.fromString(s)))
                 .filter(Objects::nonNull)

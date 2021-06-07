@@ -7,9 +7,11 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.ServerUtil;
 import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.network.Server;
+import com.customwrld.flame.util.Constants;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -17,11 +19,10 @@ import java.util.Map;
 
 public class NetworkInfoMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
+    private final SmartInventory inventory;
 
     public NetworkInfoMenu(Player player) {
         inventory = SmartInventory.builder()
-                .id("networkInfoMenu")
                 .provider(this)
                 .size(5, 9)
                 .title("Network Information")
@@ -35,28 +36,17 @@ public class NetworkInfoMenu implements InventoryProvider {
 
         ClickableItem[] items = new ClickableItem[Server.getServers().size()];
 
-        contents.fill(ClickableItem.empty(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
-                .title(" ")
-                .build()));
+        contents.fill(ClickableItem.empty(Constants.filler));
 
         int i = 0;
 
         for (Map.Entry<String, Server> ent : Server.getServers().entrySet()) {
             String serverName = ent.getKey();
             Server server = ent.getValue();
-            String status;
 
-            if (server.isWhitelisted()) {
-                status = StatusEnum.WHITELISTED.getReadable();
-            } else {
-                status = StatusEnum.ONLINE.getReadable();
-            }
-            double tps = server.getTps();
-            String readableTps = ((tps > 18.0) ? CC.GREEN : (tps > 16.0) ? CC.YELLOW : CC.RED) + ((tps > 20.0) ? "*" : "") + Math.min(Math.round(tps * 100.0) / 100.0, 20.0);
-
-            items[i] = ClickableItem.of(new ItemBuilder(Material.BOOK)
+            items[i] = ClickableItem.of(new ItemFactory(Material.BOOK)
                             .title(CC.GOLD + serverName)
-                            .lores(CC.MENU_BAR, "&6Players: &f" + server.getOnline() + "/" + server.getMax(), "&6TPS: &f" + readableTps, "&6Status: " + status, "&6Uptime: &f" + TimeUtil.millisToDHMS(server.getUptime()), CC.MENU_BAR)
+                            .lores(CC.MENU_BAR, "&6Status: " + CC.GREEN + "Online", "&6Players: &f" + server.getOnline() + "/" + server.getMax(), "&6TPS: &f" + ServerUtil.formatTPS(server.getTps()), "&6Uptime: &f" + TimeUtil.millisToRoundedTime(server.getUptime()), CC.MENU_BAR)
                             .build(),
                     e -> {
                     });
@@ -68,12 +58,12 @@ public class NetworkInfoMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemBuilder(Material.ARROW)
+        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
                         .title("&6Previous Page")
                         .build(),
                 e -> inventory.open(player, pagination.previous().getPage())));
 
-        contents.set(0, 8, ClickableItem.of(new ItemBuilder(Material.ARROW)
+        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
                         .title("&6Next Page")
                         .build(),
                 e -> inventory.open(player, pagination.next().getPage())));

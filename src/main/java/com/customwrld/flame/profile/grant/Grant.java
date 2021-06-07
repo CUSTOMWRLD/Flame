@@ -4,58 +4,78 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.sync.AccountSync;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+@Getter @Setter
 public class Grant {
 
     public static GrantJsonSerializer SERIALIZER = new GrantJsonSerializer();
     public static GrantJsonDeserializer DESERIALIZER = new GrantJsonDeserializer();
+    public static Comparator<Grant> COMPARATOR = (rank1, rank2) -> rank2.getRank().getWeight() - rank1.getRank().getWeight();
 
-    @Getter
     private final UUID uuid;
-    @Getter
-    @Setter
-    private Rank rank;
-    @Getter
-    @Setter
+    private UUID rank;
     private UUID addedBy;
-    @Getter
-    @Setter
     private long addedAt;
-    @Getter
-    @Setter
     private String addedReason;
-    @Getter
-    @Setter
     private long duration;
-    @Getter
-    @Setter
     private UUID removedBy;
-    @Getter
-    @Setter
     private long removedAt;
-    @Getter
-    @Setter
     private String removedReason;
-    @Getter
-    @Setter
     private boolean removed;
 
-    public Grant(UUID uuid, Rank rank, UUID addedBy, long addedAt, String addedReason, long duration) {
+    public Grant(UUID uuid, UUID rank, UUID addedBy, long addedAt, String addedReason, long duration) {
         this.uuid = uuid;
         this.rank = rank;
         this.addedBy = addedBy;
         this.addedAt = addedAt;
         this.addedReason = addedReason;
         this.duration = duration;
+    }
+
+    public Rank getRank() {
+        return Rank.ranks.get(this.rank);
+    }
+
+    public static void loadNewGrant(Profile profile, Player player, Grant grant) {
+        if (player != null && grant.getRank() != null) {
+            player.sendMessage(CC.GREEN +
+                    "A '" + grant.getRank().getName() +
+                    "' grant has been applied to you " +
+                    (grant.getDuration() == Integer.MAX_VALUE ? "permanently" : "for " + TimeUtil.millisToRoundedTime(grant.getDuration())) + ".");
+            if (profile != null) {
+//                AccountSync.addGrant(profile, grant);
+                profile.reload();
+            }
+        }
+    }
+
+    public static void removeGrant(Player player, Grant grant) {
+        if (player != null) {
+            player.sendMessage(CC.RED + "Your '" + grant.getRank().getName() + "' grant has been removed.");
+
+            Profile profile = Profile.getByUuid(player.getUniqueId());
+            if (profile != null) {
+//                AccountSync.removeGrant(profile, grant);
+                profile.reload();
+            }
+        }
+    }
+
+    public static void expireGrant(Player player, Grant grant) {
+        if (player != null) {
+            player.sendMessage(CC.RED + ("Your '" + grant.getRank().getName() + "' grant has expired."));
+
+            Profile profile = Profile.getByUuid(player.getUniqueId());
+            if (profile != null) {
+//                AccountSync.removeGrant(profile, grant);
+                profile.reload();
+            }
+        }
     }
 
     public boolean isPermanent() {
@@ -86,52 +106,28 @@ public class Grant {
         return TimeUtil.millisToRoundedTime(duration);
     }
 
-    @Override
-    public boolean equals(Object object) {
-        return object instanceof Grant && ((Grant) object).uuid.equals(uuid);
-    }
+    public HashMap<String, String> simplify() {
+        HashMap<String, String> simple = new HashMap<>();
+        simple.put("uuid", uuid.toString());
+        simple.put("rank", rank.toString());
+        simple.put("addedBy", addedBy != null ? addedBy.toString() : "null");
+        simple.put("addedAt", String.valueOf(addedAt));
+        simple.put("addedReason", addedReason);
+        simple.put("duration", String.valueOf(duration));
 
-    public static void loadNewGrant(Profile profile, Player player, Grant grant) {
-        if (player != null) {
-            player.sendMessage(CC.GREEN +
-                    "A '" + grant.getRank().getName() +
-                    "' grant has been applied to you " +
-                    (grant.getDuration() == Integer.MAX_VALUE ? "permanently" : "for " + TimeUtil.millisToRoundedTime(grant.getDuration())) + ".");
-            if (profile != null) {
-                AccountSync.addGrant(profile, grant);
-                profile.recalculatePlayer(player);
-            }
+        if (removed) {
+            simple.put("removed", "true");
+            simple.put("removedAt", String.valueOf(removedAt));
+            simple.put("removedBy", removedBy != null ? removedBy.toString() : "null");
+            simple.put("removedReason", removedReason);
         }
-    }
 
-    public static void removeGrant(Player player, Grant grant) {
-        if (player != null) {
-            player.sendMessage(CC.RED + "Your '" + grant.getRank().getName() + "' grant has been removed.");
-
-            Profile profile = Profile.getByUuid(player.getUniqueId());
-            if (profile != null) {
-                AccountSync.removeGrant(profile, grant);
-                profile.recalculatePlayer(player);
-            }
-        }
-    }
-
-    public static void expireGrant(Player player, Grant grant) {
-        if (player != null) {
-            player.sendMessage(CC.RED + ("Your '{rank}' grant has expired.")
-                    .replace("{rank}", grant.getRank().getName()));
-
-            Profile profile = Profile.getByUuid(player.getUniqueId());
-            if (profile != null) {
-                AccountSync.removeGrant(profile, grant);
-                profile.recalculatePlayer(player);
-            }
-        }
+        return simple;
     }
 
     public static Grant fromSimple(Map<String, String> simple) {
         Grant grant = new Grant(UUID.fromString(simple.get("uuid")),
-                (!simple.get("rank").equals("null") ? Rank.getRankByName(simple.get("rank")) : null),
+                UUID.fromString(simple.get("rank")),
                 (!simple.get("addedBy").equals("null") ? UUID.fromString(simple.get("addedBy")) : null),
                 Long.parseLong(simple.get("addedAt")),
                 simple.get("addedReason"),
@@ -149,23 +145,9 @@ public class Grant {
         return grant;
     }
 
-    public HashMap<String, String> simplify() {
-        HashMap<String, String> simple = new HashMap<>();
-        simple.put("uuid", uuid.toString());
-        simple.put("rank", rank != null ? rank.getName() : "null");
-        simple.put("addedBy", addedBy != null ? addedBy.toString() : "null");
-        simple.put("addedAt", String.valueOf(addedAt));
-        simple.put("addedReason", addedReason);
-        simple.put("duration", String.valueOf(duration));
-
-        if (removed) {
-            simple.put("removed", "true");
-            simple.put("removedAt", String.valueOf(removedAt));
-            simple.put("removedBy", removedBy != null ? removedBy.toString() : "null");
-            simple.put("removedReason", removedReason);
-        }
-
-        return simple;
+    @Override
+    public boolean equals(Object object) {
+        return object instanceof Grant && ((Grant) object).uuid.equals(uuid);
     }
 
 }

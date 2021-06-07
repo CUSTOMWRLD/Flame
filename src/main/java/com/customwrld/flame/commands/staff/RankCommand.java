@@ -5,10 +5,12 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
 import com.customwrld.flame.pigeon.payloads.RankUpdatePayload;
 import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.rank.UpdateType;
+import com.customwrld.flame.rank.RankUpdateType;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ChatColorArgument;
+import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.ChatColor;
@@ -16,11 +18,17 @@ import org.bukkit.entity.Player;
 
 import static com.customwrld.flame.util.Arguments.rankArgument;
 
-public class RankCommand {
+public class RankCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("rank")
-                .withPermission("flame.rank")
+    public RankCommand() {
+        this.command = "rank";
+        this.permission = "flame.rank";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withSubcommand(new CommandAPICommand("perm")
                         .withSubcommand(permAdd())
                         .withSubcommand(permRemove()))
@@ -35,9 +43,9 @@ public class RankCommand {
                 .withSubcommand(setPrefix());
     }
 
-    public static CommandAPICommand permAdd() {
+    private CommandAPICommand permAdd() {
         return new CommandAPICommand("add")
-                .withPermission("flame.rank.perm.add")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(new StringArgument("permission"))
                 .executes((sender, args) -> {
@@ -64,13 +72,13 @@ public class RankCommand {
                     rank.getPermissions().add(permission);
                     rank.save();
 
-                    new RankUpdatePayload(UpdateType.PERMISSION_ADDED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.PERMISSION_ADDED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 
-    public static CommandAPICommand permRemove() {
+    private CommandAPICommand permRemove() {
         return new CommandAPICommand("remove")
-                .withPermission("flame.rank.perm.remove")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(new StringArgument("permission"))
                 .executes((sender, args) -> {
@@ -88,14 +96,14 @@ public class RankCommand {
                         rank.getPermissions().remove(permission);
                         rank.save();
 
-                        new RankUpdatePayload(UpdateType.PERMISSION_REMOVED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                        new RankUpdatePayload(RankUpdateType.PERMISSION_REMOVED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                     }
                 });
     }
 
-    public static CommandAPICommand inheritAdd() {
+    private CommandAPICommand inheritAdd() {
         return new CommandAPICommand("add")
-                .withPermission("flame.rank.inherit.add")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("parent"))
                 .withArguments(Arguments.rankArgument("child"))
                 .executes((sender, args) -> {
@@ -111,16 +119,16 @@ public class RankCommand {
                         parent.getInherited().add(child);
                         parent.save();
 
-                        new RankUpdatePayload(UpdateType.INHERIT_ADDED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
+                        new RankUpdatePayload(RankUpdateType.INHERIT_ADDED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
                     } else {
                         sender.sendMessage(ChatColor.RED + "The parent rank cannot inherit permissions from the inherit child rank.");
                     }
                 });
     }
 
-    public static CommandAPICommand inheritRemove() {
+    private CommandAPICommand inheritRemove() {
         return new CommandAPICommand("remove")
-                .withPermission("flame.rank.inherit.remove")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("parent"))
                 .withArguments(Arguments.rankArgument("child"))
                 .executes((sender, args) -> {
@@ -136,16 +144,16 @@ public class RankCommand {
                     if (parent.getInherited().remove(child)) {
                         parent.save();
 
-                        new RankUpdatePayload(UpdateType.INHERIT_REMOVED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
+                        new RankUpdatePayload(RankUpdateType.INHERIT_REMOVED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
                     } else {
                         sender.sendMessage(ChatColor.RED + "The parent rank does not inherit the child rank.");
                     }
                 });
     }
 
-    public static CommandAPICommand setColor() {
+    private CommandAPICommand setColor() {
         return new CommandAPICommand("setcolor")
-                .withPermission("flame.rank.setcolor")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(new ChatColorArgument("color").safeOverrideSuggestions((sender, prevArgs) -> CC.toLegacy(CC.MAP.values()).stream()
                         .filter(org.bukkit.ChatColor::isColor)
@@ -167,13 +175,13 @@ public class RankCommand {
                     rank.setColor(color);
                     rank.save();
 
-                    new RankUpdatePayload(UpdateType.COLOR_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.COLOR_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 
-    public static CommandAPICommand list() {
+    private CommandAPICommand list() {
         return new CommandAPICommand("list")
-                .withPermission("flame.rank.list")
+                .withPermission(this.permission)
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
@@ -186,9 +194,9 @@ public class RankCommand {
                 });
     }
 
-    public static CommandAPICommand setWeight() {
+    private CommandAPICommand setWeight() {
         return new CommandAPICommand("setweight")
-                .withPermission("flame.rank.setweight")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(new IntegerArgument("weight"))
                 .executes((sender, args) -> {
@@ -203,13 +211,13 @@ public class RankCommand {
                     rank.setWeight(weight);
                     rank.save();
 
-                    new RankUpdatePayload(UpdateType.WEIGHT_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.WEIGHT_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 
-    public static CommandAPICommand create() {
+    private CommandAPICommand create() {
         return new CommandAPICommand("create")
-                .withPermission("flame.rank.create")
+                .withPermission(this.permission)
                 .withArguments(new StringArgument("rank"))
                 .executes((sender, args) -> {
                     String rankName = (String) args[0];
@@ -222,13 +230,13 @@ public class RankCommand {
                     Rank rank = new Rank(rankName);
                     rank.save();
 
-                    new RankUpdatePayload(UpdateType.CREATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.CREATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 
-    public static CommandAPICommand delete() {
+    private CommandAPICommand delete() {
         return new CommandAPICommand("delete")
-                .withPermission("flame.rank.delete")
+                .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
@@ -240,23 +248,23 @@ public class RankCommand {
 
                     rank.delete();
 
-                    new RankUpdatePayload(UpdateType.DELETED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.DELETED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 
-    public static CommandAPICommand setPrefix() {
+    private CommandAPICommand setPrefix() {
         return new CommandAPICommand("setprefix")
-                .withPermission("flame.rank.setprefix")
+                .withPermission(this.permission)
                 .withArguments(rankArgument("rank"))
-                .withArguments(new StringArgument("prefix"))
+                .withArguments(new GreedyStringArgument("prefix"))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
                     String prefix = (String) args[1];
 
-                    rank.setPrefix("\\u" + prefix);
+                    rank.setPrefix(prefix);
                     rank.save();
 
-                    new RankUpdatePayload(UpdateType.PREFIX_UPDATE, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    new RankUpdatePayload(RankUpdateType.PREFIX_UPDATE, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
                 });
     }
 }

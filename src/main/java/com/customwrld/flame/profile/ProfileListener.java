@@ -2,8 +2,8 @@ package com.customwrld.flame.profile;
 
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.Flame;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.Flame;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ProfileListener implements Listener {
 
-    private static Flame plugin = Flame.get();
+    private static final Flame plugin = Flame.getFlame();
 
     @EventHandler
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
@@ -131,12 +131,12 @@ public class ProfileListener implements Listener {
             Arrays.asList(CC.CHAT_BAR, CC.RED + "Please enter your 2FA Code!", CC.RED + "You will not be able to move or run commands until you verify yourself.", CC.CHAT_BAR).forEach(player::sendMessage);
         }
 
-        AccountSync.resynchronize(profile);
+//        AccountSync.resynchronize(profile);
 
 //        NameMC.verify(profile, player);
 
         profile.setOnline(true);
-        profile.setCurrentServer(CustomLib.getInstance().getServerName());
+        profile.setCurrentServer(CustomLib.getCustomLib().getServerName());
         profile.save();
     }
 
@@ -155,7 +155,7 @@ public class ProfileListener implements Listener {
                 public void run() {
                     profile.save();
                 }
-            }.runTaskAsynchronously(Flame.get());
+            }.runTaskAsynchronously(Flame.getFlame());
         }
 
         AccountSync.resynchronize(profile);
@@ -190,7 +190,7 @@ public class ProfileListener implements Listener {
                 public void run() {
                     profile.save();
                 }
-            }.runTaskAsynchronously(Flame.get());
+            }.runTaskAsynchronously(Flame.getFlame());
         }
 
         AccountSync.resynchronize(profile);

@@ -13,9 +13,8 @@ public class GrantJsonDeserializer implements JsonDeserializer<Grant> {
 
     @Override
     public Grant deserialize(String json) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        Map<String, String> object = CustomLib.GSON.fromJson(json, type);
+        ;
+        Map<String, String> object = CustomLib.getCustomLib().getGson().fromJson(json, CustomLib.MAP_STRING_TYPE);
 
         Grant grant = new Grant(
                 UUID.fromString(object.get("uuid")),

@@ -5,17 +5,18 @@ import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.pigeon.payloads.GrantDeletePayload;
 import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
+import com.customwrld.flame.util.Constants;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class DeleteGrantMenu implements InventoryProvider {
 
-    private SmartInventory inventory;
-    private GrantProcedure grantProcedure;
-    private String removeReason;
+    private final SmartInventory inventory;
+    private final GrantProcedure grantProcedure;
+    private final String removeReason;
 
     public DeleteGrantMenu(Player player, GrantProcedure grantProcedure, String removeReason) {
         this.grantProcedure = grantProcedure;
@@ -31,13 +32,11 @@ public class DeleteGrantMenu implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        contents.fill(ClickableItem.empty(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
-                .title(" ")
-                .build()));
+        contents.fill(ClickableItem.empty(Constants.filler));
 
         for (int x = 0; x < 4; x++) {
-            contents.set(0, x, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
-                            .title(CC.GREEN + "Remove Grant")
+            contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_STAINED_GLASS_PANE)
+                            .setName(CC.GREEN + "Remove Grant")
                             .build(),
                     e -> {
                         grantProcedure.getGrant().setRemovedBy(player.getUniqueId());
@@ -49,8 +48,8 @@ public class DeleteGrantMenu implements InventoryProvider {
                         player.sendMessage(CC.GREEN + "The grant has been removed.");
                         new GrantDeletePayload(grantProcedure.getRecipient().getUuid(), grantProcedure.getGrant()).send();
                     }));
-            contents.set(0, 5 + x, ClickableItem.of(new ItemBuilder(Material.RED_STAINED_GLASS_PANE)
-                            .title(CC.RED + "Cancel Removal")
+            contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
+                            .setName(CC.RED + "Cancel Removal")
                             .build(),
                     e -> {
                         inventory.close(player);
@@ -61,7 +60,6 @@ public class DeleteGrantMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {
-    }
+    public void update(Player player, InventoryContents contents) {}
 
 }

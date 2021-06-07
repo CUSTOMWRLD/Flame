@@ -12,7 +12,7 @@ public class ProfileConversations {
     @Getter
     private final Profile profile;
     @Getter
-    private Map<UUID, Conversation> conversations;
+    private final Map<UUID, Conversation> conversations;
 
     public ProfileConversations(Profile profile) {
         this.profile = profile;

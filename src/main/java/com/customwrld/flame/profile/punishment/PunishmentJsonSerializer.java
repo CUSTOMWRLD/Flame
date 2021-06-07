@@ -21,7 +21,7 @@ public class PunishmentJsonSerializer implements JsonSerializer<Punishment> {
         object.put("removedAt", String.valueOf(punishment.getRemovedAt()));
         object.put("removedReason", punishment.getRemovedReason());
         object.put("removed", String.valueOf(punishment.isRemoved()));
-        return CustomLib.GSON.toJson(object);
+        return CustomLib.getCustomLib().getGson().toJson(object);
     }
 
 }

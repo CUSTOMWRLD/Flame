@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class FreezeListener implements Listener {
 
     @EventHandler
-    public void onSSPlayerMove(PlayerMoveEvent event) {
+    public void onPlayerMove(PlayerMoveEvent event) {
         if (FlameAPI.isServerFrozen() || FlameAPI.getFrozenPlayers().contains(event.getPlayer().getUniqueId()) && (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getZ() != event.getTo().getZ()))
             event.getPlayer().teleport(event.getFrom());
     }

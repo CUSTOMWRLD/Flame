@@ -1,21 +1,28 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Arguments;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.command.ConsoleCommandSender;
 
-public class UnblacklistCommand {
+public class UnblacklistCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("unblacklist")
-                .withPermission("flame.unblacklist")
+    public UnblacklistCommand() {
+        this.command = "unblacklist";
+        this.permission = "flame.unblacklist";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .withArguments(new GreedyStringArgument("reason"))
                 .executes((sender, args) -> {
@@ -47,7 +54,7 @@ public class UnblacklistCommand {
                         new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
                     }
 
-                    punishment.sendEmbed(profile);
+                    punishment.sendEmbed(profile.getUuid());
                 });
     }
 

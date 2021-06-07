@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public class TransactionEntry {
-    private String context;
-    private Map<Currencies.CurrencyType, Integer> amounts;
+    private final String context;
+    private final Map<Currencies.CurrencyType, Integer> amounts;
 
     public static TransactionEntry fromSimple(Map<String, Object> simple) {
         return new TransactionEntry(

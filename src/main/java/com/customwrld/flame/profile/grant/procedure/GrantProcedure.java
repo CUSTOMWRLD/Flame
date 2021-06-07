@@ -9,22 +9,15 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter @Setter
 public class GrantProcedure {
 
-    @Getter
-    private static final Set<GrantProcedure> procedures = new HashSet<>();
+    public static final Set<GrantProcedure> procedures = new HashSet<>();
 
-    @Getter
     private final Player issuer;
-    @Getter
     private final Profile recipient;
-    @Getter
     private final GrantProcedureType type;
-    @Getter
-    @Setter
     private GrantProcedureStage stage;
-    @Getter
-    @Setter
     private Grant grant;
 
     public GrantProcedure(Player issuer, Profile recipient, GrantProcedureType type, GrantProcedureStage stage) {
@@ -36,17 +29,6 @@ public class GrantProcedure {
         procedures.add(this);
     }
 
-    public void finish() {
-        recipient.save();
-        recipient.checkGrants();
-
-        procedures.remove(this);
-    }
-
-    public void cancel() {
-        procedures.remove(this);
-    }
-
     public static GrantProcedure getByPlayer(Player player) {
         for (GrantProcedure procedure : procedures) {
             if (procedure.issuer.equals(player)) {
@@ -55,6 +37,17 @@ public class GrantProcedure {
         }
 
         return null;
+    }
+
+    public void finish() {
+        this.recipient.save();
+        this.recipient.reload();
+
+        procedures.remove(this);
+    }
+
+    public void cancel() {
+        procedures.remove(this);
     }
 
 }

@@ -12,17 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractTransactionContext {
-    @Getter
-    private Player player;
-    @Getter
-    private String gamemode;
-    @Getter
-    private List<TransactionEntry> entries;
-    @Getter
-    private Map<String, String> data;
-    @Getter
-    @Setter
-    private long timestamp;
+
+    @Getter private final Player player;
+    @Getter private final String gamemode;
+    @Getter private final List<TransactionEntry> entries;
+    @Getter private final Map<String, String> data;
+    @Getter @Setter private long timestamp;
 
     public AbstractTransactionContext(Player player, @Nullable String gamemode, List<TransactionEntry> entries) {
         this.player = player;

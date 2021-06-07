@@ -11,9 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.Nullable;
 
 public class Balance {
-    //---------------------------------
-    //  Gold
-    //---------------------------------
+
     //Affordability
     public static boolean canAffordWithGold(Profile profile, int goldCost) {
         return profile.getGold() > goldCost;
@@ -39,14 +37,11 @@ public class Balance {
         );
     }
 
-    //---------------------------------
-    //  Gamemode Gold
-    //---------------------------------
     //Retrieval
     public static int getGamemodeGold(Profile profile, @Nullable String serverType) {
         return profile.getGamemodeGold().getOrDefault(
                 serverType == null ?
-                        Flame.get().getMainConfig().getString("SERVER.TYPE") :
+                        Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
                         serverType, 0);
     }
 
@@ -54,13 +49,13 @@ public class Balance {
     public static boolean canAffordWithGamemodeGold(Profile profile, @Nullable String serverType, int gmGoldCost) {
         return profile.getGamemodeGold().getOrDefault(
                 serverType == null ?
-                        Flame.get().getMainConfig().getString("SERVER.TYPE") :
+                        Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
                         serverType, 0) > gmGoldCost;
     }
 
     //Modifiability
     public static void addGamemodeGold(Profile profile, @Nullable String serverType, int amount) {
-        serverType = serverType == null ? Flame.get().getMainConfig().getString("SERVER.TYPE") : serverType;
+        serverType = serverType == null ? Flame.getFlame().getMainConfig().getString("SERVER.TYPE") : serverType;
         int gmGold = profile.getGamemodeGold().getOrDefault(serverType, 0);
         profile.getGamemodeGold().put(serverType, gmGold + amount);
     }
@@ -79,9 +74,6 @@ public class Balance {
         );
     }
 
-    //---------------------------------
-    //  Experience
-    //---------------------------------
     //Affordability
     public static boolean hasEnoughExperience(Profile profile, long experienceRequired) {
         return profile.getExperience() > experienceRequired;
@@ -115,9 +107,6 @@ public class Balance {
         );
     }
 
-    //---------------------------------
-    //  Other
-    //---------------------------------
     //Messages
     public static TextComponent getCannotAffordMultiMessage() {
         return ChatUtil.builderToComponent(

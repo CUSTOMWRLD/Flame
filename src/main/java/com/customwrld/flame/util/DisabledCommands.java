@@ -15,7 +15,7 @@ import java.util.List;
 
 public class DisabledCommands implements Listener {
 
-    private static List<String> blockedCommands = new ArrayList<>();
+    private static final List<String> blockedCommands = new ArrayList<>();
 
     public static void Initialize() {
         Arrays.asList(
@@ -52,15 +52,13 @@ public class DisabledCommands implements Listener {
                 "restart",
                 "help",
                 "version",
-                "/calc",
-                "/calculate",
                 "icanhasbukkit",
                 "execute",
                 "tellraw"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCommandSend(PlayerCommandSendEvent event) {
+    public void commandSend(PlayerCommandSendEvent event) {
         List<String> removeCommands = new ArrayList<>();
         event.getCommands().removeAll(blockedCommands);
         event.getCommands().forEach(command -> {
@@ -72,7 +70,7 @@ public class DisabledCommands implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCommandProcess(PlayerCommandPreprocessEvent event) {
+    public void commandProcess(PlayerCommandPreprocessEvent event) {
         String[] args = event.getMessage().split("\\s+");
 
         Player player = event.getPlayer();

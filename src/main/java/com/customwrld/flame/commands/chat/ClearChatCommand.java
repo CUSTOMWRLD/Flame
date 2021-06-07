@@ -1,18 +1,25 @@
 package com.customwrld.flame.commands.chat;
 
 import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.Config;
+import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
+import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class ClearChatCommand {
+public class ClearChatCommand extends Command {
 
-    public static CommandAPICommand command() {
-        return new CommandAPICommand("clearchat")
-                .withPermission("flame.clearchat")
+    public ClearChatCommand() {
+        this.command = "clearchat";
+        this.permission = "flame.clearchat";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withPermission(this.permission)
                 .executes((sender, args) -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (!player.hasPermission("flame.staff")) {
@@ -29,6 +36,7 @@ public class ClearChatCommand {
                     }
 
                     Bukkit.broadcastMessage(Config.CLEAR_CHAT_BROADCAST.format(playerName));
+
                 });
     }
 

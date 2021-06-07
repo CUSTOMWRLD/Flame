@@ -9,14 +9,12 @@ import java.awt.*;
 public class Levels {
     public static final String EXP_SUFFIX = "EXP";
     public static final ComponentFormatting EXP_FORMAT = ComponentFormatting.builder().color(ChatColor.AQUA).build();
+    public static final ComponentFormatting LEVELS_FORMAT = EXP_FORMAT;
+    private static final SimplexNoiseGenerator noiseGenerator = new SimplexNoiseGenerator(3371012348295728621L);
 
     public static String getLevelAffix(int amount) {
         return "level" + (amount > 1 ? "s" : "");
     }
-
-    public static final ComponentFormatting LEVELS_FORMAT = EXP_FORMAT;
-
-    private static final SimplexNoiseGenerator noiseGenerator = new SimplexNoiseGenerator(3371012348295728621L);
 
     public static int getLevelFromExperience(long experience) {
         return (int) Math.floor(Math.pow(experience / 300.0, 1 / 2.0));

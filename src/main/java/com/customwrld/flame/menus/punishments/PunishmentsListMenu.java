@@ -7,7 +7,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemBuilder;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
@@ -47,7 +47,7 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         ClickableItem[] items = new ClickableItem[profile.getPunishmentCountByType(punishmentType)];
 
-        contents.fill(ClickableItem.empty(new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).title(" ").build()));
+        contents.fill(ClickableItem.empty(new ItemFactory(Material.GRAY_STAINED_GLASS_PANE).title(" ").build()));
 
         int i = 0;
 
@@ -118,7 +118,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                     material = Material.ENCHANTED_BOOK;
                 }
 
-                items[i] = ClickableItem.of(new ItemBuilder(material)
+                items[i] = ClickableItem.of(new ItemFactory(material)
                                 .title(CC.GOLD + TimeUtil.dateToString(new Date(punishment.getAddedAt())))
                                 .lores(lore)
                                 .build(),
@@ -140,12 +140,12 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemBuilder(Material.ARROW)
+        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
                         .title("&6Previous Page")
                         .build(),
                 e -> inventory.open(player, pagination.previous().getPage())));
 
-        contents.set(0, 8, ClickableItem.of(new ItemBuilder(Material.ARROW)
+        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
                         .title("&6Next Page")
                         .build(),
                 e -> inventory.open(player, pagination.next().getPage())));
@@ -153,6 +153,7 @@ public class PunishmentsListMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {}
+    public void update(Player player, InventoryContents contents) {
+    }
 
 }

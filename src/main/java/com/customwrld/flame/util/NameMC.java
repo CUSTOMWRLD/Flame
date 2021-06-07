@@ -29,7 +29,7 @@ public class NameMC {
                 }
 
             }
-        }.runTaskAsynchronously(Flame.get());
+        }.runTaskAsynchronously(Flame.getFlame());
     }
 
     public static void verify(Profile profile, Player player) {
