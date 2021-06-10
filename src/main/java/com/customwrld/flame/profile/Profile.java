@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class Profile {
 
     @Getter
-    private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("profiles");
+    private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("flame-profiles");
     @Getter
     private static final Map<UUID, Profile> profiles = new HashMap<>();
 
@@ -38,8 +38,8 @@ public class Profile {
     private final List<Grant> grants;
     private final List<UUID> ignored;
     private final List<UUID> friends;
-    private final OptionsProfile options;
-    private final StaffProfile staffProfile;
+    private final Options options;
+    private final Staff staffProfile;
     private Grant activeGrant;
     private String name;
     private String currentAddress;
@@ -61,8 +61,8 @@ public class Profile {
         this.ignored = new ArrayList<>();
         this.friends = new ArrayList<>();
         this.gameModeGold = new HashMap<>();
-        this.options = new OptionsProfile();
-        this.staffProfile = new StaffProfile();
+        this.options = new Options();
+        this.staffProfile = new Staff();
         reload();
     }
 
@@ -366,6 +366,29 @@ public class Profile {
         document.put("friends", this.friends);
 
         collection.replaceOne(Filters.eq("_id", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
+    }
+
+    @Getter
+    @Setter
+    public static class Options {
+
+        private boolean receivingFriendRequests = true;
+        private boolean receivingPublicChat = true;
+        private boolean receivingConversations = true;
+        private boolean receivingMessageSounds = true;
+
+    }
+
+    @Getter
+    @Setter
+    public static class Staff {
+
+        private String twoFactorKey = "";
+        private boolean receivingStaffMessages = true;
+        private boolean twoFactor = false;
+        private boolean locked = false;
+        private boolean operator = false;
+
     }
 
 }
