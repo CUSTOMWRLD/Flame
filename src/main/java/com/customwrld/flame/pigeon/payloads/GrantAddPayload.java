@@ -8,11 +8,14 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter @Payload
+@Getter
+@Payload
 public class GrantAddPayload extends BasePayload {
 
-    @Transmit UUID recipient;
-    @Transmit Grant grant;
+    @Transmit
+    UUID recipient;
+    @Transmit
+    Grant grant;
 
     public GrantAddPayload() {
         payloadId = "flame-grantAdd";
@@ -25,6 +28,7 @@ public class GrantAddPayload extends BasePayload {
     }
 
     @Override
-    public void receive() {}
+    public void receive() {
+    }
 
 }

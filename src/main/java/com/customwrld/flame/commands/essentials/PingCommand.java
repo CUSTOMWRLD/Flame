@@ -3,7 +3,6 @@ package com.customwrld.flame.commands.essentials;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
@@ -37,7 +36,7 @@ public class PingCommand extends Command {
                     if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                         sender.sendMessage(CC.AQUA + player.getName() + "'s ping is " + CC.BLUE + ((CraftPlayer) player).getHandle().ping + "ms");
                     } else {
-                        sender.sendMessage(CC.AQUA + "Your ping is " + CC.BLUE + ((CraftPlayer) player).getHandle().ping + "ms");
+                        sender.sendMessage(CC.GREEN + "Your ping is " + ((CraftPlayer) player).getHandle().ping + "ms");
                     }
                 });
     }

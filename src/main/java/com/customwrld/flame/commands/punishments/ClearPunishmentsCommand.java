@@ -1,12 +1,15 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.profile.Profile;
+import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
+
+import java.util.Iterator;
 
 public class ClearPunishmentsCommand extends Command {
 
@@ -29,10 +32,19 @@ public class ClearPunishmentsCommand extends Command {
 
                     Profile profile = (Profile) args[0];
 
+                    Iterator<Punishment> iterator = profile.getCachedPunishments().iterator();
+
+                    while (iterator.hasNext()) {
+                        Punishment punishment = iterator.next();
+
+                        punishment.delete();
+                        iterator.remove();
+                    }
+
                     profile.getPunishments().clear();
                     profile.save();
 
-                    sender.sendMessage(ChatColor.GREEN + "Cleared punishments for " + profile.getName() + ChatColor.GREEN + "!");
+                    sender.sendMessage(CC.GREEN + "Cleared punishments for " + profile.getName());
                 });
     }
 

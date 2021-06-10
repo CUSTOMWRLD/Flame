@@ -9,8 +9,6 @@ import lombok.Getter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -18,16 +16,13 @@ import java.util.*;
 public class Transaction {
 
     private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("transactions");
-
-    @Nullable private ObjectId id;
     private final UUID owner;
-
     private final List<TransactionEntry> entries;
     private final Map<String, String> data;
-
     private final long timestamp;
+    private ObjectId id;
 
-    public Transaction(@Nullable ObjectId id, UUID owner, List<TransactionEntry> entries, long timestamp, Map<String, String> data) {
+    public Transaction(ObjectId id, UUID owner, List<TransactionEntry> entries, long timestamp, Map<String, String> data) {
         this.owner = owner;
 
         this.entries = entries;
@@ -36,11 +31,11 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
-    public Transaction(@Nullable ObjectId id, UUID owner, List<TransactionEntry> entries, long timestamp) {
+    public Transaction(ObjectId id, UUID owner, List<TransactionEntry> entries, long timestamp) {
         this(id, owner, entries, timestamp, new HashMap<>());
     }
 
-    public static Transaction load(@NotNull Document document) {
+    public static Transaction load(Document document) {
         List<TransactionEntry> entries = new ArrayList<>();
         for (Map<?, ?> obj : document.getList("entries", Map.class, new ArrayList<>())) {
             entries.add(TransactionEntry.fromSimple(

@@ -9,11 +9,10 @@ import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.customlib.util.TextSplitter;
-import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.util.Constants;
+import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class RankListMenu implements InventoryProvider {
 
         ClickableItem[] items = new ClickableItem[Rank.getRanks().size()];
 
-        contents.fill(ClickableItem.empty(Constants.filler));
+        contents.fill(ClickableItem.empty(Util.FILLER));
 
         int i = 0;
 
@@ -89,18 +88,7 @@ public class RankListMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .setName("&6Previous Page")
-                        .build(),
-                e -> inventory.open(player, pagination.previous().getPage())));
-
-        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .setName("&6Next Page")
-                        .build(),
-                e -> inventory.open(player, pagination.next().getPage())));
+        Util.addNavigation(player, this.inventory, contents);
     }
 
-    @Override
-    public void update(Player player, InventoryContents contents) {
-    }
 }

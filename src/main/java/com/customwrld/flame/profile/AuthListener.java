@@ -12,15 +12,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class AuthListener implements Listener {
 
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void PlayerMoveEvent(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         Profile profile = Profile.getByUuid(player.getUniqueId());
-        if (profile.getStaffProfile().locked()) {
+        if (profile.getStaffProfile().isLocked()) {
             if (event.getFrom().getBlockX() != event.getTo().getBlockX() || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
                 event.getPlayer().teleport(event.getFrom());
-                player.sendActionBar(CC.RED + "Please enter your 2FA Code!");
+                player.sendActionBar(CC.RED + "Please enter your Two Factor Authentication Code!");
             }
         }
     }
@@ -29,9 +28,9 @@ public class AuthListener implements Listener {
     public void PlayerInteractEvent(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Profile profile = Profile.getByUuid(player.getUniqueId());
-        if (profile.getStaffProfile().locked()) {
+        if (profile.getStaffProfile().isLocked()) {
             event.setCancelled(true);
-            player.sendActionBar(CC.RED + "Please enter your 2FA Code!");
+            player.sendActionBar(CC.RED + "Please enter your Two Factor Authentication Code!");
         }
     }
 
@@ -40,18 +39,18 @@ public class AuthListener implements Listener {
         if (event.getDamager() instanceof Player) {
             Player player = (Player) event.getDamager();
             Profile profile = Profile.getByUuid(player.getUniqueId());
-            if (profile.getStaffProfile().locked()) {
+            if (profile.getStaffProfile().isLocked()) {
                 event.setCancelled(true);
-                player.sendActionBar(CC.RED + "Please enter your 2FA Code!");
+                player.sendActionBar(CC.RED + "Please enter your Two Factor Authentication Code!");
             }
         }
 
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             Profile profile = Profile.getByUuid(player.getUniqueId());
-            if (profile.getStaffProfile().locked()) {
+            if (profile.getStaffProfile().isLocked()) {
                 event.setCancelled(true);
-                player.sendActionBar(CC.RED + "Please enter your 2FA Code!");
+                player.sendActionBar(CC.RED + "Please enter your Two Factor Authentication Code!");
             }
         }
     }
@@ -60,9 +59,9 @@ public class AuthListener implements Listener {
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         Profile profile = Profile.getByUuid(player.getUniqueId());
-        if (profile.getStaffProfile().locked()) {
+        if (profile.getStaffProfile().isLocked()) {
             event.setCancelled(true);
-            player.sendActionBar(CC.RED + "Please enter your 2FA Code!");
+            player.sendActionBar(CC.RED + "Please enter your Two Factor Authentication Code!");
         }
     }
 }

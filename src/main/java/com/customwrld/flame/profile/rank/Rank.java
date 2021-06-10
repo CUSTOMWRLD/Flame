@@ -1,4 +1,4 @@
-package com.customwrld.flame.rank;
+package com.customwrld.flame.profile.rank;
 
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Flame;
@@ -12,21 +12,19 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import org.bson.Document;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Rank {
 
-    public static MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("ranks");
-    public static final Map<UUID, Rank> ranks = new HashMap<>();
-
-    public static RankJsonSerializer SERIALIZER = new RankJsonSerializer();
-    public static RankJsonDeserializer DESERIALIZER = new RankJsonDeserializer();
+    @Getter
+    private static final Map<UUID, Rank> ranks = new HashMap<>();
     public static Comparator<Rank> COMPARATOR = (rank1, rank2) -> rank2.getWeight() - rank1.getWeight();
-
+    @Getter
+    private static MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("ranks");
     private final UUID uuid;
     private final String name;
     private final List<Rank> inherited = new ArrayList<>();
@@ -80,7 +78,7 @@ public class Rank {
 
                 List<UUID> ranksToInherit = new ArrayList<>();
 
-                CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
+                CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), ArrayList.class)
                         .stream()
                         .map(UUID::fromString)
                         .forEach(ranksToInherit::add);
@@ -130,10 +128,6 @@ public class Rank {
         ranks.put(defaultRank.getUuid(), defaultRank);
 
         return defaultRank;
-    }
-
-    public String getPrefix() {
-        return ChatColor.WHITE + prefix;
     }
 
     public boolean isDefaultRank() {
@@ -205,11 +199,11 @@ public class Rank {
         defaultRank = document.getBoolean("defaultRank");
 
         permissions.clear();
-        permissions.addAll(CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("permissions"), CustomLib.LIST_STRING_TYPE));
+        permissions.addAll(CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("permissions"), ArrayList.class));
 
         inherited.clear();
 
-        CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), CustomLib.LIST_STRING_TYPE)
+        CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), ArrayList.class)
                 .stream()
                 .map(s -> Rank.getRankByUuid(UUID.fromString(s)))
                 .filter(Objects::nonNull)

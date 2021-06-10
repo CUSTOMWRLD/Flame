@@ -1,13 +1,15 @@
 package com.customwrld.flame.commands.staff;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
-import com.customwrld.flame.pigeon.payloads.RankUpdatePayload;
-import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.rank.RankUpdateType;
+import com.customwrld.flame.pigeon.payloads.UpdateRankPayload;
+import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.profile.rank.RankUpdateType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
+import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -44,6 +46,8 @@ public class RankCommand extends Command {
     }
 
     private CommandAPICommand permAdd() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("add")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
@@ -72,11 +76,13 @@ public class RankCommand extends Command {
                     rank.getPermissions().add(permission);
                     rank.save();
 
-                    new RankUpdatePayload(RankUpdateType.PERMISSION_ADDED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 
     private CommandAPICommand permRemove() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("remove")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
@@ -96,12 +102,14 @@ public class RankCommand extends Command {
                         rank.getPermissions().remove(permission);
                         rank.save();
 
-                        new RankUpdatePayload(RankUpdateType.PERMISSION_REMOVED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                        pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                     }
                 });
     }
 
     private CommandAPICommand inheritAdd() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("add")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("parent"))
@@ -119,7 +127,7 @@ public class RankCommand extends Command {
                         parent.getInherited().add(child);
                         parent.save();
 
-                        new RankUpdatePayload(RankUpdateType.INHERIT_ADDED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
+                        pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
                     } else {
                         sender.sendMessage(ChatColor.RED + "The parent rank cannot inherit permissions from the inherit child rank.");
                     }
@@ -127,6 +135,8 @@ public class RankCommand extends Command {
     }
 
     private CommandAPICommand inheritRemove() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("remove")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("parent"))
@@ -144,7 +154,7 @@ public class RankCommand extends Command {
                     if (parent.getInherited().remove(child)) {
                         parent.save();
 
-                        new RankUpdatePayload(RankUpdateType.INHERIT_REMOVED, Rank.SERIALIZER.serialize(parent), parent.getUuid()).send();
+                        pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
                     } else {
                         sender.sendMessage(ChatColor.RED + "The parent rank does not inherit the child rank.");
                     }
@@ -152,11 +162,13 @@ public class RankCommand extends Command {
     }
 
     private CommandAPICommand setColor() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("setcolor")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
                 .withArguments(new ChatColorArgument("color").safeOverrideSuggestions((sender, prevArgs) -> CC.toLegacy(CC.MAP.values()).stream()
-                        .filter(org.bukkit.ChatColor::isColor)
+                        .filter(org.bukkit.ChatColor::isColor) // TODO: Turn this into an argument
                         .toArray(org.bukkit.ChatColor[]::new)))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
@@ -175,11 +187,13 @@ public class RankCommand extends Command {
                     rank.setColor(color);
                     rank.save();
 
-                    new RankUpdatePayload(RankUpdateType.COLOR_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 
     private CommandAPICommand list() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("list")
                 .withPermission(this.permission)
                 .executes((sender, args) -> {
@@ -195,6 +209,8 @@ public class RankCommand extends Command {
     }
 
     private CommandAPICommand setWeight() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("setweight")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
@@ -211,11 +227,13 @@ public class RankCommand extends Command {
                     rank.setWeight(weight);
                     rank.save();
 
-                    new RankUpdatePayload(RankUpdateType.WEIGHT_UPDATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 
     private CommandAPICommand create() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("create")
                 .withPermission(this.permission)
                 .withArguments(new StringArgument("rank"))
@@ -230,11 +248,13 @@ public class RankCommand extends Command {
                     Rank rank = new Rank(rankName);
                     rank.save();
 
-                    new RankUpdatePayload(RankUpdateType.CREATED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 
     private CommandAPICommand delete() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("delete")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
@@ -248,11 +268,13 @@ public class RankCommand extends Command {
 
                     rank.delete();
 
-                    new RankUpdatePayload(RankUpdateType.DELETED, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 
     private CommandAPICommand setPrefix() {
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
         return new CommandAPICommand("setprefix")
                 .withPermission(this.permission)
                 .withArguments(rankArgument("rank"))
@@ -264,7 +286,7 @@ public class RankCommand extends Command {
                     rank.setPrefix(prefix);
                     rank.save();
 
-                    new RankUpdatePayload(RankUpdateType.PREFIX_UPDATE, Rank.SERIALIZER.serialize(rank), rank.getUuid()).send();
+                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
                 });
     }
 }

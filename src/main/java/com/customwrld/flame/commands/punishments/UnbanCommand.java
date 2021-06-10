@@ -1,12 +1,13 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
+import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.entity.Player;
@@ -28,31 +29,29 @@ public class UnbanCommand extends Command {
                     Profile profile = (Profile) args[0];
                     String reason = (String) args[1];
 
-                    if (profile.getActivePunishmentByType(PunishmentType.BAN) == null) {
+                    if (profile.getActivePunishmentByType(Punishment.Type.BAN) == null) {
                         sender.sendMessage(CC.RED + "That player does not have an existing punishment.");
                         return;
                     }
 
-                    Punishment punishment = profile.getActivePunishmentByType(PunishmentType.BAN);
-                    punishment.setRemovedAt(System.currentTimeMillis());
-                    punishment.setRemovedReason(reason.replace("-s", ""));
+                    Punishment punishment = profile.getActivePunishmentByType(Punishment.Type.BAN);
+
                     punishment.setRemoved(true);
+                    punishment.setRemovedAt(System.currentTimeMillis());
+                    punishment.setRemovedReason(reason);
 
                     if (sender instanceof Player) {
                         punishment.setRemovedBy(((Player) sender).getUniqueId());
                     }
 
+                    punishment.save();
+                    profile.getCachedPunishments().remove(punishment);
+
                     profile.save();
 
-                    boolean silent = reason.contains("-s");
+                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
-                    if (sender.hasPermission("flame.bypasssilent")) {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), silent).send();
-                    } else {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
-                    }
-
-                    punishment.sendEmbed(profile.getUuid());
+                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
                 });
     }
 }

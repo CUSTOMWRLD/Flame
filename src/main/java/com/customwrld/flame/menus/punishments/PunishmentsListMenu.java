@@ -12,10 +12,8 @@ import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedure;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureStage;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureType;
+import com.customwrld.flame.profile.punishment.PunishmentProcedure;
+import com.customwrld.flame.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -26,17 +24,16 @@ import java.util.List;
 public class PunishmentsListMenu implements InventoryProvider {
 
     private final Profile profile;
-    private final PunishmentType punishmentType;
+    private final Punishment.Type type;
     private final SmartInventory inventory;
 
-    PunishmentsListMenu(Player player, Profile profile, PunishmentType punishmentType) {
+    PunishmentsListMenu(Player player, Profile profile, Punishment.Type type) {
         this.profile = profile;
-        this.punishmentType = punishmentType;
+        this.type = type;
         inventory = SmartInventory.builder()
-                .id("punishmentsListMenu")
                 .provider(this)
                 .size(5, 9)
-                .title(profile.getName() + "'s " + punishmentType.getTypeData().getReadable()).build();
+                .title(profile.getName() + "'s " + type.getTypeData().getReadable()).build();
         inventory.open(player, 0);
     }
 
@@ -45,19 +42,17 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         Pagination pagination = contents.pagination();
 
-        ClickableItem[] items = new ClickableItem[profile.getPunishmentCountByType(punishmentType)];
+        ClickableItem[] items = new ClickableItem[this.profile.getPunishmentCountByType(this.type)];
 
-        contents.fill(ClickableItem.empty(new ItemFactory(Material.GRAY_STAINED_GLASS_PANE).title(" ").build()));
+        contents.fill(ClickableItem.empty(Util.FILLER));
 
         int i = 0;
 
-        List<Punishment> sortedPunishments = new ArrayList<>(profile.getPunishments());
+        List<Punishment> sortedPunishments = new ArrayList<>(this.profile.getCachedPunishments());
         sortedPunishments.sort((punishment1, punishment2) -> Boolean.compare(punishment1.isRemoved(), punishment2.isRemoved()));
 
         for (Punishment punishment : sortedPunishments) {
-            if (punishment.getType() == punishmentType) {
-                profile.save();
-
+            if (punishment.getType() == this.type) {
                 String addedBy = "Console";
 
                 if (punishment.getAddedBy() != null) {
@@ -119,12 +114,12 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 items[i] = ClickableItem.of(new ItemFactory(material)
-                                .title(CC.GOLD + TimeUtil.dateToString(new Date(punishment.getAddedAt())))
-                                .lores(lore)
+                                .setName(CC.GOLD + TimeUtil.dateToString(new Date(punishment.getAddedAt())))
+                                .setLore(lore)
                                 .build(),
                         e -> {
                             if (!punishment.isRemoved() && !punishment.hasExpired() && punishment.getType().isRemovable() && player.hasPermission("flame.punishment.remove") && FlameAPI.canStartProcedure(player)) {
-                                PunishmentProcedure procedure = new PunishmentProcedure(player, profile, PunishmentProcedureType.PARDON, PunishmentProcedureStage.REQUIRE_TEXT);
+                                PunishmentProcedure procedure = new PunishmentProcedure(player, profile, PunishmentProcedure.Type.REMOVE, PunishmentProcedure.Stage.REQUIRE_TEXT);
                                 procedure.setPunishment(punishment);
 
                                 player.sendMessage(CC.GREEN + "Type a reason for pardoning this punishment in chat...");
@@ -140,20 +135,7 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .title("&6Previous Page")
-                        .build(),
-                e -> inventory.open(player, pagination.previous().getPage())));
-
-        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .title("&6Next Page")
-                        .build(),
-                e -> inventory.open(player, pagination.next().getPage())));
-
-    }
-
-    @Override
-    public void update(Player player, InventoryContents contents) {
+        Util.addNavigation(player, this.inventory, contents);
     }
 
 }

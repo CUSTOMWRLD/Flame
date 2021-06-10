@@ -7,11 +7,14 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter @Payload
+@Getter
+@Payload
 public class CreateFriendRequestPayload extends BasePayload {
 
-    @Transmit UUID initiator;
-    @Transmit UUID target;
+    @Transmit
+    UUID initiator;
+    @Transmit
+    UUID target;
 
     public CreateFriendRequestPayload() {
         this.payloadId = "minecraft-createFriendRequest";
@@ -24,6 +27,7 @@ public class CreateFriendRequestPayload extends BasePayload {
     }
 
     @Override
-    public void receive() {}
+    public void receive() {
+    }
 
 }

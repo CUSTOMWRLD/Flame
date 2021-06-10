@@ -1,7 +1,6 @@
-package com.customwrld.flame.profile.punishment.procedure;
+package com.customwrld.flame.profile.punishment;
 
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -9,24 +8,20 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@Setter
 public class PunishmentProcedure {
 
     @Getter
     private static final Set<PunishmentProcedure> procedures = new HashSet<>();
 
-    @Getter
     private final Player issuer;
-    @Getter
     private final Profile recipient;
-    @Getter
-    private final PunishmentProcedureType type;
-    @Getter
-    private final PunishmentProcedureStage stage;
-    @Getter
-    @Setter
+    private final Type type;
+    private final Stage stage;
     private Punishment punishment;
 
-    public PunishmentProcedure(Player issuer, Profile recipient, PunishmentProcedureType type, PunishmentProcedureStage stage) {
+    public PunishmentProcedure(Player issuer, Profile recipient, Type type, Stage stage) {
         this.issuer = issuer;
         this.recipient = recipient;
         this.type = type;
@@ -54,5 +49,19 @@ public class PunishmentProcedure {
         procedures.remove(this);
     }
 
+    public enum Type {
+
+        ADD,
+        REMOVE
+
+    }
+
+    public enum Stage {
+
+        REQUIRE_CLICK,
+        REQUIRE_TEXT,
+        REQUIRE_CONFIRMATION
+
+    }
 
 }

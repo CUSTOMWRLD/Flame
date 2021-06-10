@@ -1,13 +1,15 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
+import com.customwrld.flame.util.Util;
+import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.command.ConsoleCommandSender;
@@ -37,7 +39,7 @@ public class BlacklistCommand extends Command {
                         return;
                     }
 
-                    if (profile.getActivePunishmentByType(PunishmentType.BLACKLIST) != null) {
+                    if (profile.getActivePunishmentByType(Punishment.Type.BLACKLIST) != null) {
                         sender.sendMessage(CC.RED + "That player already has an pre-existing punishment.");
                         return;
                     }
@@ -48,26 +50,32 @@ public class BlacklistCommand extends Command {
                         addedBy = (((Player) sender).getUniqueId());
                     }
 
-                    Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.BLACKLIST, addedBy, System.currentTimeMillis(), reason.replace("-s", ""), -1);
+                    Punishment punishment = new Punishment(
+                            Util.generateId(),
+                            profile.getUuid(),
+                            Punishment.Type.BLACKLIST,
+                            addedBy,
+                            System.currentTimeMillis(),
+                            reason,
+                            -1L
+                    );
 
-                    profile.getPunishments().add(punishment);
+                    punishment.save();
+
+                    profile.getCachedPunishments().add(punishment);
+                    profile.getPunishments().add(punishment.getId());
+
                     profile.save();
 
                     Player player = profile.getPlayer();
 
                     if (player != null) {
-                        player.kickPlayer(String.join("\n", punishment.getKickMessage()));
+                        player.kickPlayer(String.join("\n", punishment.getPunishmentMessage()));
                     }
 
-                    boolean silent = reason.contains("-s");
+                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
-                    if (sender.hasPermission("flame.bypasssilent")) {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), silent).send();
-                    } else {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
-                    }
-
-                    punishment.sendEmbed(profile.getUuid());
+                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
                 });
     }
 

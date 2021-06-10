@@ -1,17 +1,17 @@
 package com.customwrld.flame.commands.punishments;
 
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Duration;
+import com.customwrld.flame.util.Util;
+import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -35,43 +35,49 @@ public class MuteCommand extends Command {
                     Duration duration = (Duration) args[1];
                     String reason = (String) args[2];
 
-                    if (profile.getActivePunishmentByType(PunishmentType.MUTE) != null) {
+                    UUID addedBy = null;
+
+                    if (sender instanceof Player) {
+                        Player executor = (Player) sender;
+
+                        if (Util.isElevatedStaff(executor, profile.getUuid())) {
+                            return;
+                        }
+
+                        addedBy = executor.getUniqueId();
+                    }
+
+                    if (profile.getActivePunishmentByType(Punishment.Type.MUTE) != null) {
                         sender.sendMessage(CC.RED + "That player already has an pre-existing punishment.");
                         return;
                     }
 
-                    UUID addedBy = null;
+                    Punishment punishment = new Punishment(
+                            Util.generateId(),
+                            profile.getUuid(),
+                            Punishment.Type.MUTE,
+                            addedBy,
+                            System.currentTimeMillis(),
+                            reason,
+                            duration.getValue()
+                    );
 
-                    if (sender instanceof Player) {
-                        addedBy = (((Player) sender).getUniqueId());
-                    }
+                    punishment.save();
 
-                    Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.MUTE, addedBy, System.currentTimeMillis(), reason.replace("-s", ""), duration.getValue());
+                    profile.getCachedPunishments().add(punishment);
+                    profile.getPunishments().add(punishment.getId());
 
-                    profile.getPunishments().add(punishment);
                     profile.save();
 
                     Player player = profile.getPlayer();
 
                     if (player != null) {
-                        player.sendMessage(CC.RED + "You have been " + punishment.getContext() + " for: " + punishment.getAddedReason());
-
-                        if (!punishment.isPermanent()) {
-                            player.sendMessage(CC.RED + "This mute will expire in " + TimeUtil.millisToRoundedTime(duration.getValue()) + ".");
-                        }
-
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1F, 0.1F);
+                        punishment.getPunishmentMessage().forEach(player::sendMessage);
                     }
 
-                    boolean silent = reason.contains("-s");
+                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
-                    if (sender.hasPermission("flame.bypasssilent")) {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), silent).send();
-                    } else {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
-                    }
-
-                    punishment.sendEmbed(profile.getUuid());
+                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
                 });
     }
 }

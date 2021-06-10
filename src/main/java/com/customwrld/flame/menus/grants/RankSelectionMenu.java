@@ -8,11 +8,9 @@ import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureStage;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureType;
-import com.customwrld.flame.rank.Rank;
-import org.bukkit.Sound;
+import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.util.Util;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -28,8 +26,8 @@ public class RankSelectionMenu implements InventoryProvider {
         this.profile = profile;
         this.inventory = SmartInventory.builder()
                 .provider(this)
-                .size(4, 9)
-                .title(CC.WHITE + "Rank Selection")
+                .size(5, 9)
+                .title("Rank Selection")
                 .build();
         this.inventory.open(player);
     }
@@ -39,6 +37,8 @@ public class RankSelectionMenu implements InventoryProvider {
         Pagination pagination = contents.pagination();
 
         ClickableItem[] items = new ClickableItem[Rank.getRanks().size()];
+
+        contents.fill(ClickableItem.empty(Util.FILLER));
 
         int i = 0;
 
@@ -58,11 +58,10 @@ public class RankSelectionMenu implements InventoryProvider {
                                 .build(),
                         e -> {
                             if (FlameAPI.canStartProcedure(player)) {
-                                GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedureType.GRANT, GrantProcedureStage.REQUIRE_TIME);
+                                GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.ADD, GrantProcedure.Stage.REQUIRE_TIME);
                                 procedure.setGrant(new Grant(UUID.randomUUID(), rank, player.getUniqueId(), 0, "", 0));
 
-                                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                                new GrantTimeMenu(player, profile, procedure);
+                                new GrantDurationMenu(player, profile, procedure);
                             }
                         });
                 i++;
@@ -72,19 +71,9 @@ public class RankSelectionMenu implements InventoryProvider {
         pagination.setItems(items);
         pagination.setItemsPerPage(27);
 
-        pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 0, 0));
+        pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(SlotPos.of(3, 2), ClickableItem.of(null, e -> {
-            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-            inventory.open(player, pagination.previous().getPage());
-        }));
-
-        contents.set(SlotPos.of(3, 6), ClickableItem.of(null, e -> {
-            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-            inventory.open(player, pagination.next().getPage());
-        }));
+        Util.addNavigation(player, this.inventory, contents);
     }
 
-    @Override
-    public void update(Player player, InventoryContents contents) {}
 }

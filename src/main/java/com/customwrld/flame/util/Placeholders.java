@@ -1,10 +1,9 @@
 package com.customwrld.flame.util;
 
-import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.rank.Rank;
+import com.customwrld.flame.profile.rank.Rank;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 

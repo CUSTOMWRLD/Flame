@@ -7,8 +7,8 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.PunishmentType;
-import org.bukkit.Material;
+import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.flame.util.Util;
 import org.bukkit.entity.Player;
 
 public class PunishmentSelectMenu implements InventoryProvider {
@@ -18,7 +18,6 @@ public class PunishmentSelectMenu implements InventoryProvider {
     public PunishmentSelectMenu(Player player, Profile profile) {
         this.profile = profile;
         SmartInventory inventory = SmartInventory.builder()
-                .id("punishmentSelectMenu")
                 .provider(this)
                 .size(3, 9)
                 .title(profile.getName() + "'s Punishments").build();
@@ -27,63 +26,47 @@ public class PunishmentSelectMenu implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
+        contents.fill(ClickableItem.empty(Util.FILLER));
 
-        contents.fill(ClickableItem.empty(new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
-                .title(" ")
-                .build()));
-
-        contents.set(1, 2, ClickableItem.of(new ItemFactory(PunishmentType.BLACKLIST.getTypeData().getMaterial())
-                        .title(PunishmentType.BLACKLIST.getTypeData().getColor() + CC.BOLD + PunishmentType.BLACKLIST.getTypeData().getReadable())
-                        .lores(CC.GRAY + profile.getPunishmentCountByType(PunishmentType.BLACKLIST) + " " + PunishmentType.BLACKLIST.getTypeData().getReadable() + " on record.")
+        contents.set(1, 1, ClickableItem.of(new ItemFactory(Punishment.Type.BLACKLIST.getTypeData().getMaterial())
+                        .setName(Punishment.Type.BLACKLIST.getTypeData().getColor() + CC.BOLD + Punishment.Type.BLACKLIST.getTypeData().getReadable())
+                        .setLore(CC.GRAY + profile.getPunishmentCountByType(Punishment.Type.BLACKLIST) + " " + Punishment.Type.BLACKLIST.getTypeData().getReadable() + " on record.")
                         .build(),
                 e -> {
-                    if (!(profile.getPunishmentCountByType(PunishmentType.BLACKLIST) < 1)) {
-                        new PunishmentsListMenu(player, profile, PunishmentType.BLACKLIST);
+                    if (!(profile.getPunishmentCountByType(Punishment.Type.BLACKLIST) < 1)) {
+                        new PunishmentsListMenu(player, profile, Punishment.Type.BLACKLIST);
                     }
                 }));
 
-        contents.set(1, 3, ClickableItem.of(new ItemFactory(PunishmentType.BAN.getTypeData().getMaterial())
-                        .title(PunishmentType.BAN.getTypeData().getColor() + CC.BOLD + PunishmentType.BAN.getTypeData().getReadable())
-                        .lores(CC.GRAY + profile.getPunishmentCountByType(PunishmentType.BAN) + " " + PunishmentType.BAN.getTypeData().getReadable() + " on record.")
+        contents.set(1, 3, ClickableItem.of(new ItemFactory(Punishment.Type.BAN.getTypeData().getMaterial())
+                        .setName(Punishment.Type.BAN.getTypeData().getColor() + CC.BOLD + Punishment.Type.BAN.getTypeData().getReadable())
+                        .setLore(CC.GRAY + profile.getPunishmentCountByType(Punishment.Type.BAN) + " " + Punishment.Type.BAN.getTypeData().getReadable() + " on record.")
                         .build(),
                 e -> {
-                    if (!(profile.getPunishmentCountByType(PunishmentType.BAN) < 1)) {
-                        new PunishmentsListMenu(player, profile, PunishmentType.BAN);
+                    if (!(profile.getPunishmentCountByType(Punishment.Type.BAN) < 1)) {
+                        new PunishmentsListMenu(player, profile, Punishment.Type.BAN);
                     }
                 }));
 
-        contents.set(1, 4, ClickableItem.of(new ItemFactory(PunishmentType.MUTE.getTypeData().getMaterial())
-                        .title(PunishmentType.MUTE.getTypeData().getColor() + CC.BOLD + PunishmentType.MUTE.getTypeData().getReadable())
-                        .lores(CC.GRAY + profile.getPunishmentCountByType(PunishmentType.MUTE) + " " + PunishmentType.MUTE.getTypeData().getReadable() + " on record.")
+        contents.set(1, 5, ClickableItem.of(new ItemFactory(Punishment.Type.MUTE.getTypeData().getMaterial())
+                        .setName(Punishment.Type.MUTE.getTypeData().getColor() + CC.BOLD + Punishment.Type.MUTE.getTypeData().getReadable())
+                        .setLore(CC.GRAY + profile.getPunishmentCountByType(Punishment.Type.MUTE) + " " + Punishment.Type.MUTE.getTypeData().getReadable() + " on record.")
                         .build(),
                 e -> {
-                    if (!(profile.getPunishmentCountByType(PunishmentType.MUTE) < 1)) {
-                        new PunishmentsListMenu(player, profile, PunishmentType.MUTE);
+                    if (!(profile.getPunishmentCountByType(Punishment.Type.MUTE) < 1)) {
+                        new PunishmentsListMenu(player, profile, Punishment.Type.MUTE);
                     }
                 }));
 
-        contents.set(1, 5, ClickableItem.of(new ItemFactory(PunishmentType.WARN.getTypeData().getMaterial())
-                        .title(PunishmentType.WARN.getTypeData().getColor() + CC.BOLD + PunishmentType.WARN.getTypeData().getReadable())
-                        .lores(CC.GRAY + profile.getPunishmentCountByType(PunishmentType.WARN) + " " + PunishmentType.WARN.getTypeData().getReadable() + " on record.")
+        contents.set(1, 7, ClickableItem.of(new ItemFactory(Punishment.Type.WARN.getTypeData().getMaterial())
+                        .setName(Punishment.Type.WARN.getTypeData().getColor() + CC.BOLD + Punishment.Type.WARN.getTypeData().getReadable())
+                        .setLore(CC.GRAY + profile.getPunishmentCountByType(Punishment.Type.WARN) + " " + Punishment.Type.WARN.getTypeData().getReadable() + " on record.")
                         .build(),
                 e -> {
-                    if (!(profile.getPunishmentCountByType(PunishmentType.WARN) < 1)) {
-                        new PunishmentsListMenu(player, profile, PunishmentType.WARN);
-                    }
-                }));
-
-        contents.set(1, 6, ClickableItem.of(new ItemFactory(PunishmentType.KICK.getTypeData().getMaterial())
-                        .title(PunishmentType.KICK.getTypeData().getColor() + CC.BOLD + PunishmentType.KICK.getTypeData().getReadable())
-                        .lores(CC.GRAY + profile.getPunishmentCountByType(PunishmentType.KICK) + " " + PunishmentType.KICK.getTypeData().getReadable() + " on record.")
-                        .build(),
-                e -> {
-                    if (!(profile.getPunishmentCountByType(PunishmentType.KICK) < 1)) {
-                        new PunishmentsListMenu(player, profile, PunishmentType.KICK);
+                    if (!(profile.getPunishmentCountByType(Punishment.Type.WARN) < 1)) {
+                        new PunishmentsListMenu(player, profile, Punishment.Type.WARN);
                     }
                 }));
     }
 
-    @Override
-    public void update(Player player, InventoryContents contents) {
-    }
 }

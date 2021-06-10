@@ -1,8 +1,6 @@
 package com.customwrld.flame.chat;
 
-import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.menus.grants.ConfirmGrantMenu;
 import com.customwrld.flame.menus.grants.DeleteGrantMenu;
@@ -10,12 +8,8 @@ import com.customwrld.flame.menus.grants.GrantReasonMenu;
 import com.customwrld.flame.menus.punishments.DeletePunishmentMenu;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureStage;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureType;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedure;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureStage;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedureType;
+import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Duration;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.bukkit.Bukkit;
@@ -23,48 +17,27 @@ import org.bukkit.entity.Player;
 
 public class ChatProcedure {
 
-//    @SneakyThrows
-//    public static void handleAuthentication(Player player, Profile profile, String message) {
-//        int code = Integer.parseInt(message);
-//        JDA jda = CustomLib.getCustomLib().getJda();
-//
-//        Guild guild = jda.getGuildById(Config.DISCORD_GUILD.format());
-//
-//        if (guild != null) {
-//            TextChannel channel = guild.getTextChannelById(Config.DISCORD_NOTIFICATIONS.format());
-//
-//            if (channel != null) {
-//                if (correctCode(profile, code)) {
-//                    EmbedBuilder builder = new EmbedBuilder();
-//
-//                    builder.setColor(Color.GREEN)
-//                            .addField("**2FA Code Correct**", player.getName() + " has correctly entered their 2FA Code.", false);
-//                    channel.sendMessage(builder.build()).queue();
-//
-//                    player.sendMessage(CC.CHAT_BAR);
-//                    player.sendMessage(CC.GREEN + "Access Granted! Thank you for Authenticating!");
-//                    player.sendMessage(CC.CHAT_BAR);
-//                } else {
-//                    EmbedBuilder builder = new EmbedBuilder();
-//
-//                    channel.sendMessage("> <@&" + Flame.getFlame().getMainConfig().getString("DISCORD.SYNC.RANKS.OWNER.ROLEID") + ">").queue();
-//                    builder.setColor(Color.RED)
-//                            .addField("**2FA Code Incorrect**", player.getName() + " has incorrectly entered their 2FA Code.", false);
-//                    channel.sendMessage(builder.build()).queue();
-//
-//                    Bukkit.getScheduler().runTask(Flame.getFlame(), () -> player.kickPlayer(CC.RED + "Incorrect or expired 2FA code!"));
-//                }
-//            }
-//        }
-//    }
+    public static void handleAuthentication(Player player, Profile profile, String message) {
+        int code = Integer.parseInt(message);
+
+        if (correctCode(profile, code)) {
+            player.sendMessage(CC.CHAT_BAR);
+            player.sendMessage(CC.GREEN + "Access Granted! Thank you for Authenticating!");
+            player.sendMessage(CC.GREEN + "Attempt has been logged to the Discord.");
+            player.sendMessage(CC.CHAT_BAR);
+        } else {
+
+            Bukkit.getScheduler().runTask(Flame.getFlame(), () -> player.kickPlayer(CC.RED + "Incorrect or Expired Two Factor Code!\nAttempt has been logged to the Discord."));
+        }
+    }
 
     private static boolean correctCode(Profile profile, int code) {
-        String secretKey = profile.getStaffProfile().authKey();
+        String secretKey = profile.getStaffProfile().getTwoFactorKey();
         GoogleAuthenticator auth = Flame.getFlame().getAuth();
         boolean codeIsValid = auth.authorize(secretKey, code);
         if (codeIsValid) {
-            if (profile.getStaffProfile().locked()) {
-                profile.getStaffProfile().locked(false);
+            if (profile.getStaffProfile().isLocked()) {
+                profile.getStaffProfile().setLocked(false);
                 return true;
             }
         }
@@ -72,7 +45,7 @@ public class ChatProcedure {
     }
 
     public static void handleGrantProcedure(GrantProcedure procedure, Player player, String message) {
-        if (procedure.getStage() == GrantProcedureStage.REQUIRE_REASON && procedure.getType() == GrantProcedureType.REMOVE) {
+        if (procedure.getStage() == GrantProcedure.Stage.REQUIRE_REASON && procedure.getType() == GrantProcedure.Type.REMOVE) {
             if (message.equalsIgnoreCase("cancel")) {
                 GrantProcedure.procedures.remove(procedure);
                 player.sendMessage(CC.RED + "You have cancelled the grant removal procedure.");
@@ -82,7 +55,7 @@ public class ChatProcedure {
             Bukkit.getServer().getScheduler().runTask(Flame.getFlame(), () -> new DeleteGrantMenu(player, procedure, message));
         }
 
-        if (procedure.getStage() == GrantProcedureStage.PROVIDE_CUSTOM_TIME && procedure.getType() == GrantProcedureType.GRANT) {
+        if (procedure.getStage() == GrantProcedure.Stage.PROVIDE_CUSTOM_TIME && procedure.getType() == GrantProcedure.Type.ADD) {
             if (message.equalsIgnoreCase("cancel")) {
                 GrantProcedure.procedures.remove(procedure);
                 player.sendMessage(CC.RED + "You have cancelled the grant procedure.");
@@ -99,13 +72,13 @@ public class ChatProcedure {
                 Grant grant = procedure.getGrant();
                 grant.setDuration(duration.getValue());
                 procedure.setGrant(grant);
-                procedure.setStage(GrantProcedureStage.REQUIRE_REASON);
+                procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
                 Bukkit.getServer().getScheduler().runTask(Flame.getFlame(), () -> new GrantReasonMenu(player, procedure.getRecipient(), procedure));
             }
             return;
         }
 
-        if (procedure.getStage() == GrantProcedureStage.PROVIDE_CUSTOM_REASON && procedure.getType() == GrantProcedureType.GRANT) {
+        if (procedure.getStage() == GrantProcedure.Stage.PROVIDE_CUSTOM_REASON && procedure.getType() == GrantProcedure.Type.ADD) {
             if (message.equalsIgnoreCase("cancel")) {
                 GrantProcedure.procedures.remove(procedure);
                 player.sendMessage(CC.RED + "You have cancelled the grant procedure.");
@@ -115,13 +88,13 @@ public class ChatProcedure {
             Grant grant = procedure.getGrant();
             grant.setAddedReason(message);
             procedure.setGrant(grant);
-            procedure.setStage(GrantProcedureStage.REQUIRE_CONFIRMATION);
+            procedure.setStage(GrantProcedure.Stage.REQUIRE_CONFIRMATION);
             Bukkit.getServer().getScheduler().runTask(Flame.getFlame(), () -> new ConfirmGrantMenu(player, procedure.getRecipient(), procedure));
         }
     }
 
     public static void handlePunishmentProcedure(PunishmentProcedure procedure, Player player, String message) {
-        if (procedure.getStage() == PunishmentProcedureStage.REQUIRE_TEXT) {
+        if (procedure.getStage() == PunishmentProcedure.Stage.REQUIRE_TEXT) {
 
             if (message.equalsIgnoreCase("cancel")) {
                 PunishmentProcedure.getProcedures().remove(procedure);
@@ -129,7 +102,7 @@ public class ChatProcedure {
                 return;
             }
 
-            if (procedure.getType() == PunishmentProcedureType.PARDON) {
+            if (procedure.getType() == PunishmentProcedure.Type.REMOVE) {
                 Bukkit.getServer().getScheduler().runTask(Flame.getFlame(), () -> new DeletePunishmentMenu(player, procedure, message));
             }
         }

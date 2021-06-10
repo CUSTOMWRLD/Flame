@@ -4,72 +4,82 @@ import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.smartinvs.content.SlotPos;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.profile.OptionsProfile;
+import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.Profile;
-import net.minecraft.server.v1_16_R3.ChatMessage;
-import net.minecraft.server.v1_16_R3.Containers;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
-import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import com.customwrld.flame.util.Util;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class ProfileOptionsMenu implements InventoryProvider {
 
     private final Profile profile;
+    private boolean modified = false;
 
     public ProfileOptionsMenu(Player player) {
         this.profile = Profile.getByUuid(player.getUniqueId());
         SmartInventory inventory = SmartInventory.builder()
                 .provider(this)
                 .size(3, 9)
-                .title(buildTitle()).build();
+                .title("Profile Options").build();
         inventory.open(player);
-    }
-
-    public String buildTitle() {
-        OptionsProfile options = profile.getOptions();
-        return CC.WHITE + "\uF801\uE8CD\uF802\uE8C2" +
-                "\uF803" + (options.conversationsEnabled() ? "\uE8CE" : "\uE8CF") +
-                "\uF804" + (options.soundsEnabled() ? "\uE8D2" : "\uE8D3") +
-                "\uF805" + (options.publicChatEnabled() ? "\uE8D0" : "\uE8D1");
-    }
-
-    public void sendPacket(Player player) {
-        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(entityPlayer.activeContainer.windowId, Containers.GENERIC_9X3, new ChatMessage(buildTitle(), new Object[0])));
     }
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        OptionsProfile options = profile.getOptions();
-
-        for (int i = 0; i <= 3; i++) {
-            contents.set(SlotPos.of(0, i), ClickableItem.of(null, e -> {
-                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                options.conversationsEnabled(!options.conversationsEnabled());
-                sendPacket(player);
-            }));
-
-            contents.set(SlotPos.of(1, i), ClickableItem.of(null, e -> {
-                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                options.soundsEnabled(!options.soundsEnabled());
-                sendPacket(player);
-            }));
-        }
-
-        for (int i = 5; i <= 8; i++) {
-            contents.set(SlotPos.of(0, i), ClickableItem.of(null, e -> {
-                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                options.publicChatEnabled(!options.publicChatEnabled());
-                sendPacket(player);
-            }));
-        }
+        contents.fill(ClickableItem.empty(Util.FILLER));
+        logic(contents);
     }
 
     @Override
     public void update(Player player, InventoryContents contents) {
+        logic(contents);
     }
+
+    @Override
+    public void close(Player player, InventoryContents contents) {
+        if(this.modified) {
+            this.profile.save();
+        }
+    }
+
+    private void logic(InventoryContents contents) {
+        contents.set(1, 2, ClickableItem.of(new ItemFactory(Material.NAME_TAG)
+                        .setName(CC.GREEN + "Private Messages")
+                        .setLore(CC.GRAY + "Do you want to receive",
+                                CC.GRAY + "private chat messages?",
+                                "",
+                                this.profile.getOptions().isReceivingConversations() ? CC.AQUA + "✖ " + CC.GREEN + "Yes" : CC.YELLOW + "Yes",
+                                !this.profile.getOptions().isReceivingConversations() ? CC.AQUA + "✖ " + CC.GREEN + "No" : CC.YELLOW + "No").build(),
+                e -> {
+                    this.modified = true;
+                    this.profile.getOptions().setReceivingConversations(!this.profile.getOptions().isReceivingConversations());
+                    // TODO: Expire all conversations
+                }));
+
+        contents.set(1, 4, ClickableItem.of(new ItemFactory(Material.NOTE_BLOCK)
+                        .setName(CC.GREEN + "Private Chat Sounds")
+                        .setLore(CC.GRAY + "Do you want to be alerted when",
+                                CC.GRAY + "someone private chat messages you?",
+                                "",
+                                this.profile.getOptions().isReceivingMessageSounds() ? CC.AQUA + "✖ " + CC.GREEN + "Yes" : CC.YELLOW + "Yes",
+                                !this.profile.getOptions().isReceivingMessageSounds() ? CC.AQUA + "✖ " + CC.GREEN + "No" : CC.YELLOW + "No").build(),
+                e -> {
+                    this.modified = true;
+                    this.profile.getOptions().setReceivingMessageSounds(!this.profile.getOptions().isReceivingMessageSounds());
+                }));
+
+        contents.set(1, 6, ClickableItem.of(new ItemFactory(Material.WRITABLE_BOOK)
+                        .setName(CC.GREEN + "Public Chat Messages")
+                        .setLore(CC.GRAY + "Do you want to receive",
+                                CC.GRAY + "public chat messages?",
+                                "",
+                                this.profile.getOptions().isReceivingPublicChat() ? CC.AQUA + "✖ " + CC.GREEN + "Yes" : CC.YELLOW + "Yes",
+                                !this.profile.getOptions().isReceivingPublicChat() ? CC.AQUA + "✖ " + CC.GREEN + "No" : CC.YELLOW + "No").build(),
+                e -> {
+                    this.modified = true;
+                    this.profile.getOptions().setReceivingPublicChat(!this.profile.getOptions().isReceivingPublicChat());
+                }));
+    }
+
 }

@@ -1,15 +1,15 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.customlib.util.CC;
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
+import com.customwrld.flame.util.Util;
+import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -34,30 +34,41 @@ public class WarnCommand extends Command {
                     UUID addedBy = null;
 
                     if (sender instanceof Player) {
-                        addedBy = (((Player) sender).getUniqueId());
+                        Player executor = (Player) sender;
+
+                        if (Util.isElevatedStaff(executor, profile.getUuid())) {
+                            return;
+                        }
+
+                        addedBy = executor.getUniqueId();
                     }
 
-                    Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.WARN, addedBy, System.currentTimeMillis(), reason.replace("-s", ""), -1);
+                    Punishment punishment = new Punishment(
+                            Util.generateId(),
+                            profile.getUuid(),
+                            Punishment.Type.WARN,
+                            addedBy,
+                            System.currentTimeMillis(),
+                            reason,
+                            -1L
+                    );
 
-                    profile.getPunishments().add(punishment);
+                    punishment.save();
+
+                    profile.getCachedPunishments().add(punishment);
+                    profile.getPunishments().add(punishment.getId());
+
                     profile.save();
 
                     Player player = profile.getPlayer();
 
                     if (player != null) {
-                        player.sendMessage(CC.RED + "You have been " + punishment.getContext() + " for: " + punishment.getAddedReason());
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1F, 0.1F);
+                        player.kickPlayer(String.join("\n", punishment.getPunishmentMessage()));
                     }
 
-                    boolean silent = reason.contains("-s");
+                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
-                    if (sender.hasPermission("flame.bypasssilent")) {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), silent).send();
-                    } else {
-                        new PunishmentBroadcastPayload(punishment, profile.getUuid(), true).send();
-                    }
-
-                    punishment.sendEmbed(profile.getUuid());
+                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
                 });
     }
 

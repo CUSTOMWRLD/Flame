@@ -11,8 +11,8 @@ import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.pigeon.payloads.RecalculateProfilePayload;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
-import com.customwrld.flame.rank.Rank;
+import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.flame.profile.rank.Rank;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,15 +50,15 @@ public class ConfirmGrantMenu implements InventoryProvider {
                 this.profile.getGrants().add(grant);
                 this.profile.save();
 
-                if(Profile.profiles.containsKey(profile.getUuid())) {
+                if (Profile.getProfiles().containsKey(profile.getUuid())) {
                     profile.reload();
                 } else {
                     CustomLib.getCustomLib().getPigeon().broadcast(new RecalculateProfilePayload(profile.getUuid()));
                 }
 
                 this.procedure.finish();
-                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                 this.inventory.close(player);
+
                 player.sendMessage(CC.GREEN + "You have updated " + profile.getName() + CC.GREEN + " rank to " + rank.getName());
             }));
 
@@ -66,14 +66,22 @@ public class ConfirmGrantMenu implements InventoryProvider {
             contents.set(SlotPos.of(0, i), ClickableItem.of(new ItemFactory(Material.PAPER)
                     .setName("&cCancel Grant Procedure")
                     .build(), e -> {
+
                 procedure.cancel();
-                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                 inventory.close(player);
+
                 player.sendMessage(CC.RED + "Cancelled the grant procedure.");
             }));
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {}
+    public void close(Player player, InventoryContents contents) {
+        GrantProcedure procedure = GrantProcedure.getByPlayer(player);
+
+        if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_CONFIRMATION) {
+            procedure.cancel();
+            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+        }
+    }
 
 }

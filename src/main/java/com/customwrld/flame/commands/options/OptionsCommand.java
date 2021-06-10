@@ -4,7 +4,6 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.ProfileOptionsMenu;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandPermission;
 import org.bukkit.entity.Player;
 
 public class OptionsCommand extends Command {

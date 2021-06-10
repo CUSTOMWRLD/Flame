@@ -12,17 +12,24 @@ import lombok.Getter;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@Getter @Payload
+@Getter
+@Payload
 public class OnlinePlayerRequestPayload extends FeedbackPayload {
+
+    @Transmit
+    UUID player;
+
+    //Request
+    @Transmit(direction = RequiredState.RESPONSE)
+
+    boolean isOnline;
 
     public OnlinePlayerRequestPayload() {
         this.payloadId = "atom-onlinePlayerRequest";
         this.payloadTimeout = 10000;
     }
 
-    //Request
-
-    @Transmit UUID player;
+    //Response
 
     @RequestConstructor
     public OnlinePlayerRequestPayload(UUID player, Consumer<OnlinePlayerRequestPayload> feedback) {
@@ -33,12 +40,6 @@ public class OnlinePlayerRequestPayload extends FeedbackPayload {
         this.feedback = feedback;
     }
 
-    //Response
-
-    @Transmit(direction = RequiredState.RESPONSE)
-
-    boolean isOnline;
-
     @ResponseConstructor
     public OnlinePlayerRequestPayload(boolean isOnline) {
         this();
@@ -48,6 +49,7 @@ public class OnlinePlayerRequestPayload extends FeedbackPayload {
     }
 
     @Override
-    public void receive() {}
+    public void receive() {
+    }
 
 }

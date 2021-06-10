@@ -30,11 +30,6 @@ public class HistoryCommand extends Command {
                     Player player = (Player) sender;
                     Profile profile = (Profile) args[0];
 
-                    if (profile == null || !profile.isLoaded()) {
-                        player.sendMessage(Config.COULD_NOT_RESOLVE_PLAYER.format());
-                        return;
-                    }
-
                     new PunishmentSelectMenu(player, profile);
                 });
     }

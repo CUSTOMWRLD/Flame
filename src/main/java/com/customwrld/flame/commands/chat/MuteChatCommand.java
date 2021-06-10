@@ -2,7 +2,6 @@ package com.customwrld.flame.commands.chat;
 
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.util.Command;
@@ -22,8 +21,7 @@ public class MuteChatCommand extends Command {
         return new CommandAPICommand(this.command)
                 .withPermission(this.permission)
                 .executes((sender, args) -> {
-                    Flame flame = Flame.getFlame();
-                    flame.setChatMuted(!flame.isChatMuted());
+                    FlameAPI.setChatMuted(!FlameAPI.isChatMuted());
 
                     String playerName = CC.CONSOLE;
 
@@ -31,7 +29,7 @@ public class MuteChatCommand extends Command {
                         playerName = FlameAPI.getColoredName(Profile.getByUuid(((Player) sender).getUniqueId()));
                     }
 
-                    if (flame.isChatMuted()) {
+                    if (FlameAPI.isChatMuted()) {
                         Bukkit.broadcastMessage(Config.CHAT_MUTED.format(playerName));
                     } else {
                         Bukkit.broadcastMessage(Config.CHAT_UNMUTED.format(playerName));

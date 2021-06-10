@@ -1,4 +1,4 @@
-package com.customwrld.flame.rank;
+package com.customwrld.flame.profile.rank;
 
 import com.customwrld.customlib.util.CC;
 import lombok.AllArgsConstructor;

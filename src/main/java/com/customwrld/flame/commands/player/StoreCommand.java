@@ -6,7 +6,6 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandPermission;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;

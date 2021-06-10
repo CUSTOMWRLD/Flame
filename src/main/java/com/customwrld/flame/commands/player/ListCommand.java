@@ -3,11 +3,9 @@ package com.customwrld.flame.commands.player;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.rank.Rank;
-import com.customwrld.flame.rank.comparator.RankComparator;
+import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandPermission;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -42,7 +40,7 @@ public class ListCommand extends Command {
                     }
 
                     List<Rank> sortedRanks = new ArrayList<>(Rank.getRanks().values());
-                    sortedRanks.sort(new RankComparator());
+                    sortedRanks.sort(Rank.COMPARATOR);
 
                     List<String> rankNames = new ArrayList<>();
 

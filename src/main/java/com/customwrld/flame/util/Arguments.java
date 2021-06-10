@@ -1,56 +1,56 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.flame.Config;
-import com.customwrld.flame.network.Server;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.rank.Rank;
+import com.customwrld.flame.profile.rank.Rank;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Arguments {
 
-    public static CustomArgument<String> proxyPlayerArgument(String nodeName) {
-        CustomArgument<String> argument = new CustomArgument<>(nodeName, (input) -> input);
-        argument.overrideSuggestions(sender -> {
-            List<String> playerNames = new ArrayList<>();
+//    public static CustomArgument<String> proxyPlayerArgument(String nodeName) {
+//        CustomArgument<String> argument = new CustomArgument<>(nodeName, (input) -> input);
+//        argument.overrideSuggestions(sender -> {
+//            List<String> playerNames = new ArrayList<>();
+//
+//            for (Map.Entry<String, Server> ent : Server.getServers().entrySet()) {
+//                Server server = ent.getValue();
+//
+//                playerNames.addAll(Arrays.asList(server.getPlayerList().split(", ")));
+//            }
+//
+//            return playerNames.toArray(new String[0]);
+//        });
+//
+//        return argument;
+//    }
 
-            for (Map.Entry<String, Server> ent : Server.getServers().entrySet()) {
-                Server server = ent.getValue();
-
-                playerNames.addAll(Arrays.asList(server.getPlayerList().split(", ")));
-            }
-
-            return playerNames.toArray(new String[0]);
-        });
-
-        return argument;
-    }
-
-    public static CustomArgument<Server> serverArgument(String nodeName) {
-        CustomArgument<Server> argument = new CustomArgument<>(nodeName, (input) -> {
-            Server server = Server.getServerByName(input);
-            if (server == null) {
-                throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("You must provide a valid server."));
-            } else {
-                return server;
-            }
-        });
-
-        argument.overrideSuggestions(sender -> {
-            List<String> serverNames = new ArrayList<>();
-
-            for (Map.Entry<String, Server> ent : Server.getServers().entrySet()) {
-                serverNames.add(ent.getKey());
-            }
-
-            return serverNames.toArray(new String[0]);
-        });
-
-        return argument;
-    }
+//    public static CustomArgument<Server> serverArgument(String nodeName) {
+//        CustomArgument<Server> argument = new CustomArgument<>(nodeName, (input) -> {
+//            Server server = Server.getServerByName(input);
+//            if (server == null) {
+//                throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("You must provide a valid server."));
+//            } else {
+//                return server;
+//            }
+//        });
+//
+//        argument.overrideSuggestions(sender -> {
+//            List<String> serverNames = new ArrayList<>();
+//
+//            for (Map.Entry<String, Server> ent : Server.getServers().entrySet()) {
+//                serverNames.add(ent.getKey());
+//            }
+//
+//            return serverNames.toArray(new String[0]);
+//        });
+//
+//        return argument;
+//    }
 
     public static CustomArgument<Duration> durationArgument(String nodeName) {
         CustomArgument<Duration> argument = new CustomArgument<>(nodeName, (input) -> {
@@ -104,7 +104,7 @@ public class Arguments {
     }
 
     public static CustomArgument<Rank> rankArgument(String nodeName) {
-        CustomArgument<Rank> argument = new CustomArgument<Rank>(nodeName, (input) -> {
+        CustomArgument<Rank> argument = new CustomArgument<>(nodeName, (input) -> {
 
             Rank rank = Rank.getRankByName(input);
 

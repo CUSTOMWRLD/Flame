@@ -12,17 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class Balance {
 
-    //Affordability
     public static boolean canAffordWithGold(Profile profile, int goldCost) {
         return profile.getGold() > goldCost;
     }
 
-    //Modifiability
     public static void addGold(Profile profile, int amount) {
         profile.setGold(profile.getGold() + amount);
     }
 
-    //Messages
     public static TextComponent getCannotAffordGoldMessage() {
         return ChatUtil.builderToComponent(
                 new ComponentBuilder("You don't have enough gold to purchase this item.").color(ChatColor.RED)
@@ -37,49 +34,43 @@ public class Balance {
         );
     }
 
-    //Retrieval
-    public static int getGamemodeGold(Profile profile, @Nullable String serverType) {
-        return profile.getGamemodeGold().getOrDefault(
+    public static int getGameModeGold(Profile profile, @Nullable String serverType) {
+        return profile.getGameModeGold().getOrDefault(
                 serverType == null ?
                         Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
                         serverType, 0);
     }
 
-    //Affordability
-    public static boolean canAffordWithGamemodeGold(Profile profile, @Nullable String serverType, int gmGoldCost) {
-        return profile.getGamemodeGold().getOrDefault(
+    public static boolean canAffordWithGameModeGold(Profile profile, @Nullable String serverType, int gmGoldCost) {
+        return profile.getGameModeGold().getOrDefault(
                 serverType == null ?
                         Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
                         serverType, 0) > gmGoldCost;
     }
 
-    //Modifiability
-    public static void addGamemodeGold(Profile profile, @Nullable String serverType, int amount) {
+    public static void addGameModeGold(Profile profile, @Nullable String serverType, int amount) {
         serverType = serverType == null ? Flame.getFlame().getMainConfig().getString("SERVER.TYPE") : serverType;
-        int gmGold = profile.getGamemodeGold().getOrDefault(serverType, 0);
-        profile.getGamemodeGold().put(serverType, gmGold + amount);
+        int gmGold = profile.getGameModeGold().getOrDefault(serverType, 0);
+        profile.getGameModeGold().put(serverType, gmGold + amount);
     }
 
-    //Messages
-    public static TextComponent getCannotAffordGamemodeGoldMessage() {
+    public static TextComponent getCannotAffordGameModeGoldMessage() {
         return ChatUtil.builderToComponent(
                 new ComponentBuilder("You don't have enough gamemode gold to purchase this item.").color(ChatColor.RED)
         );
     }
 
-    public static TextComponent getRequiredGamemodeGoldMessage(int required) {
+    public static TextComponent getRequiredGameModeGoldMessage(int required) {
         return ChatUtil.builderToComponent(
                 new ComponentBuilder("This item costs ").color(ChatColor.RED)
                         .append(Currencies.CurrencyType.GMGOLD.getFormat().apply(new TextComponent(required + Currencies.CurrencyType.GMGOLD.getSuffix())))
         );
     }
 
-    //Affordability
     public static boolean hasEnoughExperience(Profile profile, long experienceRequired) {
         return profile.getExperience() > experienceRequired;
     }
 
-    //Messages
     public static TextComponent getNotEnoughExperienceMessage() {
         return ChatUtil.builderToComponent(
                 new ComponentBuilder("You don't have enough experience to purchase this item.").color(ChatColor.RED)
@@ -107,7 +98,6 @@ public class Balance {
         );
     }
 
-    //Messages
     public static TextComponent getCannotAffordMultiMessage() {
         return ChatUtil.builderToComponent(
                 new ComponentBuilder("You don't have enough gold or gamemode gold to purchase this item.").color(ChatColor.RED)

@@ -2,41 +2,46 @@ package com.customwrld.flame.profile.punishment;
 
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.DiscordWebhook;
 import com.customwrld.customlib.util.TimeUtil;
-import com.customwrld.flame.Config;
-import com.customwrld.flame.Flame;
-import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.pigeon.payloads.discord.PunishmentEmbedPayload;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.pigeon.Pigeon;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.ChatColor;
+import org.bson.Document;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
-import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Punishment {
 
-    public static PunishmentJsonSerializer SERIALIZER = new PunishmentJsonSerializer();
-    public static PunishmentJsonDeserializer DESERIALIZER = new PunishmentJsonDeserializer();
+    @Getter
+    private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("punishments");
 
-    private final UUID uuid;
-    private final PunishmentType type;
-    private final UUID addedBy;
-    private final long addedAt;
-    private final String addedReason;
-    private final long duration;
+    private final String id;
+    private UUID player;
+    private Type type;
+    private UUID addedBy;
+    private Long addedAt;
+    private String addedReason;
+    private Long duration;
     private UUID removedBy;
-    private long removedAt;
+    private Long removedAt;
     private String removedReason;
     private boolean removed;
 
-    public Punishment(UUID uuid, PunishmentType type, UUID addedBy, long addedAt, String addedReason, long duration) {
-        this.uuid = uuid;
+    public Punishment(String id, UUID player, Type type, UUID addedBy, Long addedAt, String addedReason, Long duration) {
+        this.id = id;
+        this.player = player;
         this.type = type;
         this.addedBy = addedBy;
         this.addedAt = addedAt;
@@ -44,28 +49,34 @@ public class Punishment {
         this.duration = duration;
     }
 
-    public static Punishment fromSimple(Map<String, String> simple) {
-        Punishment punishment = new Punishment(UUID.fromString(simple.get("uuid")),
-                PunishmentType.valueOf(simple.get("punishmentType")),
-                !simple.get("addedBy").equals("null") ? UUID.fromString(simple.get("addedBy")) : null,
-                Long.parseLong(simple.get("addedAt")),
-                simple.get("addedReason"),
-                Long.parseLong(simple.get("duration"))
-        );
+    public static Punishment getById(String id) {
+        Document document = collection.find(Filters.eq("_id", id)).first();
 
-        String isRemoved = simple.get("removed");
-        if (isRemoved != null && isRemoved.equals("true")) {
-            punishment.setRemoved(true);
-            punishment.setRemovedAt(Long.parseLong(simple.get("removedAt")));
-            punishment.setRemovedBy(!simple.get("removedBy").equals("null") ? UUID.fromString(simple.get("removedBy")) : null);
-            punishment.setRemovedReason(simple.get("removedReason"));
+        if (document != null) {
+            Punishment punishment = new Punishment(document.getString("_id"),
+                    UUID.fromString(document.getString("player")),
+                    Type.valueOf(document.getString("type")),
+                    document.getString("addedBy") != null ? UUID.fromString(document.getString("addedBy")) : null,
+                    document.getLong("addedAt"),
+                    document.getString("addedReason"),
+                    document.getLong("duration"));
+
+            punishment.setRemoved(document.getBoolean("removed"));
+
+            if (punishment.isRemoved()) {
+                punishment.setRemovedAt(document.getLong("removedAt"));
+                punishment.setRemovedBy(document.getString("removedBy") != null ? UUID.fromString(document.getString("removedBy")) : null);
+                punishment.setRemovedReason(document.getString("removedReason"));
+            }
+
+            return punishment;
         }
 
-        return punishment;
+        return null;
     }
 
     public boolean isPermanent() {
-        return type == PunishmentType.BLACKLIST || duration == Integer.MAX_VALUE;
+        return type == Type.BLACKLIST || duration == Integer.MAX_VALUE;
     }
 
     public boolean isActive() {
@@ -105,7 +116,7 @@ public class Punishment {
     }
 
     public String getContext() {
-        if (!(type == PunishmentType.BAN || type == PunishmentType.MUTE)) {
+        if (!(type == Type.BAN || type == Type.MUTE)) {
             return removed ? type.getUndoContext() : type.getContext();
         }
 
@@ -116,85 +127,98 @@ public class Punishment {
         }
     }
 
-    public void broadcast(Boolean silent, Profile profile) {
+    public void broadcast(Profile profile) {
         if (profile == null || !profile.isLoaded()) {
             return;
         }
 
-        String sender = CC.DARK_RED + "Console";
+        String sender = "CONSOLE";
 
         if (getAddedBy() != null) {
-            sender = FlameAPI.getColoredName(Profile.getByUuid(getAddedBy()));
+            sender = Profile.getByUuid(getAddedBy()).getName();
         }
 
-        String punishmentMessage = FlameAPI.getColoredName(profile) + CC.GREEN + " has been " + getContext() + " by " + CC.RESET + sender;
+        String punishmentMessage = CC.DARK_AQUA + CC.BOLD + "Punishments" + CC.DARK_GRAY + CC.BOLD + " » " + CC.AQUA + profile.getName() + CC.GRAY + " has been " + getContext() + " by " + CC.AQUA + sender;
 
         Bukkit.getOnlinePlayers()
                 .forEach(player -> {
-                    if (silent) {
-                        if (player.hasPermission("flame.staff")) {
-                            player.sendMessage(CC.GRAY + "[Silent] " + CC.RESET + punishmentMessage);
-                        }
-                    } else {
+                    if (player.hasPermission("flame.staff")) {
+                        player.sendMessage(CC.CHAT_BAR);
                         player.sendMessage(punishmentMessage);
+                        player.sendMessage(CC.CHAT_BAR);
                     }
                 });
     }
 
-    public List<String> getMuteMessage() {
-        if(this.type != PunishmentType.MUTE) {
-            return null;
-        } else {
-            return Arrays.asList(
-                    CC.CHAT_BAR,
-                    CC.RED + "You have been muted for: " + this.getAddedReason(),
-                    "",
-                    (this.isPermanent() ? "&7You are permanently muted." : "&7Your mute will expire in &c" + this.getTimeRemaining()),
-                    CC.CHAT_BAR
-            );
-        }
-    }
-
-    public String getKickMessage() {
-        String punishmentBar = "&9&m        &b&m        &f&m        &r &8[&3&l" + this.type.getReadable().toUpperCase() + "&8] &f&m        &b&m        &9&m        ";
-
+    public List<String> getPunishmentMessage() {
         Date date = new Date(this.getAddedAt());
 
-        return CC.translate(punishmentBar +
-                "\n\n&9Your account has been " + this.getType().getContext() + " from the CUSTOMWRLD Network.\n" +
-                "\n&fReason: &9" + this.addedReason +
-                "\n&fAdded On: &9" + TimeUtil.dateToString(date) + " &fat &9" + TimeUtil.dateToTime(date) +
-                (!this.isPermanent() ? "\n&fTime Remaining: &9" + this.getTimeRemaining() : "") +
-                "\n\n" + punishmentBar);
+        return Arrays.asList(
+                CC.CHAT_BAR,
+                CC.RED + "You are " + this.getContext() + (!this.isPermanent() ? " for " + this.getTimeRemaining() : "") + ".",
+                "",
+                CC.GRAY + "Reason: " + CC.WHITE + this.getAddedReason(),
+                CC.GRAY + "Added On: " + CC.WHITE + TimeUtil.dateToString(date) + " at " + TimeUtil.dateToTime(date),
+                CC.GRAY + "Punishment ID: " + CC.WHITE + this.getId(),
+                "",
+                CC.GRAY + "Appeal At: " + CC.AQUA + CC.UNDER_LINE + "http://customwrld.com/appeal",
+                CC.CHAT_BAR
+        );
     }
 
-    public void sendEmbed(UUID player) {
-        CustomLib.getCustomLib().getPigeon().broadcast(new PunishmentEmbedPayload(player, this));
+    public void save() {
+        Document document = new Document();
+        document.put("_id", this.id);
+        document.put("player", this.player.toString());
+        document.put("type", this.type.name());
+        document.put("addedBy", this.addedBy != null ? this.addedBy.toString() : null);
+        document.put("addedAt", this.addedAt);
+        document.put("addedReason", this.addedReason);
+        document.put("duration", this.duration);
 
+        document.put("removed", this.removed);
+        document.put("removedAt", this.removedAt != null ? this.removedAt : null);
+        document.put("removedBy", this.removedBy != null ? this.removedBy.toString() : null);
+        document.put("removedReason", this.removedReason != null ? this.removedReason : null);
+
+        collection.replaceOne(Filters.eq("_id", this.id), document, new ReplaceOptions().upsert(true));
     }
 
-    public HashMap<String, String> simplify() {
-        HashMap<String, String> simple = new HashMap<>();
-        simple.put("uuid", uuid.toString());
-        simple.put("punishmentType", type.toString());
-        simple.put("addedAt", String.valueOf(addedAt));
-        simple.put("addedBy", addedBy != null ? addedBy.toString() : "null");
-        simple.put("addedReason", addedReason);
-        simple.put("duration", String.valueOf(duration));
-
-        if (removed) {
-            simple.put("removed", "true");
-            simple.put("removedAt", String.valueOf(removedAt));
-            simple.put("removedBy", removedBy != null ? removedBy.toString() : "null");
-            simple.put("removedReason", removedReason);
-        }
-
-        return simple;
+    public void delete() {
+        collection.deleteOne(Filters.eq("_id", this.id));
     }
 
     @Override
     public boolean equals(Object object) {
-        return object instanceof Punishment && ((Punishment) object).uuid.equals(uuid);
+        return object instanceof Punishment && ((Punishment) object).id.equals(this.id);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public enum Type {
+
+        BLACKLIST("Blacklist", "blacklisted", "unblacklisted", true, true, new Data("Blacklists", ChatColor.DARK_RED, Material.RED_WOOL)),
+        BAN("Ban", "banned", "unbanned", true, true, new Data("Bans", ChatColor.GOLD, Material.ORANGE_WOOL)),
+        MUTE("Mute", "muted", "unmuted", false, true, new Data("Mutes", ChatColor.GREEN, Material.LIME_WOOL)),
+        WARN("Warning", "warned", null, false, false, new Data("Warnings", ChatColor.BLUE, Material.LIGHT_BLUE_WOOL));
+
+        private final String readable;
+        private final String context;
+        private final String undoContext;
+        private final boolean ban;
+        private final boolean removable;
+        private final Data typeData;
+
+        @Getter
+        @AllArgsConstructor
+        public static class Data {
+
+            private final String readable;
+            private final ChatColor color;
+            private final Material material;
+
+        }
+
     }
 
 }

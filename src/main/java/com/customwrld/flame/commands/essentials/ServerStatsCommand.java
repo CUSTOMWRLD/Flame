@@ -7,13 +7,9 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import net.minecraft.server.v1_16_R3.MinecraftServer;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.spigotmc.TicksPerSecondCommand;
 
-import java.text.CharacterIterator;
 import java.text.DecimalFormat;
-import java.text.StringCharacterIterator;
 
 public class ServerStatsCommand extends Command {
 

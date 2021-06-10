@@ -1,6 +1,6 @@
 package com.customwrld.flame.pigeon.payloads;
 
-import com.customwrld.flame.profile.grant.Grant;
+import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.pigeon.annotations.Payload;
 import com.customwrld.pigeon.annotations.Transmit;
@@ -9,25 +9,34 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter @Payload
+@Getter
+@Payload
 public class PunishmentBroadcastPayload extends BasePayload {
 
-    @Transmit Punishment punishment;
-    @Transmit UUID offender;
-    @Transmit Boolean silent;
+    @Transmit
+    String punishmentId;
+    @Transmit
+    UUID offender;
 
     public PunishmentBroadcastPayload() {
         payloadId = "flame-punishmentBroadcast";
     }
 
-    public PunishmentBroadcastPayload(Punishment punishment, UUID offender, Boolean silent) {
+    public PunishmentBroadcastPayload(String punishmentId, UUID offender) {
         this();
-        this.punishment = punishment;
+        this.punishmentId = punishmentId;
         this.offender = offender;
-        this.silent = silent;
+
+        Punishment punishment = Punishment.getById(punishmentId);
+        Profile profile = Profile.getByUuid(offender);
+
+        if(punishment != null) {
+            punishment.broadcast(profile);
+        }
     }
 
     @Override
-    public void receive() {}
+    public void receive() {
+    }
 
 }

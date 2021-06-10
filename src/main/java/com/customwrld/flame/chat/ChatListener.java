@@ -2,13 +2,11 @@ package com.customwrld.flame.chat;
 
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
+import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.flame.profile.punishment.procedure.PunishmentProcedure;
+import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,66 +21,63 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         String message = event.getMessage();
-        Player player = event.getPlayer();
-        Profile profile = Profile.getByUuid(player.getUniqueId());
+        Player sender = event.getPlayer();
+        Profile senderProfile = Profile.getProfiles().get(sender.getUniqueId());
 
         event.setCancelled(true);
 
-        if (profile == null || !profile.isLoaded()) {
-            player.sendMessage(Config.COULD_NOT_RESOLVE_PLAYER.format());
+        if (senderProfile == null || !senderProfile.isLoaded()) {
+            sender.sendMessage(Config.COULD_NOT_RESOLVE_PLAYER.format());
             return;
         }
 
-        if (profile.getStaffProfile().locked()) {
-            ChatProcedure.handleAuthentication(player, profile, message);
+        if (senderProfile.getStaffProfile().isLocked()) {
+            ChatProcedure.handleAuthentication(sender, senderProfile, message);
             return;
         }
 
-        PunishmentProcedure punishmentProcedure = PunishmentProcedure.getByPlayer(player);
+        PunishmentProcedure punishmentProcedure = PunishmentProcedure.getByPlayer(sender);
 
         if (punishmentProcedure != null) {
-            ChatProcedure.handlePunishmentProcedure(punishmentProcedure, player, message);
+            ChatProcedure.handlePunishmentProcedure(punishmentProcedure, sender, message);
             return;
         }
 
-        GrantProcedure grantProcedure = GrantProcedure.getByPlayer(player);
+        GrantProcedure grantProcedure = GrantProcedure.getByPlayer(sender);
 
         if (grantProcedure != null) {
-            ChatProcedure.handleGrantProcedure(grantProcedure, player, message);
+            ChatProcedure.handleGrantProcedure(grantProcedure, sender, message);
             return;
         }
 
-        if (!player.hasPermission("flame.staff")) {
-            Punishment punishment = profile.getActivePunishmentByType(PunishmentType.MUTE);
+        if (!sender.hasPermission("flame.staff")) {
+            Punishment punishment = senderProfile.getActivePunishmentByType(Punishment.Type.MUTE);
 
             if (FlameAPI.isChatMuted()) {
-                player.sendMessage(CC.RED + "The chat is currently muted.");
+                sender.sendMessage(CC.CHAT_BAR);
+                sender.sendMessage(CC.RED + "The chat is currently muted! Please try again later.");
+                sender.sendMessage(CC.CHAT_BAR);
                 return;
             }
 
             if (punishment != null) {
-                punishment.getMuteMessage().forEach(player::sendMessage);
+                punishment.getPunishmentMessage().forEach(sender::sendMessage);
                 return;
             }
 
             if (!ChatFilter.isSafe(message)) {
-                Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
-                    if (onlinePlayer.hasPermission("flame.staff")) {
-                        onlinePlayer.sendMessage(CC.DARK_GRAY + "[" + CC.RED + "\u27a4" + CC.DARK_GRAY + "] " + formatChat(profile, message));
-                    }
-                });
-                player.sendMessage(formatChat(profile, message));
+                Bukkit.getServer().getOnlinePlayers().stream()
+                        .filter(staff -> staff.hasPermission("flame.staff"))
+                        .forEach(staff -> staff.sendMessage(CC.DARK_GRAY + "[" + CC.RED + "➤" + CC.DARK_GRAY + "] " + formatChat(senderProfile, message)));
+
+                sender.sendMessage(formatChat(senderProfile, message));
                 return;
             }
         }
 
-        Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
-            Profile playerProfile = Profile.getByUuid(onlinePlayer.getUniqueId());
-
-            if (playerProfile.getOptions().isReceivingPublicChat()) {
-                onlinePlayer.sendMessage(formatChat(profile, message));
-            }
-        });
+        Bukkit.getServer().getOnlinePlayers().stream()
+                .filter(player -> Profile.getProfiles().get(player.getUniqueId()).getOptions().isReceivingPublicChat())
+                .forEach(player -> player.sendMessage(formatChat(senderProfile, message)));
     }
 
     public String formatChat(Profile profile, String message) {

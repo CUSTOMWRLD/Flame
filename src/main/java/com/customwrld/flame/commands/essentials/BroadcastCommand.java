@@ -1,25 +1,10 @@
 package com.customwrld.flame.commands.essentials;
 
 import com.customwrld.customlib.util.CC;
-import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class BroadcastCommand extends Command {
 

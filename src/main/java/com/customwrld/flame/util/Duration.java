@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public class Duration {
 
-    @Getter private final long value;
+    @Getter
+    private final long value;
 
     public Duration(long value) {
         this.value = value;

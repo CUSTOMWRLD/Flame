@@ -7,7 +7,8 @@ import lombok.Getter;
 
 public class StoreManager {
 
-    @Getter private String domain;
+    @Getter
+    private String domain;
 
     public void initialize() {
         ConfigurationFile config = Flame.getFlame().getMainConfig();

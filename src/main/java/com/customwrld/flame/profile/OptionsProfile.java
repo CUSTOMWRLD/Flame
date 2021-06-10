@@ -2,9 +2,9 @@ package com.customwrld.flame.profile;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
-@Getter @Setter
+@Getter
+@Setter
 public class OptionsProfile {
 
     private boolean receivingFriendRequests = true;

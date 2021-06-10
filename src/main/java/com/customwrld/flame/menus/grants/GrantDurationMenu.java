@@ -8,29 +8,28 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureStage;
+import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Duration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public class GrantTimeMenu implements InventoryProvider {
+public class GrantDurationMenu implements InventoryProvider {
 
     private final SmartInventory inventory;
     private final Profile profile;
     private final GrantProcedure procedure;
 
 
-    public GrantTimeMenu(Player player, Profile profile, GrantProcedure procedure) {
+    public GrantDurationMenu(Player player, Profile profile, GrantProcedure procedure) {
         this.profile = profile;
         this.procedure = procedure;
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
-                .title(CC.WHITE + "Grant Duration")
+                .title("Grant Duration")
                 .build();
-        this.inventory.open(player, 0);
+        this.inventory.open(player);
     }
 
     @Override
@@ -46,7 +45,7 @@ public class GrantTimeMenu implements InventoryProvider {
                     grant.setDuration(duration.getValue());
                     procedure.setGrant(grant);
 
-                    procedure.setStage(GrantProcedureStage.REQUIRE_REASON);
+                    procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
                     player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                     new GrantReasonMenu(player, profile, procedure);
@@ -61,7 +60,7 @@ public class GrantTimeMenu implements InventoryProvider {
                     grant.setDuration(duration.getValue());
                     procedure.setGrant(grant);
 
-                    procedure.setStage(GrantProcedureStage.REQUIRE_REASON);
+                    procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
                     player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                     new GrantReasonMenu(player, profile, procedure);
@@ -76,7 +75,7 @@ public class GrantTimeMenu implements InventoryProvider {
                     grant.setDuration(duration.getValue());
                     procedure.setGrant(grant);
 
-                    procedure.setStage(GrantProcedureStage.REQUIRE_REASON);
+                    procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
                     player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                     new GrantReasonMenu(player, profile, procedure);
@@ -86,7 +85,7 @@ public class GrantTimeMenu implements InventoryProvider {
                         .setName(CC.RED + "Custom")
                         .build(),
                 e -> {
-                    procedure.setStage(GrantProcedureStage.PROVIDE_CUSTOM_TIME);
+                    procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_TIME);
 
                     player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                     player.closeInventory();
@@ -95,5 +94,13 @@ public class GrantTimeMenu implements InventoryProvider {
     }
 
     @Override
-    public void update(Player player, InventoryContents contents) {}
+    public void close(Player player, InventoryContents contents) {
+        GrantProcedure procedure = GrantProcedure.getByPlayer(player);
+
+        if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_TIME) {
+            procedure.cancel();
+            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+        }
+    }
+
 }

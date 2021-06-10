@@ -7,6 +7,7 @@ public abstract class Command {
     public String command;
     public String permission;
     public String[] aliases;
+
     public abstract CommandAPICommand command();
 
 }

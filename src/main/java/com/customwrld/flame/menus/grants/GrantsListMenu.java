@@ -12,9 +12,8 @@ import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedure;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureStage;
-import com.customwrld.flame.profile.grant.procedure.GrantProcedureType;
+import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.flame.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -30,12 +29,11 @@ public class GrantsListMenu implements InventoryProvider {
     public GrantsListMenu(Player player, Profile profile) {
         this.profile = profile;
         this.inventory = SmartInventory.builder()
-                .id("grantsListMenu")
                 .provider(this)
                 .size(5, 9)
                 .title(profile.getName() + "'s Grants (" + profile.getGrants().size() + ")")
                 .build();
-        this.inventory.open(player, 0);
+        this.inventory.open(player);
     }
 
     @Override
@@ -45,9 +43,7 @@ public class GrantsListMenu implements InventoryProvider {
 
         ClickableItem[] items = new ClickableItem[profile.getGrants().size()];
 
-        contents.fill(ClickableItem.empty(new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
-                .setName(" ")
-                .build()));
+        contents.fill(ClickableItem.empty(Util.FILLER));
 
         int i = 0;
 
@@ -63,8 +59,8 @@ public class GrantsListMenu implements InventoryProvider {
             }
         }
 
-        activeGrants.sort((rank1, rank2) -> rank2.getRank().getWeight() - rank1.getRank().getWeight());
-        removedGrants.sort((rank1, rank2) -> rank2.getRank().getWeight() - rank1.getRank().getWeight());
+        activeGrants.sort(Grant.COMPARATOR);
+        removedGrants.sort(Grant.COMPARATOR);
 
         sortedGrants.addAll(activeGrants);
         sortedGrants.addAll(removedGrants);
@@ -126,15 +122,14 @@ public class GrantsListMenu implements InventoryProvider {
                 material = Material.ENCHANTED_BOOK;
             }
 
-            items[i] = ClickableItem.of(new ItemFactory()
-                            .material(material)
-                            .title(grant.getRank().getColor() + grant.getRank().getName())
-                            .lores(lore)
+            items[i] = ClickableItem.of(new ItemFactory(material)
+                            .setName(grant.getRank().getColor() + grant.getRank().getName())
+                            .setLore(lore)
                             .build(),
                     e -> {
                         if (!grant.isRemoved() && !grant.hasExpired() && !grant.getRank().isDefaultRank() && FlameAPI.canStartProcedure(player)) {
                             if (player.hasPermission("flame.grants.remove")) {
-                                GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedureType.REMOVE, GrantProcedureStage.REQUIRE_REASON);
+                                GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.REMOVE, GrantProcedure.Stage.REQUIRE_REASON);
                                 procedure.setGrant(grant);
 
                                 player.sendMessage(CC.GREEN + "Type a reason for removing this grant in chat...");
@@ -150,19 +145,7 @@ public class GrantsListMenu implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        contents.set(0, 0, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .setName("&6Previous Page")
-                        .build(),
-                e -> inventory.open(player, pagination.previous().getPage())));
-
-        contents.set(0, 8, ClickableItem.of(new ItemFactory(Material.ARROW)
-                        .setName("&6Next Page")
-                        .build(),
-                e -> inventory.open(player, pagination.next().getPage())));
-
+        Util.addNavigation(player, this.inventory, contents);
     }
-
-    @Override
-    public void update(Player player, InventoryContents contents) {}
 
 }

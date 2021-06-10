@@ -29,14 +29,15 @@ public class ClearChatCommand extends Command {
                         }
                     }
 
-                    String playerName = CC.CONSOLE;
+                    String name = CC.CONSOLE;
 
                     if (sender instanceof Player) {
-                        playerName = FlameAPI.getColoredName(Profile.getByUuid(((Player) sender).getUniqueId()));
+                        name = sender.getName();
                     }
 
-                    Bukkit.broadcastMessage(Config.CLEAR_CHAT_BROADCAST.format(playerName));
-
+                    Bukkit.broadcastMessage(CC.CHAT_BAR);
+                    Bukkit.broadcastMessage(CC.DARK_AQUA + CC.BOLD + "Chat" + CC.DARK_GRAY + CC.BOLD + " » " + CC.GRAY + " Chat has been cleared by " + CC.AQUA + name);
+                    Bukkit.broadcastMessage(CC.CHAT_BAR);
                 });
     }
 

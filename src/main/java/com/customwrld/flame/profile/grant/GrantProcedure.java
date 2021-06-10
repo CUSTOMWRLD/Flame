@@ -1,7 +1,6 @@
-package com.customwrld.flame.profile.grant.procedure;
+package com.customwrld.flame.profile.grant;
 
 import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -9,18 +8,19 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter @Setter
+@Getter
+@Setter
 public class GrantProcedure {
 
     public static final Set<GrantProcedure> procedures = new HashSet<>();
 
     private final Player issuer;
     private final Profile recipient;
-    private final GrantProcedureType type;
-    private GrantProcedureStage stage;
+    private final Type type;
+    private Stage stage;
     private Grant grant;
 
-    public GrantProcedure(Player issuer, Profile recipient, GrantProcedureType type, GrantProcedureStage stage) {
+    public GrantProcedure(Player issuer, Profile recipient, Type type, Stage stage) {
         this.issuer = issuer;
         this.recipient = recipient;
         this.type = type;
@@ -48,6 +48,23 @@ public class GrantProcedure {
 
     public void cancel() {
         procedures.remove(this);
+    }
+
+    public enum Type {
+
+        ADD,
+        REMOVE
+
+    }
+
+    public enum Stage {
+
+        REQUIRE_TIME,
+        PROVIDE_CUSTOM_TIME,
+        REQUIRE_REASON,
+        PROVIDE_CUSTOM_REASON,
+        REQUIRE_CONFIRMATION
+
     }
 
 }

@@ -4,81 +4,65 @@ import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CollectionsUtil;
 import com.customwrld.customlib.util.UUIDUtil;
 import com.customwrld.flame.Flame;
-import com.customwrld.flame.profile.conversation.ProfileConversations;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.profile.punishment.Punishment;
-import com.customwrld.flame.profile.punishment.PunishmentType;
-import com.customwrld.flame.rank.Rank;
+import com.customwrld.flame.profile.rank.Rank;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Profile {
 
-    public static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("profiles");
-    public static final Map<UUID, Profile> profiles = new HashMap<>();
+    @Getter
+    private static final MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("profiles");
+    @Getter
+    private static final Map<UUID, Profile> profiles = new HashMap<>();
 
     private final UUID uuid;
-
-    private final List<String> ipAddresses;
     private final List<String> permissions;
-
-    private final List<Punishment> punishments;
+    private final List<String> punishments;
+    private final List<Punishment> cachedPunishments;
     private final List<Grant> grants;
-
-    private final List<UUID> knownAlts;
     private final List<UUID> ignored;
     private final List<UUID> friends;
-
     private final OptionsProfile options;
     private final StaffProfile staffProfile;
-    private final ProfileConversations conversations;
-
     private Grant activeGrant;
-
     private String name;
     private String currentAddress;
     private String discordId;
-
+    private Integer gold;
     private Long firstSeen;
     private Long lastSeen;
-
+    private Long experience;
+    private Map<String, Integer> gameModeGold;
     private boolean loaded;
-
-    private int gold;
-    private Map<String, Integer> gamemodeGold;
-    private long experience;
 
     public Profile(String username, UUID uuid) {
         this.uuid = uuid;
         this.name = username;
-        this.grants = new ArrayList<>();
         this.permissions = new ArrayList<>();
         this.punishments = new ArrayList<>();
-        this.ipAddresses = new ArrayList<>();
-        this.knownAlts = new ArrayList<>();
+        this.cachedPunishments = new ArrayList<>();
+        this.grants = new ArrayList<>();
         this.ignored = new ArrayList<>();
         this.friends = new ArrayList<>();
-        this.gamemodeGold = new HashMap<>();
+        this.gameModeGold = new HashMap<>();
         this.options = new OptionsProfile();
-        this.conversations = new ProfileConversations(this);
         this.staffProfile = new StaffProfile();
-
         reload();
     }
 
@@ -108,54 +92,48 @@ public class Profile {
         return new Profile(uuidPair.getName(), uuidPair.getUuid());
     }
 
-    public static List<Profile> getByIpAddress(String ipAddress) {
-        List<Profile> profiles = new ArrayList<>();
-        Bson filter = Filters.eq("currentAddress", ipAddress);
-
-        try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
-            while (cursor.hasNext()) {
-                Document document = cursor.next();
-                profiles.add(new Profile(document.getString("name"),
-                        UUID.fromString(document.getString("uuid"))));
-            }
-        }
-
-        return profiles;
-    }
-
-    public static List<Profile> getByDiscord(String discord) {
-        List<Profile> profiles = new ArrayList<>();
-        Bson filter = Filters.eq("discordId", discord);
-
-        try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
-            while (cursor.hasNext()) {
-                Document document = cursor.next();
-                profiles.add(new Profile(document.getString("name"),
-                        UUID.fromString(document.getString("uuid"))));
-            }
-        }
-
-        return profiles;
-    }
-
-    public boolean isSyncedWithDiscord() {
-        return this.discordId != null && !this.discordId.isEmpty();
-    }
+//    public static List<Profile> getByDiscord(String discord) {
+//        List<Profile> profiles = new ArrayList<>();
+//        Bson filter = Filters.eq("discordId", discord);
+//
+//        try (MongoCursor<Document> cursor = collection.find(filter).iterator()) {
+//            while (cursor.hasNext()) {
+//                Document document = cursor.next();
+//                profiles.add(new Profile(document.getString("name"),
+//                        UUID.fromString(document.getString("uuid"))));
+//            }
+//        }
+//
+//        return profiles;
+//    }
+//
+//    public boolean isSyncedWithDiscord() {
+//        return this.discordId != null && !this.discordId.isEmpty();
+//    }
 
     public boolean isIgnoring(Profile profile) {
-        return ignored.contains(profile);
-    }
-
-    public boolean isIgnoring(Player player) {
-        return isIgnoring(Profile.getByUuid(player.getUniqueId()));
+        return ignored.contains(profile.getUuid());
     }
 
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
-    public Punishment getActivePunishmentByType(PunishmentType type) {
-        for (Punishment punishment : punishments) {
+    private void checkPunishments() {
+        for (Punishment punishment : this.cachedPunishments) {
+            if (!punishment.isRemoved() && punishment.hasExpired()) {
+                punishment.setRemovedAt(System.currentTimeMillis());
+                punishment.setRemovedReason("Punishment Expired");
+                punishment.setRemoved(true);
+                punishment.setRemovedBy(null);
+                punishment.broadcast(this);
+                punishment.save();
+            }
+        }
+    }
+
+    public Punishment getActivePunishmentByType(Punishment.Type type) {
+        for (Punishment punishment : this.cachedPunishments) {
             if (punishment.getType() == type && !punishment.isRemoved() && !punishment.hasExpired()) {
                 return punishment;
             }
@@ -164,24 +142,22 @@ public class Profile {
         return null;
     }
 
-    private void checkPunishments() {
-        for (Punishment punishment : punishments) {
-            if (!punishment.isRemoved() && punishment.hasExpired()) {
-                punishment.setRemovedAt(System.currentTimeMillis());
-                punishment.setRemovedReason("Punishment Expired");
-                punishment.setRemoved(true);
-                punishment.setRemovedBy(null);
-                punishment.sendEmbed(this.uuid);
-                punishment.broadcast(true, this);
-            }
+    public int getPunishmentCountByType(Punishment.Type type) {
+        int i = 0;
+
+        for (Punishment punishment : this.cachedPunishments) {
+
+            if (punishment.getType() == type) i++;
         }
+
+        return i;
     }
 
     public Rank getActiveRank() {
-        return activeGrant.getRank();
+        return this.activeGrant.getRank();
     }
 
-    private void checkGrants() {
+    private void checkGrants(boolean save) {
         Player player = getPlayer();
 
         Iterator<Grant> iterator = this.grants.iterator();
@@ -190,7 +166,7 @@ public class Profile {
         while (iterator.hasNext()) {
             Grant grant = iterator.next();
 
-            if (grant.getRank() == null || Rank.ranks.get(grant.getRank().getUuid()) == null) {
+            if (grant.getRank() == null || Rank.getRanks().get(grant.getRank().getUuid()) == null) {
                 iterator.remove();
             } else if (!grant.isRemoved() && !grant.hasExpired()) {
                 activeGrants.add(grant);
@@ -207,7 +183,7 @@ public class Profile {
                 grant.setRemoved(true);
 
                 if (player != null) {
-                    Grant.expireGrant(player, grant);
+                    Grant.expireGrant(this, grant);
                 }
             }
         }
@@ -219,13 +195,15 @@ public class Profile {
             this.activeGrant = defaultGrant;
 
             if (player != null) {
-                Grant.loadNewGrant(this, player, defaultGrant);
+                Grant.loadNewGrant(this, defaultGrant);
             }
         } else {
             this.activeGrant = activeGrants.get(0);
         }
 
-        this.save();
+        if(save) {
+            this.save();
+        }
     }
 
     public List<String> getAllPermissions() {
@@ -245,16 +223,6 @@ public class Profile {
         return permissions;
     }
 
-    public int getPunishmentCountByType(PunishmentType type) {
-        int i = 0;
-
-        for (Punishment punishment : punishments) {
-            if (punishment.getType() == type) i++;
-        }
-
-        return i;
-    }
-
     private void checkPlayer() {
         Player player = getPlayer();
 
@@ -262,7 +230,7 @@ public class Profile {
             return;
         }
 
-        player.setOp(this.staffProfile.operator());
+        player.setOp(this.staffProfile.isOperator());
 
         for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
             if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(Flame.getFlame())) {
@@ -282,7 +250,7 @@ public class Profile {
     }
 
     public void reload() {
-        Document document = collection.find(Filters.eq("uuid", uuid.toString())).first();
+        Document document = collection.find(Filters.eq("_id", this.uuid.toString())).first();
 
         if (document != null) {
             if (this.name == null) {
@@ -300,33 +268,24 @@ public class Profile {
             this.options.setReceivingMessageSounds(optionsDocument.getBoolean("receivingMessageSounds"));
 
             Document staffDocument = (Document) document.get("staff");
-            this.staffProfile.authKey(staffDocument.getString("authKey"));
-            this.staffProfile.operator(staffDocument.getBoolean("operator"));
-            this.staffProfile.staffMessagesEnabled(staffDocument.getBoolean("staffMessagesEnabled"));
-            this.staffProfile.authEnabled(staffDocument.getBoolean("authEnabled"));
-            this.staffProfile.locked(staffDocument.getBoolean("locked"));
+            this.staffProfile.setTwoFactorKey(staffDocument.getString("twoFactorKey"));
+            this.staffProfile.setOperator(staffDocument.getBoolean("operator"));
+            this.staffProfile.setReceivingStaffMessages(staffDocument.getBoolean("receivingStaffMessages"));
+            this.staffProfile.setTwoFactor(staffDocument.getBoolean("twoFactor"));
+            this.staffProfile.setLocked(staffDocument.getBoolean("locked"));
 
             this.discordId = document.getString("discordId");
 
             this.gold = document.getInteger("gold");
 
-            this.gamemodeGold.clear();
-            this.gamemodeGold = CollectionsUtil.genericMapToType(document.get("gamemodeGold", Map.class), String.class, Integer.class);
+            this.gameModeGold.clear();
+            this.gameModeGold = CollectionsUtil.genericMapToType(document.get("gameModeGold", Map.class), String.class, Integer.class);
 
             this.experience = document.getLong("experience");
-
-            this.ipAddresses.clear();
-            this.ipAddresses.addAll(document.getList("ipAddresses", String.class, new ArrayList<>()));
 
             this.grants.clear();
             for (Map<?, ?> obj : document.getList("grants", Map.class, new ArrayList<>())) {
                 this.grants.add(Grant.fromSimple(
-                        CollectionsUtil.genericMapToType(obj, String.class, String.class)));
-            }
-
-            this.punishments.clear();
-            for (Map<?, ?> obj : document.getList("punishments", Map.class, new ArrayList<>())) {
-                this.punishments.add(Punishment.fromSimple(
                         CollectionsUtil.genericMapToType(obj, String.class, String.class)));
             }
 
@@ -342,72 +301,71 @@ public class Profile {
                 this.friends.add(friendUUID);
             }
 
+            this.punishments.clear();
+            this.punishments.addAll(document.getList("punishments", String.class));
+
+            this.cachedPunishments.clear();
+            this.cachedPunishments.addAll(this.punishments.stream().map(Punishment::getById).filter(Objects::nonNull).collect(Collectors.toList()));
+
             this.permissions.clear();
             this.permissions.addAll(document.getList("permissions", String.class));
 
             checkPunishments();
-            checkGrants();
+            checkGrants(false);
             checkPlayer();
 
             this.loaded = true;
-        } else {
-            this.loaded = false;
         }
+
+        this.save();
     }
 
     public void save() {
         Document document = new Document();
-        document.put("name", name);
-        document.put("uuid", uuid.toString());
-        document.put("firstSeen", firstSeen != null ? firstSeen.toString() : String.valueOf(System.currentTimeMillis()));
-        document.put("lastSeen", lastSeen != null ? lastSeen.toString() : String.valueOf(System.currentTimeMillis()));
-        document.put("currentAddress", currentAddress);
-        document.put("ipAddresses", ipAddresses);
+        document.put("_id", this.uuid.toString());
+        document.put("name", this.name);
+        document.put("firstSeen", this.firstSeen != null ? this.firstSeen.toString() : String.valueOf(System.currentTimeMillis()));
+        document.put("lastSeen", this.lastSeen != null ? this.lastSeen.toString() : String.valueOf(System.currentTimeMillis()));
+        document.put("currentAddress", this.currentAddress);
 
         Document optionsDocument = new Document();
-        optionsDocument.put("receivingFriendRequests", options.isReceivingFriendRequests());
-        optionsDocument.put("receivingPublicChat", options.isReceivingPublicChat());
-        optionsDocument.put("receivingConversations", options.isReceivingConversations());
-        optionsDocument.put("receivingMessageSounds", options.isReceivingMessageSounds());
+        optionsDocument.put("receivingFriendRequests", this.options.isReceivingFriendRequests());
+        optionsDocument.put("receivingPublicChat", this.options.isReceivingPublicChat());
+        optionsDocument.put("receivingConversations", this.options.isReceivingConversations());
+        optionsDocument.put("receivingMessageSounds", this.options.isReceivingMessageSounds());
         document.put("options", optionsDocument);
 
         Document staffDocument = new Document();
-        staffDocument.put("authKey", staffProfile.authKey());
-        staffDocument.put("operator", staffProfile.operator());
-        staffDocument.put("staffMessagesEnabled", staffProfile.staffMessagesEnabled());
-        staffDocument.put("authEnabled", staffProfile.authEnabled());
-        staffDocument.put("locked", staffProfile.locked());
+        staffDocument.put("twoFactorKey", this.staffProfile.getTwoFactorKey());
+        staffDocument.put("operator", this.staffProfile.isOperator());
+        staffDocument.put("receivingStaffMessages", this.staffProfile.isReceivingStaffMessages());
+        staffDocument.put("twoFactor", this.staffProfile.isTwoFactor());
+        staffDocument.put("locked", this.staffProfile.isLocked());
         document.put("staff", staffDocument);
 
-        document.put("discord", discordId);
+        document.put("discord", this.discordId);
 
-        document.put("gold", gold);
-        document.put("gamemodeGold", gamemodeGold);
-        document.put("experience", experience);
+        document.put("gold", this.gold);
+        document.put("gameModeGold", this.gameModeGold);
+        document.put("experience", this.experience);
 
         List<HashMap<String, String>> simpleGrants = new ArrayList<>();
 
-        for (Grant grant : grants) {
+        for (Grant grant : this.grants) {
             simpleGrants.add(grant.simplify());
         }
 
         document.put("grants", simpleGrants);
 
-        List<HashMap<String, String>> simplePunishments = new ArrayList<>();
+        document.put("punishments", this.punishments);
 
-        for (Punishment punishment : punishments) {
-            simplePunishments.add(punishment.simplify());
-        }
+        document.put("permissions", this.permissions);
 
-        document.put("punishments", simplePunishments);
+        document.put("ignored", this.ignored);
 
-        document.put("permissions", permissions);
+        document.put("friends", this.friends);
 
-        document.put("ignored", ignored);
-
-        document.put("friends", friends);
-
-        collection.replaceOne(Filters.eq("uuid", uuid.toString()), document, new ReplaceOptions().upsert(true));
+        collection.replaceOne(Filters.eq("_id", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
     }
 
 }
