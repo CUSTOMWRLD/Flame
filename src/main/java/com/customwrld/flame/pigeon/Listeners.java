@@ -1,9 +1,8 @@
 package com.customwrld.flame.pigeon;
 
-import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
-import com.customwrld.flame.pigeon.payloads.RecalculateProfilePayload;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.flame.pigeon.payloads.rank.ReloadRankPayload;
+import com.customwrld.flame.pigeon.payloads.rank.RemoveRankPayload;
+import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.pigeon.annotations.PayloadHandler;
 import com.customwrld.pigeon.annotations.PayloadListener;
 import com.customwrld.pigeon.listeners.Listener;
@@ -12,47 +11,24 @@ import com.customwrld.pigeon.listeners.Listener;
 public class Listeners implements Listener {
 
     @PayloadHandler
-    public void onPunishmentBroadcast(PunishmentBroadcastPayload payload) {
-        Punishment punishment = Punishment.getById(payload.getPunishmentId());
+    public void onReloadRank(ReloadRankPayload payload) {
+        Rank rank = Rank.getById(payload.getRank());
 
-        if (punishment != null) {
-            punishment.broadcast(Profile.getByUuid(punishment.getPlayer()));
+        Rank.getRanks().remove(payload.getRank());
+
+        if(rank != null) {
+            Rank.getRanks().put(rank.getUuid(), rank);
         }
     }
 
-//    @PayloadHandler
-//    public void onGrantAdd(GrantAddPayload payload) {
-//        Profile profile = Profile.getProfiles().get(payload.getRecipient());
-//
-//        if (profile != null) {
-//            Grant.loadNewGrant(profile, payload.getGrant());
-//        }
-//    }
-//
-//    @PayloadHandler
-//    public void onGrantDelete(GrantDeletePayload payload) {
-//        Profile profile = Profile.getProfiles().get(payload.getRecipient());
-//
-//        if (profile != null) {
-//            profile.getGrants().removeIf(other -> Objects.equals(other, grant));
-//            profile.getGrants().add(grant);
-//            profile.save();
-//
-//            if (grant.hasExpired()) {
-//                Grant.expireGrant(profile, grant);
-//            } else {
-//                Grant.removeGrant(profile, grant);
-//            }
-//
-//        }
-//    }
-
     @PayloadHandler
-    public void onRecalculatePlayer(RecalculateProfilePayload payload) {
-        Profile profile = Profile.getProfiles().get(payload.getPlayer());
+    public void onRemoveRank(RemoveRankPayload payload) {
+        Rank rank = Rank.getRanks().get(payload.getRank());
 
-        if (profile != null) {
-            profile.reload();
+        Rank.getRanks().remove(payload.getRank());
+
+        if(rank != null) {
+            rank.refreshPlayers();
         }
     }
 

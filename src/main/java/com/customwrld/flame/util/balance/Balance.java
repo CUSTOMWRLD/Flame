@@ -2,7 +2,7 @@ package com.customwrld.flame.util.balance;
 
 import com.customwrld.customlib.util.ChatUtil;
 import com.customwrld.flame.Flame;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Currencies;
 import com.customwrld.flame.util.Levels;
 import net.md_5.bungee.api.ChatColor;

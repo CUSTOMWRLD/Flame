@@ -42,6 +42,7 @@ OPTIONS:
 REFLECTION:
   COMMAND_PACKAGE: "com.customwrld.flame.commands"
   PAYLOAD_PACKAGE: "com.customwrld.flame.pigeon.payloads"
+  CONVERTERS_PACKAGE: "com.customwrld.flame.pigeon.converters"
 
 TEBEX:
   SECRET: ""

@@ -1,6 +1,5 @@
 package com.customwrld.flame.pigeon.payloads;
 
-import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.pigeon.annotations.Payload;
 import com.customwrld.pigeon.annotations.Transmit;
@@ -24,26 +23,17 @@ public class UpdateRankPayload extends BasePayload {
         this();
         this.rankId = rankId;
 
-        Rank rank = Rank.getRankByUuid(rankId);
+        Rank rank = Rank.getById(rankId);
 
         Rank.getRanks().remove(rankId);
 
-        if(rank != null) {
+        if (rank != null) {
             Rank.getRanks().put(rankId, rank);
-        } else {
-            // Abort
         }
     }
 
     @Override
     public void receive() {
     }
-
-    // Remove rank from map
-    // Load rank and add back to map
-
-    // TODO: DeleteRankPayload
-    // Remove rank from map
-    // For each online player load next grant if it is their rank
 
 }

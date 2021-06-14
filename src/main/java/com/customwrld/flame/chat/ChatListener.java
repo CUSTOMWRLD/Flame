@@ -3,23 +3,22 @@ package com.customwrld.flame.chat;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.GrantProcedure;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.awt.*;
 
 public class ChatListener implements Listener {
 
     @EventHandler
-    public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
+    public void onAsyncPlayerChatEvent(AsyncChatEvent event) {
         String message = event.getMessage();
         Player sender = event.getPlayer();
         Profile senderProfile = Profile.getProfiles().get(sender.getUniqueId());
@@ -81,7 +80,7 @@ public class ChatListener implements Listener {
     }
 
     public String formatChat(Profile profile, String message) {
-        return CC.translate(FlameAPI.getChatFormat(profile)) + CC.GRAY + ": " + ChatColor.of(bleach(profile.getActiveRank().getColor().getColor(), 0.85)) + message;
+        return CC.translate(FlameAPI.getChatFormat(profile)) + CC.GRAY + ": " + ChatColor.of(bleach(profile.getActiveRank().getColor(), 0.85)) + message;
     }
 
     public Color bleach(Color color, double amount) {

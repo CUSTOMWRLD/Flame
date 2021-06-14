@@ -2,7 +2,7 @@ package com.customwrld.flame.util;
 
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.profile.rank.Rank;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -50,7 +50,7 @@ public class Placeholders extends PlaceholderExpansion {
             case ("format") -> FlameAPI.getChatFormat(Profile.getByUuid(player.getUniqueId()));
             case ("name") -> FlameAPI.getColoredName(Profile.getByUuid(player.getUniqueId()));
             case ("prefix") -> FlameAPI.getColoredPrefix(Profile.getByUuid(player.getUniqueId()));
-            case ("rank") -> rank.getColor() + rank.getName();
+            case ("rank") -> rank.getChatColor() + rank.getName();
             case ("server") -> Config.SERVER_NAME.format();
             case ("weight") -> String.valueOf(rank.getWeight());
             default -> null;

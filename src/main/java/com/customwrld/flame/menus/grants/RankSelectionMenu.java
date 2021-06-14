@@ -2,13 +2,16 @@ package com.customwrld.flame.menus.grants;
 
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
-import com.customwrld.customlib.smartinvs.content.*;
+import com.customwrld.customlib.smartinvs.content.InventoryContents;
+import com.customwrld.customlib.smartinvs.content.InventoryProvider;
+import com.customwrld.customlib.smartinvs.content.Pagination;
+import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.flame.util.Util;
 import org.bukkit.entity.Player;
@@ -49,17 +52,17 @@ public class RankSelectionMenu implements InventoryProvider {
             if (!rank.isDefaultRank()) {
                 List<String> lore = new ArrayList<>();
                 lore.add(CC.MENU_BAR);
-                lore.add("&7Click to grant " + rank.getColor() + rank.getName() + " &7to " + FlameAPI.getColoredName(profile));
+                lore.add("&7Click to grant " + rank.getChatColor() + rank.getName() + " &7to " + FlameAPI.getColoredName(profile));
                 lore.add(CC.MENU_BAR);
 
-                items[i] = ClickableItem.of(new ItemFactory(CC.toMaterial(rank.getColor()))
-                                .setName(rank.getColor() + rank.getName())
+                items[i] = ClickableItem.of(new ItemFactory(CC.toMaterial(rank.getChatColor()))
+                                .setName(rank.getChatColor() + rank.getName())
                                 .setLore(lore)
                                 .build(),
                         e -> {
                             if (FlameAPI.canStartProcedure(player)) {
                                 GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.ADD, GrantProcedure.Stage.REQUIRE_TIME);
-                                procedure.setGrant(new Grant(UUID.randomUUID(), rank, player.getUniqueId(), 0, "", 0));
+                                procedure.setGrant(new Grant(Util.generateId(), profile.getUuid(), rank.getUuid(), player.getUniqueId(), 0, "", 0));
 
                                 new GrantDurationMenu(player, profile, procedure);
                             }

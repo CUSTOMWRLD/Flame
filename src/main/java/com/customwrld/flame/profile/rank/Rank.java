@@ -1,8 +1,8 @@
 package com.customwrld.flame.profile.rank;
 
 import com.customwrld.customlib.CustomLib;
-import com.customwrld.flame.Flame;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -11,25 +11,25 @@ import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import org.bson.Document;
-import org.bukkit.Bukkit;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@Getter @Setter
 public class Rank {
 
-    @Getter
-    private static final Map<UUID, Rank> ranks = new HashMap<>();
+    @Getter private static final Map<UUID, Rank> ranks = new HashMap<>();
+    @Getter private static MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("ranks");
+
     public static Comparator<Rank> COMPARATOR = (rank1, rank2) -> rank2.getWeight() - rank1.getWeight();
-    @Getter
-    private static MongoCollection<Document> collection = CustomLib.getCustomLib().getMongoDatabase().getCollection("ranks");
+
     private final UUID uuid;
     private final String name;
     private final List<Rank> inherited = new ArrayList<>();
     private final List<String> permissions = new ArrayList<>();
-    private ChatColor color;
+    private Color color;
     private String prefix;
     private int weight;
     private boolean defaultRank;
@@ -37,7 +37,7 @@ public class Rank {
     public Rank(String name) {
         this.uuid = UUID.randomUUID();
         this.name = name;
-        this.color = ChatColor.WHITE;
+        this.color = Color.WHITE;
         this.weight = 0;
         this.defaultRank = false;
 
@@ -51,7 +51,7 @@ public class Rank {
         ranks.put(uuid, this);
     }
 
-    public Rank(UUID uuid, String name, ChatColor color, int weight, boolean defaultRank) {
+    public Rank(UUID uuid, String name, Color color, int weight, boolean defaultRank) {
         this.uuid = uuid;
         this.name = name;
         this.color = color;
@@ -72,16 +72,13 @@ public class Rank {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
-                Rank rank = new Rank(UUID.fromString(document.getString("uuid")), document.getString("name"));
+                Rank rank = new Rank(UUID.fromString(document.getString("_id")), document.getString("name"));
                 rank.load(document);
+
                 rank.inherited.clear();
-
-                List<UUID> ranksToInherit = new ArrayList<>();
-
-                CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), ArrayList.class)
-                        .stream()
-                        .map(UUID::fromString)
-                        .forEach(ranksToInherit::add);
+                List<UUID> ranksToInherit = document.getList("inherits", String.class).
+                        stream()
+                        .map(UUID::fromString).collect(Collectors.toList());
 
                 inheritanceReferences.put(rank, ranksToInherit);
 
@@ -100,8 +97,35 @@ public class Rank {
         getDefaultRank();
     }
 
-    public static Rank getRankByUuid(UUID uuid) {
-        return ranks.get(uuid);
+    public static Rank getById(UUID uuid) {
+//        Rank cachedRank = ranks.get(uuid);
+//
+//        if(cachedRank != null) { // TODO: Maybe its own method?
+//            return cachedRank;
+//        }
+        Document document = collection.find(Filters.eq("_id", uuid.toString())).first();
+
+        if (document != null) {
+            Rank rank = new Rank(UUID.fromString(document.getString("_id")),
+                    document.getString("name"),
+                    new Color(document.getInteger("color")),
+                    document.getInteger("weight"),
+                    document.getBoolean("defaultRank"));
+
+            rank.setPrefix(document.getString("prefix"));
+
+            rank.getPermissions().addAll(document.getList("permissions", String.class));
+
+            rank.getInherited().addAll(document.getList("inherits", String.class).
+                    stream()
+                    .map(s -> Rank.getById(UUID.fromString(s)))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()));
+
+            return rank;
+        }
+
+        return null;
     }
 
     public static Rank getRankByName(String name) {
@@ -130,8 +154,12 @@ public class Rank {
         return defaultRank;
     }
 
+    public ChatColor getChatColor() {
+        return ChatColor.of(this.color);
+    }
+
     public boolean isDefaultRank() {
-        return defaultRank;
+        return this.defaultRank;
     }
 
     public boolean hasPermission(String permission) {
@@ -139,12 +167,12 @@ public class Rank {
     }
 
     public boolean hasPermission(String permission, boolean includeInheritance) {
-        if (permissions.contains(permission)) {
+        if (this.permissions.contains(permission)) {
             return true;
         }
 
         if (includeInheritance) {
-            for (Rank rank : inherited) {
+            for (Rank rank : this.inherited) {
                 if (rank.hasPermission(permission)) {
                     return true;
                 }
@@ -155,11 +183,11 @@ public class Rank {
     }
 
     public boolean canInherit(Rank rankToCheck) {
-        if (this == rankToCheck || inherited.contains(rankToCheck) || rankToCheck.inherited.contains(this)) {
+        if (this == rankToCheck || this.inherited.contains(rankToCheck) || rankToCheck.inherited.contains(this)) {
             return false;
         }
 
-        for (Rank rank : inherited) {
+        for (Rank rank : this.inherited) {
             if (!rank.canInherit(rankToCheck)) {
                 return false;
             }
@@ -176,7 +204,7 @@ public class Rank {
         List<String> permissions = new ArrayList<>(this.permissions);
 
         if (includeInheritance) {
-            for (Rank rank : inherited) {
+            for (Rank rank : this.inherited) {
                 permissions.addAll(rank.getAllPermissions());
             }
         }
@@ -184,8 +212,15 @@ public class Rank {
         return permissions;
     }
 
-    public void load() {
-        load(collection.find(Filters.eq("uuid", uuid.toString())).first());
+    public void refreshPlayers() {
+        for(Profile profile : Profile.getProfiles().values()) {
+            for(Grant grant : profile.getCachedGrants()) {
+                if (grant.getRank().equals(this)) {
+                    profile.reloadGrants();
+                    return;
+                }
+            }
+        }
     }
 
     private void load(Document document) {
@@ -193,45 +228,45 @@ public class Rank {
             return;
         }
 
-        color = ChatColor.valueOf(document.getString("color"));
-        prefix = document.getString("prefix");
-        weight = document.getInteger("weight");
-        defaultRank = document.getBoolean("defaultRank");
+        this.color = new Color(document.getInteger("color"));
+        this.prefix = document.getString("prefix");
+        this.weight = document.getInteger("weight");
+        this.defaultRank = document.getBoolean("defaultRank");
 
-        permissions.clear();
-        permissions.addAll(CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("permissions"), ArrayList.class));
+        this.permissions.clear();
+        this.permissions.addAll(document.getList("permissions", String.class));
 
-        inherited.clear();
-
-        CustomLib.getCustomLib().getGson().<List<String>>fromJson(document.getString("inherits"), ArrayList.class)
-                .stream()
-                .map(s -> Rank.getRankByUuid(UUID.fromString(s)))
+        this.inherited.clear();
+        this.inherited.addAll(document.getList("inherits", String.class).
+                stream()
+                .map(s -> Rank.getById(UUID.fromString(s)))
                 .filter(Objects::nonNull)
-                .forEach(inherited::add);
+                .collect(Collectors.toList()));
     }
 
     public void save() {
         Document document = new Document();
-        document.put("uuid", uuid.toString());
-        document.put("name", name);
-        document.put("color", color.name());
-        document.put("prefix", prefix);
-        document.put("weight", weight);
-        document.put("defaultRank", defaultRank);
-        document.put("permissions", CustomLib.getCustomLib().getGson().toJson(permissions));
-        document.put("inherits", CustomLib.getCustomLib().getGson().toJson(inherited
-                .stream()
-                .map(Rank::getUuid)
-                .map(UUID::toString)
-                .collect(Collectors.toList())));
+        document.put("_id", this.uuid.toString());
+        document.put("name", this.name);
+        document.put("color", this.color.getRGB());
+        document.put("prefix", this.prefix);
+        document.put("weight", this.weight);
+        document.put("defaultRank", this.defaultRank);
+        document.put("permissions", this.permissions);
+        document.put("inherits", this.inherited.stream().map(Rank::getUuid).map(UUID::toString).collect(Collectors.toList()));
 
-        collection.replaceOne(Filters.eq("uuid", uuid.toString()), document,
+        collection.replaceOne(Filters.eq("_id", this.uuid.toString()), document,
                 new ReplaceOptions().upsert(true));
     }
 
     public void delete() {
         ranks.remove(uuid);
-        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flame.getFlame(), () -> collection.deleteOne(Filters.eq("uuid", uuid.toString())), (20 * 5));
+        collection.deleteOne(Filters.eq("_id", this.uuid.toString()));
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return object instanceof Rank && ((Rank) object).uuid.equals(this.uuid);
     }
 
 }

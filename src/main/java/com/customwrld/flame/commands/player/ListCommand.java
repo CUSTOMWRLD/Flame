@@ -2,7 +2,7 @@ package com.customwrld.flame.commands.player;
 
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -45,7 +45,7 @@ public class ListCommand extends Command {
                     List<String> rankNames = new ArrayList<>();
 
                     for (Rank rank : sortedRanks) {
-                        rankNames.add(rank.getColor() + rank.getName());
+                        rankNames.add(rank.getChatColor() + rank.getName());
                     }
 
                     sender.sendMessage(CC.CHAT_BAR);

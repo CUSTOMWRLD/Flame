@@ -7,8 +7,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.pigeon.payloads.GrantDeletePayload;
-import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import com.customwrld.flame.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -46,7 +45,7 @@ public class DeleteGrantMenu implements InventoryProvider {
                         grantProcedure.finish();
                         inventory.close(player);
                         player.sendMessage(CC.GREEN + "The grant has been removed.");
-                        CustomLib.getCustomLib().getPigeon().broadcast(new GrantDeletePayload(grantProcedure.getRecipient().getUuid(), grantProcedure.getGrant()));
+//                        CustomLib.getCustomLib().getPigeon().broadcast(new GrantDeletePayload(grantProcedure.getRecipient().getUuid(), grantProcedure.getGrant())); // TODO: Payload
                     }));
             contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
                             .setName(CC.RED + "Cancel Removal")

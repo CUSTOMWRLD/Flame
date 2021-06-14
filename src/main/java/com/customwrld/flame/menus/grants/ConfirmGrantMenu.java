@@ -1,6 +1,5 @@
 package com.customwrld.flame.menus.grants;
 
-import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -8,13 +7,11 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.SlotPos;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.pigeon.payloads.RecalculateProfilePayload;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import com.customwrld.flame.profile.rank.Rank;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class ConfirmGrantMenu implements InventoryProvider {
@@ -47,13 +44,13 @@ public class ConfirmGrantMenu implements InventoryProvider {
 
                 grant.setAddedAt(System.currentTimeMillis());
 
-                this.profile.getGrants().add(grant);
+                this.profile.getGrants().add(grant.getId());
                 this.profile.save();
 
                 if (Profile.getProfiles().containsKey(profile.getUuid())) {
-                    profile.reload();
+//                    profile.reload(); // TODO: RELOAD
                 } else {
-                    CustomLib.getCustomLib().getPigeon().broadcast(new RecalculateProfilePayload(profile.getUuid()));
+//                    CustomLib.getCustomLib().getPigeon().broadcast(new RecalculateProfilePayload(profile.getUuid())); // TODO: RELOAD
                 }
 
                 this.procedure.finish();

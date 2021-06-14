@@ -1,7 +1,7 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.flame.Config;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.profile.rank.Rank;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import org.bukkit.Bukkit;

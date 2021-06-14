@@ -6,8 +6,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Util;
 import org.bukkit.entity.Player;
 

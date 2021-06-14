@@ -1,6 +1,6 @@
 package com.customwrld.flame.util.balance;
 
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Currencies;
 import lombok.Getter;
 import lombok.Setter;

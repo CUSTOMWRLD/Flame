@@ -1,7 +1,7 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.customlib.util.ComponentFormatting;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.balance.Balance;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

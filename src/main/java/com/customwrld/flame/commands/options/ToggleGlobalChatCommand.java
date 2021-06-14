@@ -1,7 +1,7 @@
 //package com.customwrld.flame.commands.options;
 //
 //import com.customwrld.flame.Config;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.util.Command;
 //import dev.jorel.commandapi.CommandAPICommand;
 //import dev.jorel.commandapi.CommandPermission;

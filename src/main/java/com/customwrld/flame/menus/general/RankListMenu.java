@@ -13,6 +13,7 @@ import com.customwrld.flame.profile.rank.Rank;
 import com.customwrld.flame.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -75,9 +76,9 @@ public class RankListMenu implements InventoryProvider {
 
             lore.add(CC.MENU_BAR);
 
-            items[i] = ClickableItem.of(new ItemFactory(CC.toMaterial(rank.getColor()))
-                    .setName(rank.getColor() + rank.getName())
-                    .setLore(lore)
+            items[i] = ClickableItem.of(new ItemFactory(Material.WHITE_CONCRETE) // TODO: Change to a leather chestplate and set the color to it CC.toMaterial(rank.getChatColor())
+                    .setName(rank.getChatColor() + rank.getName())
+                    .setLore(CC.translate(lore))
                     .build(), e -> {
             });
             i++;

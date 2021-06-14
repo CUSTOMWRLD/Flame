@@ -6,11 +6,10 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class GrantReasonMenu implements InventoryProvider {

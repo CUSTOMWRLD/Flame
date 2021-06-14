@@ -4,7 +4,7 @@
 //import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.pigeon.payloads.CreateFriendRequestPayload;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.util.Arguments;
 //import com.customwrld.flame.util.Command;
 //import com.customwrld.pigeon.Pigeon;

@@ -10,9 +10,9 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.grant.GrantProcedure;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;;
+import com.customwrld.commonlib.modules.grant.Grant;Procedure;
 import com.customwrld.flame.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -51,7 +51,7 @@ public class GrantsListMenu implements InventoryProvider {
         List<Grant> activeGrants = new ArrayList<>();
         List<Grant> removedGrants = new ArrayList<>();
 
-        for (Grant grant : profile.getGrants()) {
+        for (Grant grant : profile.getCachedGrants()) {
             if (grant.isRemoved()) {
                 removedGrants.add(grant);
             } else {
@@ -123,8 +123,8 @@ public class GrantsListMenu implements InventoryProvider {
             }
 
             items[i] = ClickableItem.of(new ItemFactory(material)
-                            .setName(grant.getRank().getColor() + grant.getRank().getName())
-                            .setLore(lore)
+                            .setName(grant.getRank().getChatColor() + grant.getRank().getName())
+                            .setLore(CC.translate(lore))
                             .build(),
                     e -> {
                         if (!grant.isRemoved() && !grant.hasExpired() && !grant.getRank().isDefaultRank() && FlameAPI.canStartProcedure(player)) {

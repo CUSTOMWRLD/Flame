@@ -6,7 +6,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,7 +38,7 @@ public class ProfileOptionsMenu implements InventoryProvider {
 
     @Override
     public void close(Player player, InventoryContents contents) {
-        if(this.modified) {
+        if (this.modified) {
             this.profile.save();
         }
     }

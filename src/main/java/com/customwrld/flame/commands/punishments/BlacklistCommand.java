@@ -1,17 +1,16 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.customlib.CustomLib;
+import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Util;
-import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -39,8 +38,9 @@ public class BlacklistCommand extends Command {
                         return;
                     }
 
-                    if (profile.getActivePunishmentByType(Punishment.Type.BLACKLIST) != null) {
-                        sender.sendMessage(CC.RED + "That player already has an pre-existing punishment.");
+                    if (profile.getApi().getActivePunishmentByType(Punishment.Type.BLACKLIST) != null) {
+                        sender.sendMessage(Component.text("That player already has an pre-existing punishment.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
@@ -51,8 +51,7 @@ public class BlacklistCommand extends Command {
                     }
 
                     Punishment punishment = new Punishment(
-                            Util.generateId(),
-                            profile.getUuid(),
+                            profile.getId(),
                             Punishment.Type.BLACKLIST,
                             addedBy,
                             System.currentTimeMillis(),
@@ -60,22 +59,7 @@ public class BlacklistCommand extends Command {
                             -1L
                     );
 
-                    punishment.save();
-
-                    profile.getCachedPunishments().add(punishment);
-                    profile.getPunishments().add(punishment.getId());
-
-                    profile.save();
-
-                    Player player = profile.getPlayer();
-
-                    if (player != null) {
-                        player.kickPlayer(String.join("\n", punishment.getPunishmentMessage()));
-                    }
-
-                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
-
-                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
+                    profile.getApi().addPunishment(punishment);
                 });
     }
 

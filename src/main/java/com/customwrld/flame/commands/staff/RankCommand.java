@@ -6,7 +6,6 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
 import com.customwrld.flame.pigeon.payloads.UpdateRankPayload;
 import com.customwrld.flame.profile.rank.Rank;
-import com.customwrld.flame.profile.rank.RankUpdateType;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.pigeon.Pigeon;
@@ -15,7 +14,7 @@ import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 import static com.customwrld.flame.util.Arguments.rankArgument;
@@ -68,7 +67,7 @@ public class RankCommand extends Command {
 
                     for (Rank childRank : rank.getInherited()) {
                         if (childRank.hasPermission(permission)) {
-                            sender.sendMessage(CC.RED + "That rank is inheriting that permission from the " + rank.getColor() + rank.getName() + " rank.");
+                            sender.sendMessage(CC.RED + "That rank is inheriting that permission from the " + rank.getChatColor() + rank.getName() + " rank.");
                             return;
                         }
                     }
@@ -129,7 +128,7 @@ public class RankCommand extends Command {
 
                         pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
                     } else {
-                        sender.sendMessage(ChatColor.RED + "The parent rank cannot inherit permissions from the inherit child rank.");
+                        sender.sendMessage(CC.RED + "The parent rank cannot inherit permissions from the inherit child rank.");
                     }
                 });
     }
@@ -156,7 +155,7 @@ public class RankCommand extends Command {
 
                         pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
                     } else {
-                        sender.sendMessage(ChatColor.RED + "The parent rank does not inherit the child rank.");
+                        sender.sendMessage(CC.RED + "The parent rank does not inherit the child rank.");
                     }
                 });
     }
@@ -172,19 +171,19 @@ public class RankCommand extends Command {
                         .toArray(org.bukkit.ChatColor[]::new)))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
-                    net.md_5.bungee.api.ChatColor color = ((org.bukkit.ChatColor) args[1]).asBungee();
+                    ChatColor color = ((org.bukkit.ChatColor) args[1]).asBungee();
 
                     if (rank == null) {
                         sender.sendMessage(CC.RED + Config.RANK_NOT_FOUND.format());
                         return;
                     }
 
-                    if (color == net.md_5.bungee.api.ChatColor.RESET) {
+                    if (color == ChatColor.RESET) {
                         sender.sendMessage(CC.RED + "That color does not exist.");
                         return;
                     }
 
-                    rank.setColor(color);
+                    rank.setColor(color.getColor());
                     rank.save();
 
                     pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));

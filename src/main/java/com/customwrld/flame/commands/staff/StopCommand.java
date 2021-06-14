@@ -2,7 +2,7 @@
 //
 //import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Flame;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.Initialize;
 //import dev.jorel.commandapi.CommandAPICommand;
 //import org.bukkit.Bukkit;

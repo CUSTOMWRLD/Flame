@@ -1,11 +1,12 @@
 package com.customwrld.flame.commands.chat;
 
-import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.Config;
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -23,17 +24,25 @@ public class MuteChatCommand extends Command {
                 .executes((sender, args) -> {
                     FlameAPI.setChatMuted(!FlameAPI.isChatMuted());
 
-                    String playerName = CC.CONSOLE;
+                    TextComponent playerName = Minecraft.Style.CONSOLE;
 
                     if (sender instanceof Player) {
-                        playerName = FlameAPI.getColoredName(Profile.getByUuid(((Player) sender).getUniqueId()));
+                        Player player = ((Player) sender);
+
+                        Profile profile = Profile.getProfile(null, player.getUniqueId());
+
+                        if (profile == null) {
+                            return;
+                        }
+
+                        playerName = FlameAPI.getColoredName(profile);
                     }
 
-                    if (FlameAPI.isChatMuted()) {
-                        Bukkit.broadcastMessage(Config.CHAT_MUTED.format(playerName));
-                    } else {
-                        Bukkit.broadcastMessage(Config.CHAT_UNMUTED.format(playerName));
-                    }
+                    Bukkit.broadcast(Minecraft.Style.SEPARATOR);
+                    Bukkit.broadcast(Minecraft.Style.getMessageComponent("Chat",
+                            Component.text("Chat has been " + (FlameAPI.isChatMuted() ? "muted" : "unmuted") + " by ")
+                                    .append(playerName)));
+                    Bukkit.broadcast(Minecraft.Style.SEPARATOR);
                 });
     }
 

@@ -5,6 +5,8 @@ import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -34,11 +36,14 @@ public class StackCommand extends Command {
                     ItemStack item = player.getInventory().getItemInMainHand();
 
                     if (item.getItemMeta() == null || item.getType() == Material.AIR) {
-                        player.sendMessage(CC.RED + "Could not add additional items to your hand.");
+                        player.sendMessage(Component.text("Could not add additional items to your hand.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
-                    player.sendMessage(CC.GREEN + "The item in your hands amount has been changed to " + amount + ".");
+                    player.sendMessage(Component.text("The item in your hands amount has been changed to " + amount + ".")
+                            .color(NamedTextColor.GREEN));
+
                     item.setAmount(amount);
                 });
     }

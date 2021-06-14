@@ -46,9 +46,8 @@ public class HealCommand extends Command {
                         if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
                             sender.sendMessage(CC.RED + "Server was unable to heal " + player.getName() + ".");
                         } else {
-                            sender.sendMessage(CC.RED + "Server was unable to you.");
+                            sender.sendMessage(CC.RED + "Server was unable to heal you.");
                         }
-                        sender.sendMessage();
                     }
                 });
     }
