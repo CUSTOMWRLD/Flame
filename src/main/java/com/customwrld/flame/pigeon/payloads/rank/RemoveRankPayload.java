@@ -1,5 +1,6 @@
 package com.customwrld.flame.pigeon.payloads.rank;
 
+import com.customwrld.flame.FlameAPI;
 import com.customwrld.pigeon.annotations.Payload;
 import com.customwrld.pigeon.annotations.Transmit;
 import com.customwrld.pigeon.payloads.bases.BasePayload;
@@ -19,6 +20,8 @@ public class RemoveRankPayload extends BasePayload {
     public RemoveRankPayload(UUID rank) {
         this();
         this.rank = rank;
+
+        FlameAPI.refreshPlayerGrants();
     }
 
     @Override

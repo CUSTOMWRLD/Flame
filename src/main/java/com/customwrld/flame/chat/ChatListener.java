@@ -1,12 +1,20 @@
 package com.customwrld.flame.chat;
 
+import com.customwrld.commonlib.modules.profile.ProfileAPI;
+import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.modules.grant.Grant;Procedure;
+import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,14 +27,14 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onAsyncPlayerChatEvent(AsyncChatEvent event) {
-        String message = event.getMessage();
+        Component message = event.message();
         Player sender = event.getPlayer();
-        Profile senderProfile = Profile.getProfiles().get(sender.getUniqueId());
+        Profile senderProfile = ProfileAPI.getCachedProfile(sender.getUniqueId());
 
         event.setCancelled(true);
 
-        if (senderProfile == null || !senderProfile.isLoaded()) {
-            sender.sendMessage(Config.COULD_NOT_RESOLVE_PLAYER.format());
+        if (senderProfile == null) {
+            sender.sendMessage(Config.FAILED_TO_LOAD_PROFILE.format());
             return;
         }
 
@@ -50,7 +58,7 @@ public class ChatListener implements Listener {
         }
 
         if (!sender.hasPermission("flame.staff")) {
-            Punishment punishment = senderProfile.getActivePunishmentByType(Punishment.Type.MUTE);
+            Punishment punishment = senderProfile.api().getActivePunishmentByType(Punishment.Type.MUTE);
 
             if (FlameAPI.isChatMuted()) {
                 sender.sendMessage(CC.CHAT_BAR);
@@ -60,14 +68,20 @@ public class ChatListener implements Listener {
             }
 
             if (punishment != null) {
-                punishment.getPunishmentMessage().forEach(sender::sendMessage);
+                punishment.api().getPunishmentMessage().forEach(sender::sendMessage);
                 return;
             }
 
             if (!ChatFilter.isSafe(message)) {
                 Bukkit.getServer().getOnlinePlayers().stream()
                         .filter(staff -> staff.hasPermission("flame.staff"))
-                        .forEach(staff -> staff.sendMessage(CC.DARK_GRAY + "[" + CC.RED + "➤" + CC.DARK_GRAY + "] " + formatChat(senderProfile, message)));
+                        .forEach(staff -> staff.sendMessage(Component.text("[")
+                                .color(NamedTextColor.DARK_GRAY)
+                                .append(Component.text("➤")
+                                        .color(NamedTextColor.RED))
+                                .append(Component.text("] ")
+                                        .color(NamedTextColor.DARK_GRAY))
+                                .append(formatChat(senderProfile, message))));
 
                 sender.sendMessage(formatChat(senderProfile, message));
                 return;
@@ -75,18 +89,52 @@ public class ChatListener implements Listener {
         }
 
         Bukkit.getServer().getOnlinePlayers().stream()
-                .filter(player -> Profile.getProfiles().get(player.getUniqueId()).getOptions().isReceivingPublicChat())
-                .forEach(player -> player.sendMessage(formatChat(senderProfile, message)));
+                .filter(player -> {
+                    Profile playerProfile = ProfileAPI.getCachedProfile(player.getUniqueId());
+
+                    if(playerProfile != null) {
+                        return playerProfile.getOptionsProfile().isReceivingPublicChat();
+                    }
+
+                    return false;
+                }).forEach(onlinePlayer -> onlinePlayer.sendMessage(formatChat(senderProfile, message)));
     }
 
-    public String formatChat(Profile profile, String message) {
-        return CC.translate(FlameAPI.getChatFormat(profile)) + CC.GRAY + ": " + ChatColor.of(bleach(profile.getActiveRank().getColor(), 0.85)) + message;
+    public TextComponent formatChat(Profile profile, Component message) {
+        TextComponent chatFormat = FlameAPI.getChatFormat(profile);
+        Rank rank = profile.api().getActiveGrant().api().getRank();
+
+        return Component.text()
+                .append(chatFormat)
+                .append(Component.text(" » ")
+                        .color(NamedTextColor.DARK_GRAY))
+                .append(message.color(TextColor.color(bleach(profile.api().getActiveGrant().api().getRank().getColor(), 0.85))))
+                .hoverEvent(HoverEvent.showText(Component.text()
+                        .append(chatFormat
+                                .append(Component.newline()))
+                        .append(Component.text()
+                                .append(Component.text(" * ")
+                                        .color(NamedTextColor.AQUA))
+                                .append(Component.text("Name: ")
+                                        .color(NamedTextColor.GRAY))
+                                .append(FlameAPI.getColoredName(profile))
+                                .append(Component.newline()))
+                        .append(Component.text()
+                                .append(Component.text(" * ")
+                                        .color(NamedTextColor.AQUA))
+                                .append(Component.text("Rank: ")
+                                        .color(NamedTextColor.GRAY))
+                                .append(Component.text(rank.getName())
+                                        .color(TextColor.color(rank.getColor().getRGB())))
+                        )
+                ))
+                .build();
     }
 
-    public Color bleach(Color color, double amount) {
+    public int bleach(Color color, double amount) {
         int red = (int) ((color.getRed() * (1 - amount) / 255 + amount) * 255);
         int green = (int) ((color.getGreen() * (1 - amount) / 255 + amount) * 255);
         int blue = (int) ((color.getBlue() * (1 - amount) / 255 + amount) * 255);
-        return new Color(red, green, blue);
+        return new Color(red, green, blue).getRGB();
     }
 }

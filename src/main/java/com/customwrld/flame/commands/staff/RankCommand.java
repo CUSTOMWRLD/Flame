@@ -1,11 +1,12 @@
 package com.customwrld.flame.commands.staff;
 
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
-import com.customwrld.flame.pigeon.payloads.UpdateRankPayload;
-import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.pigeon.payloads.rank.ReloadRankPayload;
+import com.customwrld.flame.pigeon.payloads.rank.RemoveRankPayload;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.pigeon.Pigeon;
@@ -14,8 +15,12 @@ import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.awt.*;
 
 import static com.customwrld.flame.util.Arguments.rankArgument;
 
@@ -55,19 +60,16 @@ public class RankCommand extends Command {
                     Rank rank = (Rank) args[0];
                     String permission = (String) args[1];
 
-                    if (rank == null) {
-                        sender.sendMessage(CC.RED + Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
                     if (rank.getPermissions().contains(permission)) {
-                        sender.sendMessage(CC.RED + "That rank is already assigned that permission.");
+                        sender.sendMessage(Component.text("That rank is already assigned that permission.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
                     for (Rank childRank : rank.getInherited()) {
-                        if (childRank.hasPermission(permission)) {
-                            sender.sendMessage(CC.RED + "That rank is inheriting that permission from the " + rank.getChatColor() + rank.getName() + " rank.");
+                        if (childRank.api().hasPermission(permission)) {
+                            sender.sendMessage(Component.text("That rank is inheriting that permission from the " + rank.getName() + " rank.")
+                                    .color(NamedTextColor.RED));
                             return;
                         }
                     }
@@ -75,7 +77,7 @@ public class RankCommand extends Command {
                     rank.getPermissions().add(permission);
                     rank.save();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
 
@@ -90,18 +92,14 @@ public class RankCommand extends Command {
                     Rank rank = (Rank) args[0];
                     String permission = (String) args[1];
 
-                    if (rank == null) {
-                        sender.sendMessage(CC.RED + Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
                     if (!rank.getPermissions().contains(permission)) {
-                        sender.sendMessage(CC.RED + "That rank is not assigned that permission.");
+                        sender.sendMessage(Component.text("That rank is not assigned that permission.")
+                                .color(NamedTextColor.RED));
                     } else {
                         rank.getPermissions().remove(permission);
                         rank.save();
 
-                        pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                        pigeon.broadcast(new ReloadRankPayload(rank));
                     }
                 });
     }
@@ -117,18 +115,14 @@ public class RankCommand extends Command {
                     Rank parent = (Rank) args[0];
                     Rank child = (Rank) args[1];
 
-                    if (parent == null || child == null) {
-                        sender.sendMessage(Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
-                    if (parent.canInherit(child)) {
+                    if (parent.api().canInherit(child)) {
                         parent.getInherited().add(child);
                         parent.save();
 
-                        pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
+                        pigeon.broadcast(new ReloadRankPayload(parent));
                     } else {
-                        sender.sendMessage(CC.RED + "The parent rank cannot inherit permissions from the inherit child rank.");
+                        sender.sendMessage(Component.text("The parent rank cannot inherit permissions from the inherit child rank.")
+                                .color(NamedTextColor.RED));
                     }
                 });
     }
@@ -144,18 +138,13 @@ public class RankCommand extends Command {
                     Rank parent = (Rank) args[0];
                     Rank child = (Rank) args[1];
 
-
-                    if (parent == null || child == null) {
-                        sender.sendMessage(Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
                     if (parent.getInherited().remove(child)) {
                         parent.save();
 
-                        pigeon.broadcast(new UpdateRankPayload(parent.getUuid()));
+                        pigeon.broadcast(new ReloadRankPayload(parent));
                     } else {
-                        sender.sendMessage(CC.RED + "The parent rank does not inherit the child rank.");
+                        sender.sendMessage(Component.text("The parent rank does not inherit the child rank.")
+                                .color(NamedTextColor.RED));
                     }
                 });
     }
@@ -166,38 +155,27 @@ public class RankCommand extends Command {
         return new CommandAPICommand("setcolor")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
-                .withArguments(new ChatColorArgument("color").safeOverrideSuggestions((sender, prevArgs) -> CC.toLegacy(CC.MAP.values()).stream()
-                        .filter(org.bukkit.ChatColor::isColor) // TODO: Turn this into an argument
-                        .toArray(org.bukkit.ChatColor[]::new)))
+                .withArguments(Arguments.colorArgument("color"))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
-                    ChatColor color = ((org.bukkit.ChatColor) args[1]).asBungee();
+                    ChatColor color = (ChatColor) args[1];
 
-                    if (rank == null) {
-                        sender.sendMessage(CC.RED + Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
-                    if (color == ChatColor.RESET) {
-                        sender.sendMessage(CC.RED + "That color does not exist.");
-                        return;
-                    }
-
-                    rank.setColor(color.getColor());
+                    rank.setColor(color.asBungee().getColor());
                     rank.save();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    sender.sendMessage(Component.text("You have set the '" + rank.getName() + "' rank's color to '" + color.name() + "'"));
+
+                    pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
 
     private CommandAPICommand list() {
-        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
-
         return new CommandAPICommand("list")
                 .withPermission(this.permission)
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(Config.PLAYER_ONLY.format());
+                        sender.sendMessage(Component.text(Config.PLAYER_ONLY.format())
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
@@ -218,15 +196,10 @@ public class RankCommand extends Command {
                     Rank rank = (Rank) args[0];
                     Integer weight = (Integer) args[1];
 
-                    if (rank == null) {
-                        sender.sendMessage(CC.RED + Config.RANK_NOT_FOUND.format());
-                        return;
-                    }
-
                     rank.setWeight(weight);
                     rank.save();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
 
@@ -239,15 +212,16 @@ public class RankCommand extends Command {
                 .executes((sender, args) -> {
                     String rankName = (String) args[0];
 
-                    if (Rank.getRankByName(rankName) != null) {
-                        sender.sendMessage(CC.RED + "A rank with that name already exists.");
+                    if (Rank.getRank(rankName) != null) {
+                        sender.sendMessage(Component.text("A rank with that name already exists.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
-                    Rank rank = new Rank(rankName);
+                    Rank rank = new Rank(rankName, 0, "", Color.WHITE);
                     rank.save();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
 
@@ -260,14 +234,9 @@ public class RankCommand extends Command {
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
 
-                    if (rank == null) {
-                        sender.sendMessage(CC.RED + "A rank with that name does not exist.");
-                        return;
-                    }
-
                     rank.delete();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    pigeon.broadcast(new RemoveRankPayload(rank.getUuid()));
                 });
     }
 
@@ -285,7 +254,7 @@ public class RankCommand extends Command {
                     rank.setPrefix(prefix);
                     rank.save();
 
-                    pigeon.broadcast(new UpdateRankPayload(rank.getUuid()));
+                    pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
 }

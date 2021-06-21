@@ -46,7 +46,7 @@ public class BanCommand extends Command {
                         addedBy = executor.getUniqueId();
                     }
 
-                    if (profile.getApi().getActivePunishmentByType(Punishment.Type.BAN) != null) {
+                    if (profile.api().getActivePunishmentByType(Punishment.Type.BAN) != null) {
                         sender.sendMessage(Component.text("That player already has an pre-existing punishment.")
                                 .color(NamedTextColor.RED));
                         return;
@@ -61,7 +61,7 @@ public class BanCommand extends Command {
                             duration.getValue()
                     );
 
-                    profile.getApi().addPunishment(punishment);
+                    profile.api().addPunishment(punishment);
                 });
     }
 

@@ -30,7 +30,7 @@ public class UnbanCommand extends Command {
                     Profile profile = (Profile) args[0];
                     String reason = (String) args[1];
 
-                    Punishment punishment = profile.getApi().getActivePunishmentByType(Punishment.Type.BAN);
+                    Punishment punishment = profile.api().getActivePunishmentByType(Punishment.Type.BAN);
 
                     if (punishment == null) {
                         sender.sendMessage(Component.text("That player does not have an existing punishment.")
@@ -44,7 +44,7 @@ public class UnbanCommand extends Command {
                         remover = ((Player) sender).getUniqueId();
                     }
 
-                    profile.getApi().removePunishment(punishment, remover, System.currentTimeMillis(), reason);
+                    profile.api().removePunishment(punishment, remover, System.currentTimeMillis(), reason);
                 });
     }
 }

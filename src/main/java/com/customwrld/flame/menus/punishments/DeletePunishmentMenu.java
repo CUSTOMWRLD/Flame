@@ -1,5 +1,9 @@
 package com.customwrld.flame.menus.punishments;
 
+import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -8,6 +12,9 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -31,25 +38,28 @@ public class DeletePunishmentMenu implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
+        Profile profile = this.procedure.getRecipient();
+        Punishment punishment = this.procedure.getPunishment();
 
         contents.fill(ClickableItem.empty(Util.FILLER));
 
         for (int x = 0; x < 4; x++) {
             contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_STAINED_GLASS_PANE)
-                            .setName(CC.GREEN + "Confirm Punishment Removal")
+                            .setName(Component.text("Confirm Punishment Removal Procedure")
+                                    .color(NamedTextColor.GREEN)
+                                    .decoration(TextDecoration.ITALIC, false))
                             .build(),
                     e -> {
-                        procedure.getPunishment().setRemovedBy(player.getUniqueId());
-                        procedure.getPunishment().setRemovedAt(System.currentTimeMillis());
-                        procedure.getPunishment().setRemovedReason(reason);
-                        procedure.getPunishment().setRemoved(true);
-                        procedure.getPunishment().save();
+                        profile.api().removePunishment(punishment, player.getUniqueId(), System.currentTimeMillis(), this.reason);
+
                         procedure.finish();
                         inventory.close(player);
                         player.sendMessage(CC.GREEN + "The punishment has been pardoned.");
                     }));
             contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
-                            .setName(CC.RED + "Cancel Punishment Removal")
+                            .setName(Component.text("Cancel Punishment Removal Procedure")
+                                    .color(NamedTextColor.GREEN)
+                                    .decoration(TextDecoration.ITALIC, false))
                             .build(),
                     e -> {
                         inventory.close(player);

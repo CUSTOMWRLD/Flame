@@ -1,18 +1,17 @@
 package com.customwrld.flame;
 
-import com.customwrld.commonlib.modules.grant.GrantAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
 import com.customwrld.flame.chat.ChatFilter;
 import com.customwrld.flame.chat.ChatListener;
-import com.customwrld.flame.event.GrantListener;
-import com.customwrld.flame.event.PunishmentListener;
-import com.customwrld.flame.profile.AuthListener;
-import com.customwrld.flame.event.ProfileListener;
-import com.customwrld.commonlib.modules.grant.Grant;;
-import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.listeners.GrantListener;
+import com.customwrld.flame.listeners.PunishmentListener;
+import com.customwrld.flame.listeners.AuthListener;
+import com.customwrld.flame.listeners.ProfileListener;
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.flame.store.StoreManager;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.DisabledCommands;
@@ -103,8 +102,6 @@ public final class Flame extends JavaPlugin {
             registerCommand(this, aClass);
         }
 
-        Rank.init();
-
         Arrays.asList(
                 new GrantListener(),
                 new PunishmentListener(),
@@ -121,8 +118,8 @@ public final class Flame extends JavaPlugin {
             public void run() {
                 for (Profile profile : Profile.getProfiles().values()) {
                     for (Grant grant : profile.getCachedGrants()) {
-                        if (grant.getApi().hasExpired() && !grant.isRemoved()) {
-                            profile.getApi().expireGrant(grant, System.currentTimeMillis());
+                        if (grant.api().hasExpired() && !grant.isRemoved()) {
+                            profile.api().expireGrant(grant, System.currentTimeMillis());
                         }
                     }
                 }

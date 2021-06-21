@@ -1,8 +1,8 @@
 package com.customwrld.flame.commands.grant;
 
 import com.customwrld.flame.Config;
-import com.customwrld.flame.menus.grants.RankSelectionMenu;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.flame.menus.grants.RankSelectionMenu;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;

@@ -35,7 +35,7 @@ public class UnblacklistCommand extends Command {
                         return;
                     }
 
-                    Punishment punishment = profile.getApi().getActivePunishmentByType(Punishment.Type.BLACKLIST);
+                    Punishment punishment = profile.api().getActivePunishmentByType(Punishment.Type.BLACKLIST);
 
                     if (punishment == null) {
                         sender.sendMessage(CC.RED + "That player does not have an existing punishment.");
@@ -48,7 +48,7 @@ public class UnblacklistCommand extends Command {
                         remover = ((Player) sender).getUniqueId();
                     }
 
-                    profile.getApi().removePunishment(punishment, remover, System.currentTimeMillis(), reason);
+                    profile.api().removePunishment(punishment, remover, System.currentTimeMillis(), reason);
                 });
     }
 

@@ -7,6 +7,7 @@ import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -41,7 +42,8 @@ public class MuteChatCommand extends Command {
                     Bukkit.broadcast(Minecraft.Style.SEPARATOR);
                     Bukkit.broadcast(Minecraft.Style.getMessageComponent("Chat",
                             Component.text("Chat has been " + (FlameAPI.isChatMuted() ? "muted" : "unmuted") + " by ")
-                                    .append(playerName)));
+                                    .append(playerName)
+                                    .color(NamedTextColor.GRAY)));
                     Bukkit.broadcast(Minecraft.Style.SEPARATOR);
                 });
     }

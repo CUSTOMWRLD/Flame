@@ -1,4 +1,4 @@
-package com.customwrld.flame.profile;
+package com.customwrld.flame.listeners;
 
 import com.customwrld.customlib.util.CC;
 import org.bukkit.entity.Player;

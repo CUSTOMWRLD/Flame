@@ -20,11 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class TebexAPI {
-    @Getter
-    private static final String endpoint = "https://plugin.tebex.io";
-    @Getter
-    @Setter
-    private static String secret;
+    @Getter private static final String endpoint = "https://plugin.tebex.io";
+    @Getter @Setter private static String secret;
 
     public static TebexAccount getAccountInformation() {
         String json = performAPI("/information", "GET");
@@ -66,7 +63,7 @@ public class TebexAPI {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer content = new StringBuffer();
+            StringBuilder content = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 content.append(inputLine);
             }

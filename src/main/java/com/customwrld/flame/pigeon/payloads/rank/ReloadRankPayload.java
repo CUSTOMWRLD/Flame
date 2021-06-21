@@ -1,5 +1,6 @@
 package com.customwrld.flame.pigeon.payloads.rank;
 
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.pigeon.annotations.Payload;
 import com.customwrld.pigeon.annotations.Transmit;
 import com.customwrld.pigeon.payloads.bases.BasePayload;
@@ -16,9 +17,17 @@ public class ReloadRankPayload extends BasePayload {
         payloadId = "flame-reloadRank";
     }
 
-    public ReloadRankPayload(UUID rank) {
+    public ReloadRankPayload(Rank rank) {
         this();
-        this.rank = rank;
+        this.rank = rank.getUuid();
+
+        Rank.getRanks().remove(this.rank);
+
+        Rank reloaded = Rank.getRank(this.rank);
+
+        if(reloaded != null) {
+            Rank.getRanks().put(reloaded.getUuid(), reloaded);
+        }
     }
 
     @Override

@@ -1,5 +1,9 @@
 package com.customwrld.flame.chat;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextReplacementConfig;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +13,9 @@ import java.util.regex.Pattern;
 public class ChatFilter {
     private static List<String> blockedWords;
     private static Map<String, List<String>> replaceableCharacters;
+
+    public static final Pattern WEBSITE_PATTERN = Pattern.compile("((?:(?:https?)://)?[\\w-_.]{2,})\\.([a-zA-Z]{2,3}(?:/\\S+)?)");
+    public static final Pattern IP_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     public static void init() {
         blockedWords = Arrays.asList("nigger", "nigga", "beaner", "spik", "faggot", "faggots", "kike", "coon", "coonass", "cracker", "gringo", "gypsy");
@@ -42,7 +49,8 @@ public class ChatFilter {
         replaceableCharacters.put("l", Arrays.asList("1", "|_", "|"));
     }
 
-    public static boolean isSafe(String originalText) {
+    public static boolean isSafe(Component component) {
+        String originalText = ((TextComponent) component).content();
         String text = originalText.replaceAll("\\s", "").toLowerCase();
 
         for (Map.Entry<String, List<String>> ent : replaceableCharacters.entrySet()) {
@@ -57,11 +65,6 @@ public class ChatFilter {
             }
         }
 
-        // TODO: Make this static
-
-        Pattern WEBSITE_PATTERN = Pattern.compile("((?:(?:https?)://)?[\\w-_.]{2,})\\.([a-zA-Z]{2,3}(?:/\\S+)?)");
-        Pattern IP_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
-
-        return !WEBSITE_PATTERN.matcher(originalText).find() && !IP_PATTERN.matcher(originalText).find();
+        return !WEBSITE_PATTERN.matcher(text).find() && !IP_PATTERN.matcher(text).find();
     }
 }

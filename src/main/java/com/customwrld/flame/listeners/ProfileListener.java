@@ -1,15 +1,12 @@
-package com.customwrld.flame.event;
+package com.customwrld.flame.listeners;
 
-import com.customwrld.commonlib.modules.bukkit.events.GrantAddEvent;
-import com.customwrld.commonlib.modules.bukkit.events.GrantExpireEvent;
-import com.customwrld.commonlib.modules.bukkit.events.GrantRemoveEvent;
+import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.Config;
+import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.commonlib.modules.grant.Grant;Procedure;
+import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.google.common.hash.Hashing;
 import net.kyori.adventure.text.Component;
@@ -24,8 +21,9 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ProfileListener implements Listener {
@@ -51,7 +49,7 @@ public class ProfileListener implements Listener {
                                     .color(NamedTextColor.RED)));
 
             flame.getServer().getScheduler().runTask(flame, () -> player.kick(Component.text("You logged in from another location!")
-                    .color(NamedTextColor.RED), PlayerKickEvent.Cause.DUPLICATE_LOGIN));
+                    .color(NamedTextColor.RED)));
             return;
         }
 
@@ -59,14 +57,15 @@ public class ProfileListener implements Listener {
 
         Profile profile = Profile.getProfile(event.getName(), event.getUniqueId());
 
-        Punishment punishment = profile.getApi().getActiveBan();
+        Punishment punishment = profile.api().getActiveBan();
 
         if (punishment != null && !isElevated) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.join(Component.newline(), punishment.getApi().getPunishmentMessage()));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.join(Component.newline(), punishment.api().getPunishmentMessage()));
             return;
         }
 
         profile.setName(event.getName());
+        profile.setSearchableName(event.getName());
 
         if (profile.getFirstSeen() == null) {
             profile.setFirstSeen(System.currentTimeMillis());
@@ -94,12 +93,6 @@ public class ProfileListener implements Listener {
 
         profile.save();
 
-//        if (profile == null || !profile.isLoaded()) {
-//            event.setKickMessage(Config.FAILED_TO_LOAD_PROFILE.format());
-//            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-//            return;
-//        }
-
         Server server = Bukkit.getServer();
 
         if (server.hasWhitelist()) {
@@ -113,7 +106,7 @@ public class ProfileListener implements Listener {
         }
 
         if (Bukkit.getOnlinePlayers().size() >= Bukkit.getMaxPlayers()) {
-            if (profile.getApi().getAllPermissions().contains("flame.staff") || isElevated) {
+            if (profile.api().getAllPermissions().contains("flame.staff") || isElevated) {
                 event.allow();
             } else {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, Component.text("The server is currently full.")
@@ -123,21 +116,20 @@ public class ProfileListener implements Listener {
         }
 
         Profile.getProfiles().put(profile.getId(), profile);
+        System.out.println("Added Profile! Profile List: " + Profile.getProfiles().values().stream()
+                .map(Profile::getName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
+                .toString());
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Profile profile = Profile.getProfiles().get(player.getUniqueId());
-
+        Profile profile = Profile.getProfile(player.getName(), player.getUniqueId());
         event.joinMessage(null);
 
-        profile.getApi().validateGrants();
-
-        // TODO: Properly do these
-//        profile.reloadPunishments();
-//        profile.reloadGrants();
-//        profile.setupBukkitPlayer();
+        BukkitAPI.setupBukkitPlayer(Flame.getFlame(), profile);
 
         boolean isElevated = Flame.getFlame().getElevatedStaff().contains(player.getUniqueId());
 
@@ -145,11 +137,6 @@ public class ProfileListener implements Listener {
             player.setOp(true);
         }
 
-//        AccountSync.resynchronize(profile);
-
-//        NameMC.verify(profile, player);
-
-//        profile.saveAsync();
     }
 
     @EventHandler
@@ -163,8 +150,6 @@ public class ProfileListener implements Listener {
 
         profile.save();
 
-//        AccountSync.resynchronize(profile);
-
         GrantProcedure grantProcedure = GrantProcedure.getByPlayer(event.getPlayer());
 
         if (grantProcedure != null) {
@@ -176,6 +161,13 @@ public class ProfileListener implements Listener {
         if (punishmentProcedure != null) {
             punishmentProcedure.cancel();
         }
+
+        Profile.getProfiles().remove(profile.getId());
+        System.out.println("Removed Profile! Profile List: " + Profile.getProfiles().values().stream()
+                .map(Profile::getName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
+                .toString());
     }
 
 }

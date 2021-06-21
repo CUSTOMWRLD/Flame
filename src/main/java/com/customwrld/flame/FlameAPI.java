@@ -2,6 +2,7 @@ package com.customwrld.flame;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class FlameAPI {
@@ -22,17 +23,25 @@ public class FlameAPI {
         return GrantProcedure.getByPlayer(player) == null && PunishmentProcedure.getByPlayer(player) == null;
     }
 
+    public static void refreshPlayerGrants() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Profile profile = Profile.getProfile(null, player.getUniqueId());
+
+            profile.api().getActiveGrant();
+        }
+    }
+
     public static TextComponent getChatFormat(Profile profile) {
         return getColoredPrefix(profile).append(getColoredName(profile));
     }
 
     public static TextComponent getColoredName(Profile profile) {
-        Rank rank = profile.getApi().getActiveGrant().getApi().getRank();
+        Rank rank = profile.api().getActiveGrant().api().getRank();
         return Component.text(profile.getName()).color(TextColor.color(rank.getColor().getRGB()));
     }
 
     public static TextComponent getColoredPrefix(Profile profile) {
-        Rank rank = profile.getApi().getActiveGrant().getApi().getRank();
+        Rank rank = profile.api().getActiveGrant().api().getRank();
         return rank.getPrefix() != null ? Minecraft.Style.fromLegacy(rank.getPrefix()) : Component.empty();
     }
 

@@ -1,4 +1,4 @@
-package com.customwrld.flame.event;
+package com.customwrld.flame.listeners;
 
 import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
 import com.customwrld.commonlib.modules.bukkit.events.PunishmentAddEvent;
@@ -8,7 +8,6 @@ import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.commonlib.util.Minecraft;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.FlameAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,7 +26,7 @@ public class PunishmentListener implements Listener {
                     if (player.hasPermission("flame.staff")) {
                         player.sendMessage(Minecraft.Style.SEPARATOR);
                         player.sendMessage(Minecraft.Style.getMessageComponent("Punishment", FlameAPI.getColoredName(profile)
-                                .append(Component.text(" has been " + punishment.getApi().getContext() + " by ")
+                                .append(Component.text(" has been " + punishment.api().getContext() + " by ")
                                         .color(NamedTextColor.GRAY))
                                 .append(punishment.getAddedByUUID() != null ?
                                         FlameAPI.getColoredName(Profile.getProfile(null, punishment.getAddedByUUID())) :
@@ -54,9 +53,9 @@ public class PunishmentListener implements Listener {
 
         if(player != null && !punishment.isRemoved()) {
             if (punishment.getType() == Punishment.Type.BAN || punishment.getType() == Punishment.Type.BLACKLIST) {
-                player.kick(Component.join(Component.newline(), punishment.getApi().getPunishmentMessage()), PlayerKickEvent.Cause.BANNED);
+                player.kick(Component.join(Component.newline(), punishment.api().getPunishmentMessage()));
             } else if (punishment.getType() == Punishment.Type.MUTE) {
-                punishment.getApi().getPunishmentMessage().forEach(player::sendMessage);
+                punishment.api().getPunishmentMessage().forEach(player::sendMessage);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 0.1F);
             }
         }

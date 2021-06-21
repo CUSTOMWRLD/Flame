@@ -3,7 +3,7 @@
 //import com.customwrld.customlib.util.CC;
 //import com.customwrld.customlib.util.TimeUtil;
 //import com.customwrld.commonlib.modules.profile.Profile;
-//import com.customwrld.commonlib.modules.grant.Grant;;
+//import com.customwrld.commonlib.modules.grant.Grant;
 //import com.customwrld.flame.profile.rank.Rank;
 //import com.customwrld.flame.util.Arguments;
 //import com.customwrld.flame.util.Command;

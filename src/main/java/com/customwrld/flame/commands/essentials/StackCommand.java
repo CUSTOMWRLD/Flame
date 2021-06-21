@@ -1,6 +1,5 @@
 package com.customwrld.flame.commands.essentials;
 
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;

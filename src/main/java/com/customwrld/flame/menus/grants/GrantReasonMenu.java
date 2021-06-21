@@ -1,25 +1,25 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.modules.grant.Grant;;
-import com.customwrld.commonlib.modules.grant.Grant;Procedure;
+import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.flame.profile.grant.GrantProcedure;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class GrantReasonMenu implements InventoryProvider {
 
-    private final Profile profile;
     private final GrantProcedure procedure;
 
-
-    public GrantReasonMenu(Player player, Profile profile, GrantProcedure procedure) {
-        this.profile = profile;
+    public GrantReasonMenu(Player player, GrantProcedure procedure) {
         this.procedure = procedure;
         SmartInventory inventory = SmartInventory.builder()
                 .provider(this)
@@ -31,32 +31,42 @@ public class GrantReasonMenu implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        Grant grant = procedure.getGrant();
+        Profile profile = this.procedure.getRecipient();
+        Grant grant = this.procedure.getGrant();
 
         contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
-                        .setName(CC.GREEN + "Promoted").build(),
+                        .setName(Component.text("Promoted")
+                                .color(NamedTextColor.GREEN)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .build(),
                 e -> {
                     grant.setAddedReason("Promoted");
                     procedure.setGrant(grant);
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_CONFIRMATION);
 
-                    new ConfirmGrantMenu(player, profile, procedure);
+                    new ConfirmGrantMenu(player, procedure);
                 }));
 
         contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
-                        .setName(CC.YELLOW + "Demoted").build(),
+                        .setName(Component.text("Demoted")
+                                .color(NamedTextColor.YELLOW)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .build(),
                 e -> {
                     grant.setAddedReason("Demoted");
                     procedure.setGrant(grant);
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_CONFIRMATION);
 
-                    new ConfirmGrantMenu(player, profile, procedure);
+                    new ConfirmGrantMenu(player, procedure);
                 }));
 
         contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
-                        .setName(CC.GOLD + "Granted").build(),
+                        .setName(Component.text("Granted")
+                                .color(NamedTextColor.GOLD)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .build(),
                 e -> {
 
                     grant.setAddedReason("Granted");
@@ -64,11 +74,14 @@ public class GrantReasonMenu implements InventoryProvider {
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_CONFIRMATION);
 
-                    new ConfirmGrantMenu(player, profile, procedure);
+                    new ConfirmGrantMenu(player, procedure);
                 }));
 
         contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
-                        .setName(CC.RED + "Custom").build(),
+                        .setName(Component.text("Custom")
+                                .color(NamedTextColor.RED)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .build(),
                 e -> {
                     procedure.setGrant(grant);
 

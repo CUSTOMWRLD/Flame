@@ -4,6 +4,8 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -24,7 +26,8 @@ public class KillCommand extends Command {
 
                     if (args.length == 0 || args[0] == null) {
                         if (sender instanceof ConsoleCommandSender) {
-                            sender.sendMessage(CC.RED + "You must provide a player who you want to kill.");
+                            sender.sendMessage(Component.text("You must provide a player who you want to kill.")
+                                    .color(NamedTextColor.RED));
                             return;
                         }
                         player = (Player) sender;
@@ -33,9 +36,11 @@ public class KillCommand extends Command {
                     }
 
                     player.setHealth(0);
-                    player.sendMessage(CC.RED + "You were killed by magic.");
+                    player.sendMessage(Component.text("You were killed by magic.")
+                            .color(NamedTextColor.RED));
                     if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                        sender.sendMessage(CC.GREEN + "You killed " + player.getName());
+                        sender.sendMessage(Component.text("You killed " + player.getName())
+                                .color(NamedTextColor.GREEN));
                     }
                 });
     }

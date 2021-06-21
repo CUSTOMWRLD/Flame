@@ -62,7 +62,7 @@ public class KickCommand extends Command {
                                 }
                             });
 
-                    player.kick(Minecraft.Style.fromLegacy(reason), PlayerKickEvent.Cause.KICK_COMMAND);
+                    player.kick(Minecraft.Style.fromLegacy(reason));
                 });
 
     }

@@ -38,7 +38,7 @@ public class BlacklistCommand extends Command {
                         return;
                     }
 
-                    if (profile.getApi().getActivePunishmentByType(Punishment.Type.BLACKLIST) != null) {
+                    if (profile.api().getActivePunishmentByType(Punishment.Type.BLACKLIST) != null) {
                         sender.sendMessage(Component.text("That player already has an pre-existing punishment.")
                                 .color(NamedTextColor.RED));
                         return;
@@ -59,7 +59,7 @@ public class BlacklistCommand extends Command {
                             -1L
                     );
 
-                    profile.getApi().addPunishment(punishment);
+                    profile.api().addPunishment(punishment);
                 });
     }
 

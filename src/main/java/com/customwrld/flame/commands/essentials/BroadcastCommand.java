@@ -1,5 +1,6 @@
 package com.customwrld.flame.commands.essentials;
 
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -21,7 +22,7 @@ public class BroadcastCommand extends Command {
                 .executes((sender, args) -> {
                     String message = (String) args[0];
 
-                    Bukkit.broadcastMessage(CC.translate(message));
+                    Bukkit.broadcast(Minecraft.Style.fromLegacy(message));
                 });
     }
 }
