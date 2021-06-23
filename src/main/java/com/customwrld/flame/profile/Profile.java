@@ -4,6 +4,7 @@ import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.util.CollectionsUtil;
 import com.customwrld.customlib.util.UUIDUtil;
 import com.customwrld.flame.Flame;
+import com.customwrld.flame.network.Gamemode;
 import com.customwrld.flame.profile.grant.Grant;
 import com.customwrld.flame.profile.punishment.Punishment;
 import com.customwrld.flame.profile.rank.Rank;
@@ -48,7 +49,8 @@ public class Profile {
     private Long firstSeen;
     private Long lastSeen;
     private Long experience;
-    private Map<String, Integer> gameModeGold;
+//    private Map<String, Integer> gameModeGold;
+    private Map<Gamemode, GamemodeStorage> gamemodeStorages;
     private boolean loaded;
 
     public Profile(String username, UUID uuid) {
@@ -60,7 +62,7 @@ public class Profile {
         this.grants = new ArrayList<>();
         this.ignored = new ArrayList<>();
         this.friends = new ArrayList<>();
-        this.gameModeGold = new HashMap<>();
+        this.gamemodeStorages = new HashMap<>();
         this.options = new OptionsProfile();
         this.staffProfile = new StaffProfile();
         reload();
@@ -249,6 +251,43 @@ public class Profile {
         player.recalculatePermissions();
     }
 
+    public boolean addGamemodeStorage(GamemodeStorage storage) {
+        var gamemode = storage.getGamemode();
+        if(this.gamemodeStorages.containsKey(gamemode)) { return false; }
+        this.gamemodeStorages.put(gamemode, storage);
+        return true;
+    }
+
+    public GamemodeStorage getGamemodeStorage(Gamemode gamemode) {
+        return this.gamemodeStorages.get(gamemode);
+    }
+
+    public boolean hasGamemodeStorage(Gamemode gamemode) {
+        return this.gamemodeStorages.containsKey(gamemode);
+    }
+
+    public boolean ensureGamemodeStorage(Gamemode gamemode, List<GamemodeStorage.StorageValue> values) {
+        var anyEnsured = false;
+
+        if(hasGamemodeStorage(gamemode)) {
+            var storage = getGamemodeStorage(gamemode);
+            for(GamemodeStorage.StorageValue value : values) {
+                if(storage.ensure(value)) { anyEnsured = true; }
+            }
+        } else {
+            anyEnsured = true;
+
+            var storage = new GamemodeStorage(gamemode);
+            for(GamemodeStorage.StorageValue value : values) {
+                storage.add(value);
+            }
+
+            addGamemodeStorage(storage);
+        }
+
+        return anyEnsured;
+    }
+
     public void reload() {
         Document document = collection.find(Filters.eq("_id", this.uuid.toString())).first();
 
@@ -278,8 +317,13 @@ public class Profile {
 
             this.gold = document.getInteger("gold");
 
-            this.gameModeGold.clear();
-            this.gameModeGold = CollectionsUtil.genericMapToType(document.get("gameModeGold", Map.class), String.class, Integer.class);
+//            this.gameModeGold.clear();
+//            this.gameModeGold = CollectionsUtil.genericMapToType(document.get("gameModeGold", Map.class), String.class, Integer.class);
+
+            this.gamemodeStorages.clear();
+            for(Map.Entry<String, Object> ent : document.get("gamemodeStorage", Document.class).entrySet()) {
+                Gamemode.getByName(ent.getKey(), gamemode -> this.gamemodeStorages.put(gamemode, new GamemodeStorage(ent.getKey(), (Document) ent.getValue())));
+            }
 
             this.experience = document.getLong("experience");
 
@@ -346,7 +390,19 @@ public class Profile {
         document.put("discord", this.discordId);
 
         document.put("gold", this.gold);
-        document.put("gameModeGold", this.gameModeGold);
+
+        var storagesDocument = new Document();
+        for(Map.Entry<Gamemode, GamemodeStorage> ent : this.gamemodeStorages.entrySet()) {
+            var storageDocument = new Document();
+            for(Map.Entry<String, GamemodeStorage.StorageValue> valueEnt : ent.getValue().getValues().entrySet()) {
+                storageDocument.append(valueEnt.getKey(),
+                        new Document("value", valueEnt.getValue().getValue())
+                        .append("isWritable", valueEnt.getValue().isWritable()));
+            }
+            storagesDocument.put(ent.getKey().getName(), storageDocument);
+        }
+        document.put("gamemodeStorage", storagesDocument);
+
         document.put("experience", this.experience);
 
         List<HashMap<String, String>> simpleGrants = new ArrayList<>();
