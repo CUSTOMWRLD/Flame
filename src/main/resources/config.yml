@@ -14,9 +14,6 @@ CHAT:
   STAFF_JOIN: "&9[S] &b{0} &9has joined &b{1}"
   STAFF_LEAVE: "&9[S] &b{0} &9has left the network."
   STAFF_SWITCH_SERVER: "&9[S] &b{0} &9has switched to &b{1} &9from &b{2}"
-  CHAT_CLEAR_BROADCAST: "&cThe chat has been cleared by {0}"
-  CHAT_MUTED: "&cThe chat has been muted by {0}"
-  CHAT_UNMUTED: "&aThe chat has been unmuted by {0}"
 
 COMMON_ERRORS:
   PLAYER_ONLY: "&cThis command can only be executed by a player."
@@ -25,23 +22,10 @@ COMMON_ERRORS:
   COULD_NOT_RESOLVE_PLAYER: "&cCould not resolve player information."
   RANK_NOT_FOUND: "&cA rank with that name could not be found."
 
-CONVERSATION:
-  SEND_MESSAGE: "&7(To &r{0}&7) {1}"
-  RECEIVE_MESSAGE: "&7(From &r{0}&7) {1}"
-
-OPTIONS:
-  STAFF_CHAT_MESSAGES_ENABLED: "&aYou can now see staff chat messages."
-  STAFF_CHAT_MESSAGES_DISABLED: "&cYou will no longer see staff chat messages."
-  GLOBAL_CHAT_ENABLED: "&aYou can now see global chat."
-  GLOBAL_CHAT_DISABLED: "&cYou can no longer see global chat."
-  PRIVATE_MESSAGES_ENABLED: "&aYou can now receive new conversations."
-  PRIVATE_MESSAGES_DISABLED: "&cYou can no longer receive new conversations."
-  PRIVATE_MESSAGE_SOUNDS_ENABLED: "&aYou will now receive private message sounds."
-  PRIVATE_MESSAGE_SOUNDS_DISABLED: "&cYou will no longer receive private message sounds."
-
 REFLECTION:
   COMMAND_PACKAGE: "com.customwrld.flame.commands"
   PAYLOAD_PACKAGE: "com.customwrld.flame.pigeon.payloads"
+  CONVERTERS_PACKAGE: "com.customwrld.flame.pigeon.converters"
 
 TEBEX:
   SECRET: ""

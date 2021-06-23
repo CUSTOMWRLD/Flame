@@ -1,18 +1,22 @@
 package com.customwrld.flame;
 
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
 import com.customwrld.flame.chat.ChatFilter;
 import com.customwrld.flame.chat.ChatListener;
-import com.customwrld.flame.profile.AuthListener;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.ProfileListener;
-import com.customwrld.flame.profile.grant.Grant;
-import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.flame.listeners.GrantListener;
+import com.customwrld.flame.listeners.PunishmentListener;
+import com.customwrld.flame.listeners.AuthListener;
+import com.customwrld.flame.listeners.ProfileListener;
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.flame.store.StoreManager;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.DisabledCommands;
 import com.customwrld.flame.util.Placeholders;
+import com.customwrld.pigeon.Pigeon;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -27,10 +31,13 @@ import java.util.UUID;
 @Getter
 public final class Flame extends JavaPlugin {
 
+    // TODO: Add a /grants command for players that only does it for them, it will also remove a lot of elements like who added and removed it etc
+    // TODO: Add a /punishments command for players that only does it for them, it will also remove a lot of elements like who added and removed it etc
+    // TODO: /mypunishments and /mygrants
     // TODO: For each pigeon broadcast make sure to run the code on the current server also if the player is on
+    // TODO: Add if (profile == null || !profile.isLoaded()) { to Profile.getByUuid instances
 
-    @Getter
-    private static Flame flame;
+    @Getter private static Flame flame;
 
     private ConfigurationFile mainConfig;
 
@@ -69,6 +76,14 @@ public final class Flame extends JavaPlugin {
         this.storeManager = new StoreManager();
         this.storeManager.initialize();
 
+        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
+
+        pigeon.getConvertersRegistry()
+                .registerConvertersInPackage(Config.CONVERTERS_PACKAGE.format());
+
+        pigeon.getPayloadsRegistry()
+                .registerPayloadsInPackage(Config.PAYLOAD_PACKAGE.format());
+
         this.placeholders = new Placeholders("CUSTOMWRLD", "flame", flame.getDescription().getVersion());
         this.placeholders.register();
 
@@ -83,13 +98,13 @@ public final class Flame extends JavaPlugin {
 
         DisabledCommands.Initialize();
 
-        for (Class<?> aClass : ClassUtils.getClassesInPackage(Flame.class, this.mainConfig.getString("REFLECTION.COMMAND_PACKAGE"))) {
+        for (Class<?> aClass : ClassUtils.getClassesInPackage(Flame.class, Config.COMMAND_PACKAGE.format())) {
             registerCommand(this, aClass);
         }
 
-        Rank.init();
-
         Arrays.asList(
+                new GrantListener(),
+                new PunishmentListener(),
                 new AuthListener(),
                 new ProfileListener(),
                 new ChatListener(),
@@ -102,13 +117,9 @@ public final class Flame extends JavaPlugin {
             @Override
             public void run() {
                 for (Profile profile : Profile.getProfiles().values()) {
-                    for (Grant grant : profile.getGrants()) {
-                        if (grant.hasExpired() && !grant.isRemoved()) {
-                            grant.setRemovedBy(null);
-                            grant.setRemovedAt(System.currentTimeMillis());
-                            grant.setRemovedReason("Grant Expired");
-                            grant.setRemoved(true);
-                            Grant.expireGrant(profile, grant);
+                    for (Grant grant : profile.getCachedGrants()) {
+                        if (grant.api().hasExpired() && !grant.isRemoved()) {
+                            profile.api().expireGrant(grant, System.currentTimeMillis());
                         }
                     }
                 }
@@ -125,7 +136,7 @@ public final class Flame extends JavaPlugin {
 
 //                CustomLib.getCustomLib().getPigeon().broadcast(new ServerUpdatePayload(getFlameServer()));
             }
-        }.runTaskTimerAsynchronously(flame, 0, 20 * 5);
+        }.runTaskTimerAsynchronously(this, 0, 20 * 5);
 
         FlameAPI.setStartingUp(false);
     }

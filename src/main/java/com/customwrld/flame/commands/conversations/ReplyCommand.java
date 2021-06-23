@@ -2,7 +2,7 @@
 //
 //import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.profile.conversation.Conversation;
 //import dev.jorel.commandapi.CommandAPICommand;
 //import dev.jorel.commandapi.arguments.GreedyStringArgument;

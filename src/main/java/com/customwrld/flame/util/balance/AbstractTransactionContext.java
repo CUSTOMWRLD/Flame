@@ -1,7 +1,7 @@
 package com.customwrld.flame.util.balance;
 
 import com.customwrld.flame.network.Gamemode;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Currencies;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,11 +44,11 @@ public abstract class AbstractTransactionContext {
     }
 
     public boolean process(boolean needsEnoughBalance, boolean logTransaction) {
-        Profile profile = Profile.getByUuid(player.getUniqueId());
+        Profile profile = Profile.getProfile(null, this.player.getUniqueId());
         Map<Currencies.CurrencyType, Integer> totals = getTotals();
         if (needsEnoughBalance) {
             for (Map.Entry<Currencies.CurrencyType, Integer> ent : totals.entrySet()) {
-                if (!ent.getKey().canAfford(profile, gamemode, ent.getValue())) {
+                if (!ent.getKey().canAfford(profile, this.gamemode, ent.getValue())) {
                     return false;
                 }
             }

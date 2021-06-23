@@ -7,7 +7,7 @@
 //import com.customwrld.flame.FlameAPI;
 //import com.customwrld.flame.chat.StaffChatEnum;
 //import com.customwrld.flame.pigeon.payloads.StaffChatPayload;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.util.Command;
 //import dev.jorel.commandapi.CommandAPICommand;
 //import dev.jorel.commandapi.arguments.GreedyStringArgument;

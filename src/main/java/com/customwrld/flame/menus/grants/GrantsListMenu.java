@@ -1,5 +1,8 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.commonlib.modules.grant.GrantAPI;
+import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -8,12 +11,15 @@ import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -28,7 +34,8 @@ public class GrantsListMenu implements InventoryProvider {
 
     public GrantsListMenu(Player player, Profile profile) {
         this.profile = profile;
-        this.inventory = SmartInventory.builder()
+        this.inventory = SmartInventory
+                .builder()
                 .provider(this)
                 .size(5, 9)
                 .title(profile.getName() + "'s Grants (" + profile.getGrants().size() + ")")
@@ -51,7 +58,7 @@ public class GrantsListMenu implements InventoryProvider {
         List<Grant> activeGrants = new ArrayList<>();
         List<Grant> removedGrants = new ArrayList<>();
 
-        for (Grant grant : profile.getGrants()) {
+        for (Grant grant : this.profile.getCachedGrants()) {
             if (grant.isRemoved()) {
                 removedGrants.add(grant);
             } else {
@@ -59,8 +66,8 @@ public class GrantsListMenu implements InventoryProvider {
             }
         }
 
-        activeGrants.sort(Grant.COMPARATOR);
-        removedGrants.sort(Grant.COMPARATOR);
+        activeGrants.sort(GrantAPI.COMPARATOR);
+        removedGrants.sort(GrantAPI.COMPARATOR);
 
         sortedGrants.addAll(activeGrants);
         sortedGrants.addAll(removedGrants);
@@ -68,66 +75,121 @@ public class GrantsListMenu implements InventoryProvider {
         for (Grant grant : sortedGrants) {
             String addedBy = "Console";
 
-            if (grant.getAddedBy() != null) {
+            if (grant.getAddedByUUID() != null) {
                 addedBy = "Could not fetch...";
 
-                Profile addedByProfile = Profile.getByUuid(grant.getAddedBy());
+                Profile addedByProfile = Profile.getProfile(null, grant.getAddedByUUID());
 
-                if (addedByProfile != null && addedByProfile.isLoaded()) {
+                if (addedByProfile != null) {
                     addedBy = addedByProfile.getName();
                 }
             }
 
             String removedBy = "Console";
 
-            if (grant.getRemovedBy() != null) {
+            if (grant.getRemovedByUUID() != null) {
                 removedBy = "Could not fetch...";
 
-                Profile removedByProfile = Profile.getByUuid(grant.getRemovedBy());
+                Profile removedByProfile = Profile.getProfile(null, grant.getRemovedByUUID());
 
-                if (removedByProfile != null && removedByProfile.isLoaded()) {
+                if (removedByProfile != null) {
                     removedBy = removedByProfile.getName();
                 }
             }
 
-            List<String> lore = new ArrayList<>();
+            List<Component> lore = new ArrayList<>();
 
-            lore.add(CC.MENU_BAR);
-            lore.add("&eRank: &c" + grant.getRank().getName());
-            lore.add("&eAdded On: &c" + TimeUtil.dateToString(new Date(grant.getAddedAt())));
-            lore.add("&eAdded By: &c" + addedBy);
-            lore.add("&eAdded Reason: &c" + grant.getAddedReason());
-            lore.add("&eDuration: &c" + grant.getDurationText());
+            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(Component.text().append(Component.text("Rank: ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(grant.api().getRank().getName())
+                            .color(NamedTextColor.DARK_AQUA))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text().append(Component.text("Added On: ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt())))
+                            .color(NamedTextColor.DARK_AQUA))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text().append(Component.text("Added By: ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(addedBy)
+                            .color(NamedTextColor.DARK_AQUA))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text().append(Component.text("Added Reason: ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(grant.getAddedReason())
+                            .color(NamedTextColor.DARK_AQUA))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false));
 
-            if (grant.isRemoved()) {
-                lore.add(CC.MENU_BAR);
-                lore.add("&eRemoved On: &c" + TimeUtil.dateToString(new Date(grant.getRemovedAt())));
-                lore.add("&eRemoved By: &c" + removedBy);
-                lore.add("&eRemoved Reason: &c" + grant.getRemovedReason());
-            } else {
-                if (!grant.getRank().isDefaultRank() && !grant.hasExpired() && FlameAPI.canStartProcedure(player)) {
-                    lore.add(CC.MENU_BAR);
-
-                    if (player.hasPermission("flame.rank.remove")) {
-                        lore.add("&6Click to remove this grant.");
-                    }
+            if (!grant.api().isPermanent() && grant.getDuration() != -1L) {
+                if (!grant.api().isActive()) {
+                    lore.add(Component.text().append(Component.text("Remaining: ")
+                            .color(NamedTextColor.GRAY))
+                            .append(Component.text(grant.api().getTimeRemaining())
+                                    .color(NamedTextColor.DARK_AQUA))
+                            .build()
+                            .decoration(TextDecoration.ITALIC, false));
                 }
             }
 
-            lore.add(CC.MENU_BAR);
+            lore.add(Component.text().append(Component.text("Duration: ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(grant.api().getDurationText())
+                            .color(NamedTextColor.DARK_AQUA))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false));
+
+            if (grant.isRemoved()) {
+                lore.add(Minecraft.Style.MENU_SEPARATOR);
+                lore.add(Component.text().append(Component.text("Removed On: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(TimeUtil.dateToString(new Date(grant.getRemovedAt())))
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
+                lore.add(Component.text().append(Component.text("Removed By: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(removedBy)
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
+                lore.add(Component.text().append(Component.text("Removed Reason: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(grant.getRemovedReason())
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
+            } else {
+                if (!grant.api().getRank().api().isDefaultRank() && !grant.api().hasExpired() && FlameAPI.canStartProcedure(player)) {
+                    if (player.hasPermission("flame.rank.remove")) {
+                        lore.add(Minecraft.Style.MENU_SEPARATOR);
+                        lore.add(Component.text().append(Component.text("Click to remove this grant.")
+                                .color(NamedTextColor.DARK_AQUA))
+                                .build()
+                                .decoration(TextDecoration.ITALIC, false));
+                    }
+                }
+            }
+            lore.add(Minecraft.Style.MENU_SEPARATOR);
 
             Material material = Material.BOOK;
 
-            if (!grant.isRemoved() && !grant.hasExpired()) {
+            if (!grant.isRemoved() && !grant.api().hasExpired()) {
                 material = Material.ENCHANTED_BOOK;
             }
 
             items[i] = ClickableItem.of(new ItemFactory(material)
-                            .setName(grant.getRank().getColor() + grant.getRank().getName())
+                            .setName(Component.text(grant.api().getRank().getName())
+                                    .color(TextColor.color(grant.api().getRank().getColor().getRGB()))
+                                    .decoration(TextDecoration.ITALIC, false))
                             .setLore(lore)
                             .build(),
                     e -> {
-                        if (!grant.isRemoved() && !grant.hasExpired() && !grant.getRank().isDefaultRank() && FlameAPI.canStartProcedure(player)) {
+                        if (!grant.isRemoved() && !grant.api().hasExpired() && !grant.api().getRank().api().isDefaultRank() && FlameAPI.canStartProcedure(player)) {
                             if (player.hasPermission("flame.grants.remove")) {
                                 GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.REMOVE, GrantProcedure.Stage.REQUIRE_REASON);
                                 procedure.setGrant(grant);

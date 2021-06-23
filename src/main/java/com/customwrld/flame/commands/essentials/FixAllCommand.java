@@ -4,6 +4,8 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -29,7 +31,8 @@ public class FixAllCommand extends Command {
 
                     if (args.length == 0 || args[0] == null) {
                         if (sender instanceof ConsoleCommandSender) {
-                            sender.sendMessage(CC.RED + "You must provide a player who's item you want to fix.");
+                            sender.sendMessage(Component.text("You must provide a player who's item you want to fix.")
+                                    .color(NamedTextColor.RED));
                             return;
                         }
                         player = (Player) sender;
@@ -47,9 +50,11 @@ public class FixAllCommand extends Command {
                         item.setItemMeta((ItemMeta) meta);
                     }
 
-                    player.sendMessage(CC.GREEN + "Your inventory has been fixed!");
+                    player.sendMessage(Component.text("Your inventory has been fixed!")
+                            .color(NamedTextColor.GREEN));
                     if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                        sender.sendMessage(CC.GREEN + "You have fixed " + player.getName() + "'s inventory!");
+                        sender.sendMessage(Component.text("You have fixed " + player.getName() + "'s inventory!")
+                                .color(NamedTextColor.GREEN));
                     }
                 });
     }

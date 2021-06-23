@@ -1,42 +1,48 @@
 package com.customwrld.flame;
 
-import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
-import com.customwrld.flame.profile.rank.Rank;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class FlameAPI {
 
-    @Getter
-    @Setter
-    private static boolean chatMuted = false;
-    @Getter
-    @Setter
-    private static boolean startingUp = true;
-    @Getter
-    @Setter
-    private static boolean shuttingDown = false;
+    @Getter @Setter private static boolean chatMuted = false;
+    @Getter @Setter private static boolean startingUp = true;
+    @Getter @Setter private static boolean shuttingDown = false;
 
     public static boolean canStartProcedure(Player player) {
         return GrantProcedure.getByPlayer(player) == null && PunishmentProcedure.getByPlayer(player) == null;
     }
 
-    public static String getChatFormat(Profile profile) {
-        return getColoredPrefix(profile) + getColoredName(profile);
+    public static void refreshPlayerGrants() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Profile profile = Profile.getProfile(null, player.getUniqueId());
+
+            profile.api().getActiveGrant();
+        }
     }
 
-    public static String getColoredName(Profile profile) {
-        Rank rank = profile.getActiveRank();
-        return rank.getColor() + profile.getName();
+    public static TextComponent getChatFormat(Profile profile) {
+        return getColoredPrefix(profile).append(getColoredName(profile));
     }
 
-    public static String getColoredPrefix(Profile profile) {
-        Rank rank = profile.getActiveRank();
-        return rank.getPrefix() != null ? CC.translate(rank.getPrefix()) : "";
+    public static TextComponent getColoredName(Profile profile) {
+        Rank rank = profile.api().getActiveGrant().api().getRank();
+        return Component.text(profile.getName()).color(TextColor.color(rank.getColor().getRGB()));
+    }
+
+    public static TextComponent getColoredPrefix(Profile profile) {
+        Rank rank = profile.api().getActiveGrant().api().getRank();
+        return rank.getPrefix() != null ? Minecraft.Style.fromLegacy(rank.getPrefix()) : Component.empty();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.customwrld.flame.profile.punishment;
 
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.punishment.Punishment;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;

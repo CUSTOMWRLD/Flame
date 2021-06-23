@@ -1,14 +1,16 @@
 package com.customwrld.flame.commands.player;
 
-import com.customwrld.customlib.util.AlignUtil;
-import com.customwrld.customlib.util.ChatUtil;
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
 public class StoreCommand extends Command {
@@ -30,29 +32,20 @@ public class StoreCommand extends Command {
                         return;
                     }
 
-                    TextComponent message = new TextComponent();
-
-                    message.addExtra(ChatUtil.SEPERATOR);
-
-                    message.addExtra("\n");
-
-                    TextComponent component = new TextComponent("Web Store\n");
-                    component.setColor(ChatColor.GOLD);
-                    component.setBold(true);
-                    component.setItalic(true);
-                    message.addExtra(AlignUtil.centerAlignMessage(component));
-
                     String domain = Flame.getFlame().getStoreManager().getDomain();
 
-                    component = new TextComponent("Click here to visit!\n");
-                    component.setColor(ChatColor.YELLOW);
-                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new BaseComponent[]{ChatUtil.builderToComponent(new ComponentBuilder(domain).italic(true))})));
-                    component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, domain));
-                    message.addExtra(AlignUtil.centerAlignMessage(component));
+                    TextComponent component = Component.text("You can visit our store at: ")
+                            .color(NamedTextColor.GRAY)
+                            .append(Component.text(domain)
+                                    .color(NamedTextColor.AQUA)
+                                    .decoration(TextDecoration.UNDERLINED, true));
 
-                    message.addExtra(ChatUtil.SEPERATOR);
-
-                    sender.sendMessage(message);
+                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(component
+                            .color(NamedTextColor.GREEN)
+                            .hoverEvent(HoverEvent.showText(Component.text("Click to open the store!")))
+                            .clickEvent(ClickEvent.openUrl(domain)));
+                    sender.sendMessage(Minecraft.Style.SEPARATOR);
                 });
     }
 }

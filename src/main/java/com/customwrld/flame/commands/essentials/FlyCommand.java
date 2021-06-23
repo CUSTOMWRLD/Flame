@@ -1,9 +1,10 @@
 package com.customwrld.flame.commands.essentials;
 
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -24,7 +25,8 @@ public class FlyCommand extends Command {
 
                     if (args.length == 0 || args[0] == null) {
                         if (sender instanceof ConsoleCommandSender) {
-                            sender.sendMessage(CC.RED + "You must provide a player who's item you want to make fly.");
+                            sender.sendMessage(Component.text("You must provide a player you want to give flight to.")
+                                    .color(NamedTextColor.RED));
                             return;
                         }
                         player = (Player) sender;
@@ -35,15 +37,19 @@ public class FlyCommand extends Command {
 
                     if (player.isFlying()) {
                         player.setFlying(false);
-                        player.sendMessage(CC.RED + "Fly mode has been disabled!");
+                        player.sendMessage(Component.text("Flight mode has been disabled!")
+                                .color(NamedTextColor.RED));
                         if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                            sender.sendMessage(CC.GREEN + "You disabled " + player.getName() + "'s fly!");
+                            sender.sendMessage(Component.text("You disabled " + player.getName() + "'s fly!")
+                                    .color(NamedTextColor.GREEN));
                         }
                     } else {
                         player.setFlying(true);
-                        player.sendMessage(CC.GREEN + "Fly mode has been enabled");
+                        player.sendMessage(Component.text("Flight mode has been enabled!")
+                                .color(NamedTextColor.GREEN));
                         if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                            sender.sendMessage(CC.GREEN + "You enabled " + player.getName() + "'s fly!");
+                            sender.sendMessage(Component.text("You enabled " + player.getName() + "'s fly!")
+                                    .color(NamedTextColor.GREEN));
                         }
                     }
                 });

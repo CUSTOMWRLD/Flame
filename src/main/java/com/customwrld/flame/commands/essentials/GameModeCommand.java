@@ -1,9 +1,10 @@
 package com.customwrld.flame.commands.essentials;
 
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -27,7 +28,8 @@ public class GameModeCommand extends Command {
 
                             if (args.length == 0 || args[0] == null) {
                                 if (sender instanceof ConsoleCommandSender) {
-                                    sender.sendMessage(CC.RED + "You must provide a player who's gamemode you want to set.");
+                                    sender.sendMessage(Component.text("You must provide a player who's gamemode you want to set.")
+                                            .color(NamedTextColor.RED));
                                     return;
                                 }
                                 player = (Player) sender;
@@ -36,9 +38,11 @@ public class GameModeCommand extends Command {
                             }
 
                             player.setGameMode(GameMode.CREATIVE);
-                            player.sendMessage(CC.GREEN + "Your gamemode has been set to creative.");
+                            player.sendMessage(Component.text("Your gamemode has been set to creative.")
+                                    .color(NamedTextColor.GREEN));
                             if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                                sender.sendMessage(CC.GREEN + "You have set " + player.getName() + "'s gamemode to creative.");
+                                sender.sendMessage(Component.text("You have set " + player.getName() + "'s gamemode to creative.")
+                                        .color(NamedTextColor.GREEN));
                             }
                         }))
                 .withSubcommand(new CommandAPICommand("survival")
@@ -49,7 +53,8 @@ public class GameModeCommand extends Command {
 
                             if (args.length == 0 || args[0] == null) {
                                 if (sender instanceof ConsoleCommandSender) {
-                                    sender.sendMessage(CC.RED + "You must provide a player who's gamemode you want to set.");
+                                    sender.sendMessage(Component.text("You must provide a player who's gamemode you want to set.")
+                                            .color(NamedTextColor.RED));
                                     return;
                                 }
                                 player = (Player) sender;
@@ -58,9 +63,11 @@ public class GameModeCommand extends Command {
                             }
 
                             player.setGameMode(GameMode.SURVIVAL);
-                            player.sendMessage(CC.GREEN + "Your gamemode has been set to survival.");
+                            player.sendMessage(Component.text("Your gamemode has been set to survival.")
+                                    .color(NamedTextColor.GREEN));
                             if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                                sender.sendMessage(CC.GREEN + "You have set " + player.getName() + "'s gamemode to survival.");
+                                sender.sendMessage(Component.text("You have set " + player.getName() + "'s gamemode to survival.")
+                                        .color(NamedTextColor.GREEN));
                             }
                         }))
                 .withSubcommand(new CommandAPICommand("adventure")
@@ -71,7 +78,8 @@ public class GameModeCommand extends Command {
 
                             if (args.length == 0 || args[0] == null) {
                                 if (sender instanceof ConsoleCommandSender) {
-                                    sender.sendMessage(CC.RED + "You must provide a player who's gamemode you want to set.");
+                                    sender.sendMessage(Component.text("You must provide a player who's gamemode you want to set.")
+                                            .color(NamedTextColor.RED));
                                     return;
                                 }
                                 player = (Player) sender;
@@ -80,9 +88,11 @@ public class GameModeCommand extends Command {
                             }
 
                             player.setGameMode(GameMode.ADVENTURE);
-                            player.sendMessage(CC.GREEN + "Your gamemode has been set to adventure.");
+                            player.sendMessage(Component.text("Your gamemode has been set to adventure.")
+                                    .color(NamedTextColor.GREEN));
                             if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                                sender.sendMessage(CC.GREEN + "You have set " + player.getName() + "'s gamemode to adventure.");
+                                sender.sendMessage(Component.text("You have set " + player.getName() + "'s gamemode to adventure.")
+                                        .color(NamedTextColor.GREEN));
                             }
                         }))
                 .withSubcommand(new CommandAPICommand("spectator")
@@ -93,7 +103,8 @@ public class GameModeCommand extends Command {
 
                             if (args.length == 0 || args[0] == null) {
                                 if (sender instanceof ConsoleCommandSender) {
-                                    sender.sendMessage(CC.RED + "You must provide a player who's gamemode you want to set.");
+                                    sender.sendMessage(Component.text("You must provide a player who's gamemode you want to set.")
+                                            .color(NamedTextColor.RED));
                                     return;
                                 }
                                 player = (Player) sender;
@@ -102,9 +113,11 @@ public class GameModeCommand extends Command {
                             }
 
                             player.setGameMode(GameMode.SPECTATOR);
-                            player.sendMessage(CC.GREEN + "Your gamemode has been set to spectator.");
+                            player.sendMessage(Component.text("Your gamemode has been set to spectator.")
+                                    .color(NamedTextColor.GREEN));
                             if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                                sender.sendMessage(CC.GREEN + "You have set " + player.getName() + "'s gamemode to spectator.");
+                                sender.sendMessage(Component.text("You have set " + player.getName() + "'s gamemode to spectator.")
+                                        .color(NamedTextColor.GREEN));
                             }
                         }));
     }

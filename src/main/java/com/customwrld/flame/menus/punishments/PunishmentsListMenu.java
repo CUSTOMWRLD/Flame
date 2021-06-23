@@ -1,5 +1,8 @@
 package com.customwrld.flame.menus.punishments;
 
+import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -8,12 +11,13 @@ import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.TimeUtil;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -42,7 +46,7 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         Pagination pagination = contents.pagination();
 
-        ClickableItem[] items = new ClickableItem[this.profile.getPunishmentCountByType(this.type)];
+        ClickableItem[] items = new ClickableItem[this.profile.api().getPunishmentCountByType(this.type)];
 
         contents.fill(ClickableItem.empty(Util.FILLER));
 
@@ -55,70 +59,106 @@ public class PunishmentsListMenu implements InventoryProvider {
             if (punishment.getType() == this.type) {
                 String addedBy = "Console";
 
-                if (punishment.getAddedBy() != null) {
+                if (punishment.getAddedByUUID() != null) {
                     addedBy = "Could not fetch...";
 
-                    Profile addedByProfile = Profile.getByUuid(punishment.getAddedBy());
+                    Profile addedByProfile = Profile.getProfile(null, punishment.getAddedByUUID());
 
-                    if (addedByProfile != null && addedByProfile.isLoaded()) {
+                    if (addedByProfile != null) {
                         addedBy = addedByProfile.getName();
                     }
                 }
 
                 String removedBy = "Console";
 
-                if (punishment.getRemovedBy() != null) {
+                if (punishment.getRemovedByUUID() != null) {
                     removedBy = "Could not fetch...";
 
-                    Profile removedByProfile = Profile.getByUuid(punishment.getRemovedBy());
+                    Profile removedByProfile = Profile.getProfile(null, punishment.getRemovedByUUID());
 
-                    if (removedByProfile != null && removedByProfile.isLoaded()) {
+                    if (removedByProfile != null) {
                         removedBy = removedByProfile.getName();
                     }
                 }
 
-                List<String> lore = new ArrayList<>();
-                lore.add(CC.MENU_BAR);
-                lore.add("&eAdded By: &c" + addedBy);
-                lore.add("&eAdded Reason: &c" + punishment.getAddedReason());
+                List<Component> lore = new ArrayList<>();
+                lore.add(Minecraft.Style.MENU_SEPARATOR);
+                lore.add(Component.text().append(Component.text("Added By: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(addedBy)
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
+                lore.add(Component.text().append(Component.text("Added Reason: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(punishment.getAddedReason())
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
 
-                if (!punishment.isPermanent() && punishment.getDuration() != -1L) {
-                    if (punishment.isActive()) {
-                        lore.add("&eRemaining: &c" + punishment.getTimeRemaining());
+                if (!punishment.api().isPermanent() && punishment.getDuration() != -1L) {
+                    if (punishment.api().isActive()) {
+                        lore.add(Component.text().append(Component.text("Remaining: ")
+                                .color(NamedTextColor.GRAY))
+                                .append(Component.text(punishment.api().getTimeRemaining())
+                                        .color(NamedTextColor.DARK_AQUA))
+                                .build()
+                                .decoration(TextDecoration.ITALIC, false));
                     }
                 }
 
-                lore.add("&eDuration: &c" + punishment.getDurationText());
+                lore.add(Component.text().append(Component.text("Duration: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(punishment.api().getDurationText())
+                                .color(NamedTextColor.DARK_AQUA))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
 
                 if (punishment.isRemoved()) {
-                    lore.add(CC.MENU_BAR);
-                    lore.add("&eRemoved By: &c" + removedBy);
-                    lore.add("&eRemoved On: &c" + TimeUtil.dateToString(new Date(punishment.getRemovedAt())));
-                    lore.add("&eRemoved Reason: &c" + punishment.getRemovedReason());
+                    lore.add(Minecraft.Style.MENU_SEPARATOR);
+                    lore.add(Component.text().append(Component.text("Removed On: ")
+                            .color(NamedTextColor.GRAY))
+                            .append(Component.text(TimeUtil.dateToString(new Date(punishment.getRemovedAt())))
+                                    .color(NamedTextColor.DARK_AQUA))
+                            .build()
+                            .decoration(TextDecoration.ITALIC, false));
+                    lore.add(Component.text().append(Component.text("Removed By: ")
+                            .color(NamedTextColor.GRAY))
+                            .append(Component.text(removedBy)
+                                    .color(NamedTextColor.DARK_AQUA))
+                            .build()
+                            .decoration(TextDecoration.ITALIC, false));
+                    lore.add(Component.text().append(Component.text("Removed Reason: ")
+                            .color(NamedTextColor.GRAY))
+                            .append(Component.text(punishment.getRemovedReason())
+                                    .color(NamedTextColor.DARK_AQUA))
+                            .build()
+                            .decoration(TextDecoration.ITALIC, false));
                 } else {
-                    if (!punishment.hasExpired() && punishment.getType().isRemovable() && FlameAPI.canStartProcedure(player)) {
-                        lore.add(CC.MENU_BAR);
+                    if (!punishment.api().hasExpired() && punishment.getType().isRemovable() && FlameAPI.canStartProcedure(player)) {
+                        lore.add(Minecraft.Style.MENU_SEPARATOR);
 
                         if (player.hasPermission("flame.punishment.remove")) {
-                            lore.add("&6Click to pardon this punishment");
+                            lore.add(Component.text("Click to pardon this punishment")
+                                    .color(NamedTextColor.DARK_AQUA));
                         }
                     }
                 }
 
-                lore.add(CC.MENU_BAR);
+                lore.add(Minecraft.Style.MENU_SEPARATOR);
 
                 Material material = Material.BOOK;
 
-                if (!punishment.isRemoved() && !punishment.hasExpired()) {
+                if (!punishment.isRemoved() && !punishment.api().hasExpired()) {
                     material = Material.ENCHANTED_BOOK;
                 }
 
                 items[i] = ClickableItem.of(new ItemFactory(material)
-                                .setName(CC.GOLD + TimeUtil.dateToString(new Date(punishment.getAddedAt())))
+                                .setName(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()))).color(NamedTextColor.DARK_AQUA))
                                 .setLore(lore)
                                 .build(),
                         e -> {
-                            if (!punishment.isRemoved() && !punishment.hasExpired() && punishment.getType().isRemovable() && player.hasPermission("flame.punishment.remove") && FlameAPI.canStartProcedure(player)) {
+                            if (!punishment.isRemoved() && !punishment.api().hasExpired() && punishment.getType().isRemovable() && player.hasPermission("flame.punishment.remove") && FlameAPI.canStartProcedure(player)) {
                                 PunishmentProcedure procedure = new PunishmentProcedure(player, profile, PunishmentProcedure.Type.REMOVE, PunishmentProcedure.Stage.REQUIRE_TEXT);
                                 procedure.setPunishment(punishment);
 

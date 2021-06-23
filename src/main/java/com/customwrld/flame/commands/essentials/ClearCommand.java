@@ -4,6 +4,8 @@ import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -24,7 +26,8 @@ public class ClearCommand extends Command {
 
                     if (args.length == 0 || args[0] == null) {
                         if (sender instanceof ConsoleCommandSender) {
-                            sender.sendMessage(CC.RED + "You must provide a player who's inventory you want to clear.");
+                            sender.sendMessage(Component.text("You must provide a player who's inventory you want to clear.")
+                                    .color(NamedTextColor.RED));
                             return;
                         }
                         player = (Player) sender;
@@ -33,9 +36,11 @@ public class ClearCommand extends Command {
                     }
 
                     player.getInventory().clear();
-                    player.sendMessage(CC.RED + "Your inventory has been cleared");
+                    player.sendMessage(Component.text("Your inventory has been cleared.")
+                            .color(NamedTextColor.RED));
                     if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                        sender.sendMessage(CC.GREEN + "You cleared " + player.getName() + "'s inventory.");
+                        sender.sendMessage(Component.text("You cleared " + player.getName() + "'s inventory.")
+                                .color(NamedTextColor.GREEN));
                     }
                 });
     }

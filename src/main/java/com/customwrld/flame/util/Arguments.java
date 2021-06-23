@@ -1,10 +1,14 @@
 package com.customwrld.flame.util;
 
+import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.rank.Rank;
+import com.customwrld.commonlib.modules.profile.Profile;
+import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.CustomArgument;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -72,9 +76,9 @@ public class Arguments {
     public static CustomArgument<Profile> profileArgument(String nodeName) {
         CustomArgument<Profile> argument = new CustomArgument<>(nodeName, (input) -> {
 
-            Profile profile = Profile.getByUsername(input);
+            Profile profile = Profile.getProfile(input);
 
-            if (profile == null || !profile.isLoaded()) {
+            if (profile == null) {
                 throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder(Config.COULD_NOT_RESOLVE_PLAYER.format()));
             } else {
                 return profile;
@@ -103,10 +107,27 @@ public class Arguments {
         return argument;
     }
 
+    public static CustomArgument<ChatColor> colorArgument(String nodeName) {
+        CustomArgument<ChatColor> argument = new CustomArgument<>(nodeName, (input) -> {
+
+            for (ChatColor color : ChatColor.values()) {
+                if (color.name().equalsIgnoreCase(input)) {
+                    return color;
+                }
+            }
+
+            throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("A color with that name could not be found."));
+        });
+
+        argument.overrideSuggestions(sender -> Arrays.stream(ChatColor.values()).filter(ChatColor::isColor).map(ChatColor::name).toArray(String[]::new));
+
+        return argument;
+    }
+
     public static CustomArgument<Rank> rankArgument(String nodeName) {
         CustomArgument<Rank> argument = new CustomArgument<>(nodeName, (input) -> {
 
-            Rank rank = Rank.getRankByName(input);
+            Rank rank = Rank.getRank(input);
 
             if (rank == null) {
                 throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder(Config.RANK_NOT_FOUND.format()));

@@ -1,16 +1,17 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.customlib.CustomLib;
+import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.pigeon.payloads.PunishmentBroadcastPayload;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.punishment.Punishment;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
-import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 public class UnmuteCommand extends Command {
 
@@ -29,29 +30,21 @@ public class UnmuteCommand extends Command {
                     Profile profile = (Profile) args[0];
                     String reason = (String) args[1];
 
-                    if (profile.getActivePunishmentByType(Punishment.Type.MUTE) == null) {
-                        sender.sendMessage(CC.RED + "That player does not have an existing punishment.");
+                    Punishment punishment = profile.api().getActivePunishmentByType(Punishment.Type.MUTE);
+
+                    if (punishment == null) {
+                        sender.sendMessage(Component.text("That player does not have an existing punishment.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
-                    Punishment punishment = profile.getActivePunishmentByType(Punishment.Type.MUTE);
-
-                    punishment.setRemoved(true);
-                    punishment.setRemovedAt(System.currentTimeMillis());
-                    punishment.setRemovedReason(reason);
+                    UUID remover = null;
 
                     if (sender instanceof Player) {
-                        punishment.setRemovedBy(((Player) sender).getUniqueId());
+                        remover = ((Player) sender).getUniqueId();
                     }
 
-                    punishment.save();
-                    profile.getCachedPunishments().remove(punishment);
-
-                    profile.save();
-
-                    Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
-
-                    pigeon.broadcast(new PunishmentBroadcastPayload(punishment.getId(), profile.getUuid()));
+                    profile.api().removePunishment(punishment, remover, System.currentTimeMillis(), reason);
                 });
     }
 

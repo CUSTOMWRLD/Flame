@@ -1,61 +1,77 @@
 package com.customwrld.flame.menus.grants;
 
-import com.customwrld.customlib.CustomLib;
+import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.pigeon.payloads.GrantDeletePayload;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class DeleteGrantMenu implements InventoryProvider {
 
     private final SmartInventory inventory;
-    private final GrantProcedure grantProcedure;
+    private final GrantProcedure procedure;
     private final String removeReason;
 
-    public DeleteGrantMenu(Player player, GrantProcedure grantProcedure, String removeReason) {
-        this.grantProcedure = grantProcedure;
+    public DeleteGrantMenu(Player player, GrantProcedure procedure, String removeReason) {
+        this.procedure = procedure;
         this.removeReason = removeReason;
         this.inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
-                .title("Grant Removal&r")
+                .title("Grant Removal")
                 .build();
         inventory.open(player);
     }
 
     @Override
     public void init(Player player, InventoryContents contents) {
+        Profile profile = this.procedure.getRecipient();
+
         contents.fill(ClickableItem.empty(Util.FILLER));
 
         for (int x = 0; x < 4; x++) {
-            contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_STAINED_GLASS_PANE)
-                            .setName(CC.GREEN + "Remove Grant")
+            contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_CONCRETE)
+                            .setName(Component.text("Confirm Grant Removal Procedure")
+                                    .color(NamedTextColor.GREEN)
+                                    .decoration(TextDecoration.ITALIC, false))
                             .build(),
                     e -> {
-                        grantProcedure.getGrant().setRemovedBy(player.getUniqueId());
-                        grantProcedure.getGrant().setRemovedAt(System.currentTimeMillis());
-                        grantProcedure.getGrant().setRemovedReason(removeReason);
-                        grantProcedure.getGrant().setRemoved(true);
-                        grantProcedure.finish();
+                        profile.api().removeGrant(procedure.getGrant(), player.getUniqueId(), System.currentTimeMillis(), this.removeReason);
+
+                        procedure.finish();
                         inventory.close(player);
                         player.sendMessage(CC.GREEN + "The grant has been removed.");
-                        CustomLib.getCustomLib().getPigeon().broadcast(new GrantDeletePayload(grantProcedure.getRecipient().getUuid(), grantProcedure.getGrant()));
                     }));
-            contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
-                            .setName(CC.RED + "Cancel Removal")
+            contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_CONCRETE)
+                            .setName(Component.text("Cancel Grant Removal Procedure")
+                                    .color(NamedTextColor.RED)
+                                    .decoration(TextDecoration.ITALIC, false))
                             .build(),
                     e -> {
                         inventory.close(player);
-                        grantProcedure.cancel();
+                        procedure.cancel();
                         player.sendMessage(CC.RED + "Cancelled the grant procedure.");
                     }));
+        }
+    }
+
+    @Override
+    public void close(Player player, InventoryContents contents) {
+        GrantProcedure procedure = GrantProcedure.getByPlayer(player);
+
+        if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_CONFIRMATION) {
+            procedure.cancel();
+            player.sendMessage(CC.RED + "Cancelled the grant removal procedure.");
         }
     }
 

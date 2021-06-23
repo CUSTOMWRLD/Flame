@@ -6,6 +6,8 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EnchantmentArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -33,15 +35,22 @@ public class EnchantCommand extends Command {
                     ItemStack item = player.getInventory().getItemInMainHand();
 
                     if (item.getItemMeta() == null || item.getType() == Material.AIR) {
-                        player.sendMessage(CC.RED + "Could not add an enchantment to your held item.");
+                        player.sendMessage(Component.text("Could not add an enchantment to your held item.")
+                                .color(NamedTextColor.RED));
                         return;
                     }
 
                     if (level == 0) {
-                        player.sendMessage(CC.RED + "A " + enchantment.getKey().getKey().replace("_", " ") + " enchantment has been removed from your held item.");
+                        player.sendMessage(Component.text(
+                                "A " + enchantment.getKey().getKey().replace("_", " ") +
+                                " enchantment has been removed from your held item.")
+                                .color(NamedTextColor.RED));
                         item.removeEnchantment(enchantment);
                     } else {
-                        player.sendMessage(CC.GREEN + "A " + enchantment.getKey().getKey().replace("_", " ") + " enchantment with level " + level + " has been applied to your held item.");
+                        player.sendMessage(Component.text(
+                                "A " + enchantment.getKey().getKey().replace("_", " ") +
+                                        " enchantment with level " + level + " has been applied to your held item.")
+                                .color(NamedTextColor.GREEN));
                         item.addUnsafeEnchantment(enchantment, level);
                     }
                 });

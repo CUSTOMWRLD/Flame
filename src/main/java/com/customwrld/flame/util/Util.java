@@ -7,6 +7,9 @@ import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.flame.Flame;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,13 +19,28 @@ import java.util.UUID;
 
 public class Util {
 
-    public static final ItemStack NEXT_PAGE = new ItemFactory(Material.ARROW).setName(CC.GRAY + "Next Page " + CC.DARK_GRAY + CC.BOLD + ">").build();
-    public static final ItemStack PREVIOUS_PAGE = new ItemFactory(Material.ARROW).setName(CC.DARK_GRAY + CC.BOLD + "<" + CC.GRAY + " Previous Page").build();
-    public static final ItemStack FILLER = new ItemFactory(Material.GRAY_STAINED_GLASS_PANE).setName("").build();
+    public static final ItemStack NEXT_PAGE = new ItemFactory(Material.GRAY_CARPET)
+            .setName(Component.text().append(Component.text("Next Page ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(">")
+                            .color(NamedTextColor.DARK_GRAY)
+                            .decoration(TextDecoration.BOLD, true))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false))
+            .build();
 
-    public static String generateId() {
-        return RandomStringUtils.randomAlphanumeric(8).toUpperCase();
-    }
+    public static final ItemStack PREVIOUS_PAGE = new ItemFactory(Material.GRAY_CARPET)
+            .setName(Component.text().append(Component.text("< ")
+                    .color(NamedTextColor.DARK_GRAY)
+                    .decoration(TextDecoration.BOLD, true))
+                    .append(Component.text("Previous Page")
+                            .color(NamedTextColor.GRAY))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false))
+            .build();
+
+    public static final ItemStack FILLER = new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
+            .setName(Component.empty()).build();
 
     public static boolean isElevatedStaff(Player initiator, UUID player) {
         if (!Flame.getFlame().getElevatedStaff().contains(player)) {

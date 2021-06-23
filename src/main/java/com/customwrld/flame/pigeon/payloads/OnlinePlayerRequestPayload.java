@@ -12,14 +12,11 @@ import lombok.Getter;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@Getter
-@Payload
+@Getter @Payload
 public class OnlinePlayerRequestPayload extends FeedbackPayload {
 
-    @Transmit
-    UUID player;
+    @Transmit UUID player;
 
-    //Request
     @Transmit(direction = RequiredState.RESPONSE)
 
     boolean isOnline;
@@ -28,8 +25,6 @@ public class OnlinePlayerRequestPayload extends FeedbackPayload {
         this.payloadId = "atom-onlinePlayerRequest";
         this.payloadTimeout = 10000;
     }
-
-    //Response
 
     @RequestConstructor
     public OnlinePlayerRequestPayload(UUID player, Consumer<OnlinePlayerRequestPayload> feedback) {

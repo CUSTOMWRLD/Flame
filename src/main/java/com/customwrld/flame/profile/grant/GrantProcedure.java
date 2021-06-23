@@ -1,6 +1,7 @@
 package com.customwrld.flame.profile.grant;
 
-import com.customwrld.flame.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.commonlib.modules.profile.Profile;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -8,8 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Getter @Setter
 public class GrantProcedure {
 
     public static final Set<GrantProcedure> procedures = new HashSet<>();
@@ -41,7 +41,7 @@ public class GrantProcedure {
 
     public void finish() {
         this.recipient.save();
-        this.recipient.reload();
+        this.recipient.load();
 
         procedures.remove(this);
     }

@@ -1,10 +1,14 @@
 package com.customwrld.flame.commands.essentials;
 
-import com.customwrld.customlib.util.CC;
+import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,13 +33,17 @@ public class RenameCommand extends Command {
 
                     Player player = (Player) sender;
 
-                    String name = (String) args[0];
+                    TextComponent itemName = Minecraft.Style.fromLegacy((String) args[0]);
 
                     ItemStack item = player.getInventory().getItemInMainHand();
                     ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName(CC.translate(name));
+
+                    meta.displayName(itemName);
                     item.setItemMeta(meta);
-                    player.sendMessage(CC.GREEN + "Your item has been renamed!");
+
+                    player.sendMessage(Component.text("Your item has been renamed to ")
+                            .color(NamedTextColor.GREEN)
+                            .append(itemName));
                 });
     }
 

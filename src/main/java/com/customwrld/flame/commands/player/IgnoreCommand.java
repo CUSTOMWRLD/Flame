@@ -3,7 +3,7 @@
 //import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.FlameAPI;
-//import com.customwrld.flame.profile.Profile;
+//import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.util.Arguments;
 //import com.customwrld.flame.util.Command;
 //import dev.jorel.commandapi.CommandAPICommand;

@@ -6,30 +6,30 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.flame.profile.Profile;
-import com.customwrld.flame.profile.grant.Grant;
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Duration;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class GrantDurationMenu implements InventoryProvider {
 
-    private final SmartInventory inventory;
-    private final Profile profile;
     private final GrantProcedure procedure;
 
 
-    public GrantDurationMenu(Player player, Profile profile, GrantProcedure procedure) {
-        this.profile = profile;
+    public GrantDurationMenu(Player player, GrantProcedure procedure) {
         this.procedure = procedure;
-        this.inventory = SmartInventory.builder()
+        SmartInventory inventory = SmartInventory.builder()
                 .provider(this)
                 .size(1, 9)
                 .title("Grant Duration")
                 .build();
-        this.inventory.open(player);
+        inventory.open(player);
     }
 
     @Override
@@ -37,7 +37,9 @@ public class GrantDurationMenu implements InventoryProvider {
         Grant grant = procedure.getGrant();
 
         contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
-                        .setName(CC.GREEN + "7 Days")
+                        .setName(Component.text("7 Days")
+                                .color(NamedTextColor.GREEN)
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("7d");
@@ -47,12 +49,13 @@ public class GrantDurationMenu implements InventoryProvider {
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
-                    player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                    new GrantReasonMenu(player, profile, procedure);
+                    new GrantReasonMenu(player, procedure);
                 }));
 
         contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
-                        .setName(CC.YELLOW + "30 Days")
+                        .setName(Component.text("30 Days")
+                                .color(NamedTextColor.YELLOW)
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("30d");
@@ -62,12 +65,13 @@ public class GrantDurationMenu implements InventoryProvider {
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
-                    player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                    new GrantReasonMenu(player, profile, procedure);
+                    new GrantReasonMenu(player, procedure);
                 }));
 
         contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
-                        .setName(CC.GOLD + "Permanent")
+                        .setName(Component.text("Permanent")
+                                .color(NamedTextColor.GOLD)
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("perm");
@@ -77,17 +81,17 @@ public class GrantDurationMenu implements InventoryProvider {
 
                     procedure.setStage(GrantProcedure.Stage.REQUIRE_REASON);
 
-                    player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
-                    new GrantReasonMenu(player, profile, procedure);
+                    new GrantReasonMenu(player, procedure);
                 }));
 
         contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
-                        .setName(CC.RED + "Custom")
+                        .setName(Component.text("Custom")
+                                .color(NamedTextColor.RED)
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_TIME);
 
-                    player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 1);
                     player.closeInventory();
                     player.sendMessage(CC.GREEN + "Type the amount of time you would like to grant this rank for...");
                 }));
