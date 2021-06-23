@@ -1,19 +1,21 @@
 package com.customwrld.flame.util.balance;
 
 import com.customwrld.customlib.util.ChatUtil;
-import com.customwrld.flame.Flame;
+import com.customwrld.flame.network.Gamemode;
+import com.customwrld.flame.profile.GamemodeStorage;
 import com.customwrld.flame.profile.Profile;
 import com.customwrld.flame.util.Currencies;
 import com.customwrld.flame.util.Levels;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Balance {
 
-    public static boolean canAffordWithGold(Profile profile, int goldCost) {
-        return profile.getGold() > goldCost;
+    public static boolean canAffordWithGold(Profile profile, int cost) {
+        return profile.getGold() > cost;
     }
 
     public static void addGold(Profile profile, int amount) {
@@ -34,24 +36,35 @@ public class Balance {
         );
     }
 
-    public static int getGameModeGold(Profile profile, @Nullable String serverType) {
-        return profile.getGameModeGold().getOrDefault(
-                serverType == null ?
-                        Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
-                        serverType, 0);
+    public static int getGamemodeGold(Profile profile, @Nullable Gamemode gamemode) {
+        var gamemodeGold = 0;
+        if(profile.hasGamemodeStorage(gamemode)) {
+            gamemodeGold = profile.getGamemodeStorage(gamemode).get("gamemodeGold").asInt();
+        }
+        return gamemodeGold;
     }
 
-    public static boolean canAffordWithGameModeGold(Profile profile, @Nullable String serverType, int gmGoldCost) {
-        return profile.getGameModeGold().getOrDefault(
-                serverType == null ?
-                        Flame.getFlame().getMainConfig().getString("SERVER.TYPE") :
-                        serverType, 0) > gmGoldCost;
+    public static boolean canAffordWithGamemodeGold(Profile profile, @Nullable Gamemode gamemode, int cost) {
+        return getGamemodeGold(profile, gamemode) > cost;
     }
 
-    public static void addGameModeGold(Profile profile, @Nullable String serverType, int amount) {
-        serverType = serverType == null ? Flame.getFlame().getMainConfig().getString("SERVER.TYPE") : serverType;
-        int gmGold = profile.getGameModeGold().getOrDefault(serverType, 0);
-        profile.getGameModeGold().put(serverType, gmGold + amount);
+    public static void addGamemodeGold(Profile profile, @NotNull Gamemode gamemode, int amount) {
+        GamemodeStorage storage;
+        if(profile.hasGamemodeStorage(gamemode)) {
+            storage = profile.getGamemodeStorage(gamemode);
+        } else {
+            storage = new GamemodeStorage(gamemode);
+            profile.getGamemodeStorages().put(gamemode, storage);
+        }
+
+        GamemodeStorage.StorageValue value;
+        if(storage.has("gamemodeGold")) {
+            value = storage.get("gamemodeGold");
+            value.setValue(value.asInt() + amount);
+        } else {
+            value = new GamemodeStorage.StorageValue("gamemodeGold", amount, true);
+            storage.set(value);
+        }
     }
 
     public static TextComponent getCannotAffordGameModeGoldMessage() {
