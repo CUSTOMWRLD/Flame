@@ -5,4 +5,4 @@ authors: [ oHate, BitCrack, FreakingChicken ]
 main: com.customwrld.flame.Flame
 load: POSTWORLD
 description: Flame for CUSTOMWRLD
-softdepend: [ mLib, CommandAPI, PlaceholderAPI ]
+softdepend: [ CustomLib, CommandAPI, PlaceholderAPI ]
