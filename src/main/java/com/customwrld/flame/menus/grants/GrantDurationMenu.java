@@ -1,20 +1,18 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Duration;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class GrantDurationMenu implements InventoryProvider {
@@ -93,7 +91,8 @@ public class GrantDurationMenu implements InventoryProvider {
                     procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_TIME);
 
                     player.closeInventory();
-                    player.sendMessage(CC.GREEN + "Type the amount of time you would like to grant this rank for...");
+                    player.sendMessage(Component.text("Type the amount of time you would like to grant this rank for...")
+                            .color(MC.CC.GREEN.getTextColor()));
                 }));
     }
 
@@ -103,7 +102,8 @@ public class GrantDurationMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_TIME) {
             procedure.cancel();
-            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+            player.sendMessage(Component.text("Cancelled the grant procedure.")
+                    .color(MC.CC.RED.getTextColor()));
         }
     }
 

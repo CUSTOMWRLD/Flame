@@ -1,58 +1,51 @@
-//package com.customwrld.flame.commands.staff;
-//
-//import com.customwrld.customlib.util.CC;
-//import com.customwrld.flame.Flame;
-//import com.customwrld.commonlib.modules.profile.Profile;
-//import com.customwrld.flame.Initialize;
-//import dev.jorel.commandapi.CommandAPICommand;
-//import org.bukkit.Bukkit;
-//import org.bukkit.scheduler.BukkitTask;
-//
-//import java.util.List;
-//import java.util.Random;
-//
-//public class StopCommand extends Command {
-//
-//    public replace() {
-//        this.command = "replace";
-//        this.permission = "flame.replace";
-//    }
-//
-//    @Override
-//    public CommandAPICommand command() {
-//        return null;
-//    }
-//
-//    public static CommandAPICommand command() {
-//        return new CommandAPICommand("stop")
-//                .withPermission("flame.stop")
-//                .executes((sender, args) -> {
-//                    Flame.getFlame().setShuttingDown(true);
-//                    Bukkit.broadcastMessage(CC.RED + "Server is currently being rebooted!");
-//
-//                    Profile.getProfiles().values().forEach(profile -> {
-//                        if (profile != null && profile.isLoaded()) {
-//                            profile.setLastSeen(System.currentTimeMillis());
-//                            profile.setCurrentServer(null);
-//                            profile.setOnline(false);
-//                            profile.save();
-//                        }
-//                    });
-//
-//                    List<String> hubs = Flame.getFlame().getMainConfig().getStringList("HUBS");
-//
-//                    Bukkit.getOnlinePlayers().forEach(player -> {
-//                        player.sendMessage(CC.GREEN + "You are currently being connected to a fallback server.");
-////                        BungeeUtil.sendPlayer(player.getName(), hubs.get(new Random().nextInt(hubs.size())));
-//                    });
-//
-//                    Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(CC.RED + "Could not send you to a fallback server."));
-//
-//                    Initialize.taskList.forEach(BukkitTask::cancel);
-//                    Bukkit.getServer().getScheduler().cancelTasks(Flame.getFlame());
-//
-//                    Bukkit.shutdown();
-//                });
-//    }
-//
-//}
+package com.customwrld.flame.commands.staff;
+
+import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.customlib.util.MC;
+import com.customwrld.flame.Flame;
+import com.customwrld.flame.FlameAPI;
+import com.customwrld.flame.util.Command;
+import dev.jorel.commandapi.CommandAPICommand;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+
+import java.util.List;
+
+public class StopCommand extends Command {
+
+    public StopCommand() {
+        this.command = "stop";
+        this.permission = "flame.stop";
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand("stop")
+                .withPermission("flame.stop")
+                .executes((sender, args) -> {
+                    FlameAPI.setShuttingDown(true);
+                    Bukkit.broadcast(Component.text("Server is currently being rebooted!")
+                            .color(MC.CC.RED.getTextColor()));
+
+                    Profile.getProfiles().values().forEach(profile -> {
+                        if (profile != null) {
+                            profile.save();
+                        }
+                    });
+
+                    List<String> hubs = Flame.getFlame().getMainConfig().getStringList("HUBS");
+
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        player.sendMessage(Component.text("You are currently being connected to a fallback server.")
+                                .color(MC.CC.GREEN.getTextColor()));
+//                        BungeeUtil.sendPlayer(player.getName(), hubs.get(new Random().nextInt(hubs.size())));
+                    });
+
+                    Bukkit.getOnlinePlayers().forEach(player -> player.kick(Component.text("Could not send you to a fallback server.")
+                            .color(MC.CC.RED.getTextColor())));
+
+                    Bukkit.shutdown();
+                });
+    }
+
+}

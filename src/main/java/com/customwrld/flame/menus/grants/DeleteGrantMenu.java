@@ -1,13 +1,12 @@
 package com.customwrld.flame.menus.grants;
 
-import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
@@ -50,7 +49,8 @@ public class DeleteGrantMenu implements InventoryProvider {
 
                         procedure.finish();
                         inventory.close(player);
-                        player.sendMessage(CC.GREEN + "The grant has been removed.");
+                        player.sendMessage(Component.text("The grant has been removed.")
+                                .color(MC.CC.GREEN.getTextColor()));
                     }));
             contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_CONCRETE)
                             .setName(Component.text("Cancel Grant Removal Procedure")
@@ -60,7 +60,8 @@ public class DeleteGrantMenu implements InventoryProvider {
                     e -> {
                         inventory.close(player);
                         procedure.cancel();
-                        player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+                        player.sendMessage(Component.text("Cancelled the grant procedure.")
+                                .color(MC.CC.RED.getTextColor()));
                     }));
         }
     }
@@ -71,7 +72,8 @@ public class DeleteGrantMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_CONFIRMATION) {
             procedure.cancel();
-            player.sendMessage(CC.RED + "Cancelled the grant removal procedure.");
+            player.sendMessage(Component.text("Cancelled the grant removal procedure.")
+                    .color(MC.CC.RED.getTextColor()));
         }
     }
 

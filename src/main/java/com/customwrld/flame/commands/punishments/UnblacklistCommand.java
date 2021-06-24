@@ -1,13 +1,14 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.Config;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.customlib.util.MC;
+import com.customwrld.flame.Config;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -38,7 +39,8 @@ public class UnblacklistCommand extends Command {
                     Punishment punishment = profile.api().getActivePunishmentByType(Punishment.Type.BLACKLIST);
 
                     if (punishment == null) {
-                        sender.sendMessage(CC.RED + "That player does not have an existing punishment.");
+                        sender.sendMessage(Component.text("That player does not have an existing punishment.")
+                                .color(MC.CC.RED.getTextColor()));
                         return;
                     }
 

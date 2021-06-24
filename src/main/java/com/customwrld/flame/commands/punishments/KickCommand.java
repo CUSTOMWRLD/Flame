@@ -1,20 +1,17 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.commonlib.util.Minecraft;
-import com.customwrld.customlib.util.CC;
-import com.customwrld.flame.FlameAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.customlib.util.MC;
+import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Util;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerKickEvent;
 
 public class KickCommand extends Command {
 
@@ -41,28 +38,29 @@ public class KickCommand extends Command {
                         }
                     }
 
-                    TextComponent playerName = Minecraft.Style.CONSOLE;
+                    Component playerName = MC.Style.CONSOLE;
 
                     if (sender instanceof Player) {
                         playerName = FlameAPI.getColoredName(Profile.getProfile(null, ((Player) sender).getUniqueId()));
                     }
 
-                    TextComponent punishmentMessage = Minecraft.Style.getMessageComponent("Punishment",
-                            FlameAPI.getColoredName(Profile.getProfile(null, player.getUniqueId()))
-                    .append(Component.text(" has been kicked by ")
-                            .color(NamedTextColor.GRAY)
-                    .append(playerName)));
+                    Component punishmentMessage = MC.Chat.notificationMessage("Punishment", Component.text()
+                            .append(FlameAPI.getColoredName(Profile.getProfile(null, player.getUniqueId())))
+                            .append(Component.text(" has been kicked by ")
+                                    .color(NamedTextColor.GRAY))
+                            .append(playerName)
+                            .build());
 
                     Bukkit.getOnlinePlayers()
                             .forEach(staff -> {
                                 if (player.hasPermission("flame.staff")) {
-                                    player.sendMessage(CC.CHAT_BAR);
+                                    player.sendMessage(MC.Style.SEPARATOR);
                                     player.sendMessage(punishmentMessage);
-                                    player.sendMessage(CC.CHAT_BAR);
+                                    player.sendMessage(MC.Style.SEPARATOR);
                                 }
                             });
 
-                    player.kick(Minecraft.Style.fromLegacy(reason));
+                    player.kick(MC.Style.fromLegacy(reason));
                 });
 
     }

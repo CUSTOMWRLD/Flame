@@ -1,6 +1,5 @@
 //package com.customwrld.flame.commands.grant;
 //
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.customlib.util.TimeUtil;
 //import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.commonlib.modules.grant.Grant;

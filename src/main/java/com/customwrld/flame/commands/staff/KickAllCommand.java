@@ -1,6 +1,5 @@
 //package com.customwrld.flame.commands.staff;
 //
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Flame;
 //import dev.jorel.commandapi.CommandAPICommand;
 //import org.bukkit.Bukkit;

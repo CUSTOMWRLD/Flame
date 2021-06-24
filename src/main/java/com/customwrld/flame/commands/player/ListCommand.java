@@ -1,10 +1,9 @@
 package com.customwrld.flame.commands.player;
 
-import com.customwrld.commonlib.modules.profile.ProfileAPI;
-import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.commonlib.util.Minecraft;
-import com.customwrld.flame.FlameAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.customlib.util.MC;
+import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import net.kyori.adventure.text.Component;
@@ -52,15 +51,15 @@ public class ListCommand extends Command {
                         rankComponents.add(Component.text(rank.getName()).color(TextColor.color(rank.getColor().getRGB())));
                     }
 
-                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(MC.Style.SEPARATOR);
                     sender.sendMessage(Component.join(Component.text(", ")
                             .color(NamedTextColor.GRAY), rankComponents));
-                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(MC.Style.SEPARATOR);
                     sender.sendMessage(Component.text("There are " + Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() + " players online:")
                             .color(NamedTextColor.GRAY));
                     sender.sendMessage(Component.join(Component.text(", ")
                             .color(NamedTextColor.GRAY), playerComponents));
-                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(MC.Style.SEPARATOR);
                 });
     }
 

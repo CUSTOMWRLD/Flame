@@ -1,13 +1,13 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -88,7 +88,8 @@ public class GrantReasonMenu implements InventoryProvider {
                     procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_REASON);
 
                     player.closeInventory();
-                    player.sendMessage(CC.GREEN + "Type a reason for adding this grant in chat...");
+                    player.sendMessage(Component.text("Type a reason for adding this grant in chat...")
+                            .color(MC.CC.GREEN.getTextColor()));
                 }));
 
     }
@@ -99,7 +100,8 @@ public class GrantReasonMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_REASON) {
             procedure.cancel();
-            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+            player.sendMessage(Component.text("Cancelled the grant procedure.")
+                    .color(MC.CC.RED.getTextColor()));
         }
     }
 

@@ -1,6 +1,5 @@
 //package com.customwrld.flame.commands.proxy;
 //
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.FlameAPI;
 //import com.customwrld.flame.network.Server;

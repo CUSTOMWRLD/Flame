@@ -1,7 +1,8 @@
 package com.customwrld.flame.menus.grants;
 
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.grant.GrantAPI;
-import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
@@ -9,11 +10,9 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
@@ -99,7 +98,7 @@ public class GrantsListMenu implements InventoryProvider {
 
             List<Component> lore = new ArrayList<>();
 
-            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(MC.Style.MENU_SEPARATOR);
             lore.add(Component.text().append(Component.text("Rank: ")
                     .color(NamedTextColor.GRAY))
                     .append(Component.text(grant.api().getRank().getName())
@@ -108,7 +107,7 @@ public class GrantsListMenu implements InventoryProvider {
                     .decoration(TextDecoration.ITALIC, false));
             lore.add(Component.text().append(Component.text("Added On: ")
                     .color(NamedTextColor.GRAY))
-                    .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt())))
+                    .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt()), true))
                             .color(NamedTextColor.DARK_AQUA))
                     .build()
                     .decoration(TextDecoration.ITALIC, false));
@@ -144,10 +143,10 @@ public class GrantsListMenu implements InventoryProvider {
                     .decoration(TextDecoration.ITALIC, false));
 
             if (grant.isRemoved()) {
-                lore.add(Minecraft.Style.MENU_SEPARATOR);
+                lore.add(MC.Style.MENU_SEPARATOR);
                 lore.add(Component.text().append(Component.text("Removed On: ")
                         .color(NamedTextColor.GRAY))
-                        .append(Component.text(TimeUtil.dateToString(new Date(grant.getRemovedAt())))
+                        .append(Component.text(TimeUtil.dateToString(new Date(grant.getRemovedAt()), true))
                                 .color(NamedTextColor.DARK_AQUA))
                         .build()
                         .decoration(TextDecoration.ITALIC, false));
@@ -166,7 +165,7 @@ public class GrantsListMenu implements InventoryProvider {
             } else {
                 if (!grant.api().getRank().api().isDefaultRank() && !grant.api().hasExpired() && FlameAPI.canStartProcedure(player)) {
                     if (player.hasPermission("flame.rank.remove")) {
-                        lore.add(Minecraft.Style.MENU_SEPARATOR);
+                        lore.add(MC.Style.MENU_SEPARATOR);
                         lore.add(Component.text().append(Component.text("Click to remove this grant.")
                                 .color(NamedTextColor.DARK_AQUA))
                                 .build()
@@ -174,7 +173,7 @@ public class GrantsListMenu implements InventoryProvider {
                     }
                 }
             }
-            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(MC.Style.MENU_SEPARATOR);
 
             Material material = Material.BOOK;
 
@@ -194,7 +193,8 @@ public class GrantsListMenu implements InventoryProvider {
                                 GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.REMOVE, GrantProcedure.Stage.REQUIRE_REASON);
                                 procedure.setGrant(grant);
 
-                                player.sendMessage(CC.GREEN + "Type a reason for removing this grant in chat...");
+                                player.sendMessage(Component.text("Type a reason for removing this grant in chat...")
+                                        .color(MC.CC.GREEN.getTextColor()));
                                 player.closeInventory();
                             }
                         }

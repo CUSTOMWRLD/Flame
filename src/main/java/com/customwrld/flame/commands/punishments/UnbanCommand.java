@@ -1,7 +1,6 @@
 package com.customwrld.flame.commands.punishments;
 
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;

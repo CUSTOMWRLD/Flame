@@ -5,9 +5,9 @@ import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -33,11 +33,13 @@ public class PunishmentSelectMenu implements InventoryProvider {
         contents.fill(ClickableItem.empty(Util.FILLER));
 
         contents.set(1, 1, ClickableItem.of(new ItemFactory(Material.RED_CONCRETE)
-                        .setName(Component.text(Punishment.Type.BLACKLIST.getTypeData().getReadable())
-                                .color(TextColor.color(Punishment.Type.BLACKLIST.getTypeData().getColor().getRGB()))
-                                .decoration(TextDecoration.BOLD, true))
-                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BLACKLIST) + " " +
-                                Punishment.Type.BLACKLIST.getTypeData().getReadable() + " on record."))
+                        .setName(Component.text("Blacklists")
+                                .color(TextColor.color(MC.CC.RED.getTextColor()))
+                                .decoration(TextDecoration.BOLD, true)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BLACKLIST) + " Blacklists on record.")
+                                .color(MC.CC.WHITE.getTextColor())
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     if (!(this.profile.api().getPunishmentCountByType(Punishment.Type.BLACKLIST) < 1)) {
@@ -45,12 +47,14 @@ public class PunishmentSelectMenu implements InventoryProvider {
                     }
                 }));
 
-        contents.set(1, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_CONCRETE)
-                        .setName(Component.text(Punishment.Type.BAN.getTypeData().getReadable())
-                                .color(TextColor.color(Punishment.Type.BAN.getTypeData().getColor().getRGB()))
-                                .decoration(TextDecoration.BOLD, true))
-                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BAN) + " " +
-                                Punishment.Type.BAN.getTypeData().getReadable() + " on record."))
+        contents.set(1, 3, ClickableItem.of(new ItemFactory(Material.ORANGE_CONCRETE)
+                        .setName(Component.text("Bans")
+                                .color(TextColor.color(MC.CC.GOLD.getTextColor()))
+                                .decoration(TextDecoration.BOLD, true)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BAN) + " Bans on record.")
+                                .color(MC.CC.WHITE.getTextColor())
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     if (!(this.profile.api().getPunishmentCountByType(Punishment.Type.BAN) < 1)) {
@@ -59,11 +63,13 @@ public class PunishmentSelectMenu implements InventoryProvider {
                 }));
 
         contents.set(1, 5, ClickableItem.of(new ItemFactory(Material.LIME_CONCRETE)
-                        .setName(Component.text(Punishment.Type.MUTE.getTypeData().getReadable())
-                                .color(TextColor.color(Punishment.Type.MUTE.getTypeData().getColor().getRGB()))
-                                .decoration(TextDecoration.BOLD, true))
-                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.MUTE) + " " +
-                                Punishment.Type.MUTE.getTypeData().getReadable() + " on record."))
+                        .setName(Component.text("Mutes")
+                                .color(TextColor.color(MC.CC.GREEN.getTextColor()))
+                                .decoration(TextDecoration.BOLD, true)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.MUTE) + " Mutes on record.")
+                                .color(MC.CC.WHITE.getTextColor())
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     if (!(this.profile.api().getPunishmentCountByType(Punishment.Type.MUTE) < 1)) {
@@ -72,11 +78,13 @@ public class PunishmentSelectMenu implements InventoryProvider {
                 }));
 
         contents.set(1, 7, ClickableItem.of(new ItemFactory(Material.LIGHT_BLUE_CONCRETE)
-                        .setName(Component.text(Punishment.Type.WARN.getTypeData().getReadable())
-                                .color(TextColor.color(Punishment.Type.WARN.getTypeData().getColor().getRGB()))
-                                .decoration(TextDecoration.BOLD, true))
-                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.WARN) + " " +
-                                Punishment.Type.WARN.getTypeData().getReadable() + " on record."))
+                        .setName(Component.text("Warn")
+                                .color(TextColor.color(MC.CC.BLUE.getTextColor()))
+                                .decoration(TextDecoration.BOLD, true)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.WARN) + " Warns on record.")
+                                .color(MC.CC.WHITE.getTextColor())
+                                .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
                     if (!(this.profile.api().getPunishmentCountByType(Punishment.Type.WARN) < 1)) {
