@@ -82,7 +82,7 @@ public class Transaction {
         }
         document.put("owner", owner.toString());
 
-        List<HashMap<String, Object>> simpleEntries = new ArrayList<>();
+        List<Map<String, Object>> simpleEntries = new ArrayList<>();
 
         for (TransactionEntry entry : entries) {
             simpleEntries.add(entry.simplify());

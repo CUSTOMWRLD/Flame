@@ -21,7 +21,7 @@ public class TransactionEntry {
                 CollectionsUtil.genericMapToType((Map<?, ?>) simple.get("amounts"), Currencies.CurrencyType.class, Integer.class));
     }
 
-    public HashMap<String, Object> simplify() {
+    public Map<String, Object> simplify() {
         HashMap<String, Object> simple = new HashMap<>();
         simple.put("context", context);
 
