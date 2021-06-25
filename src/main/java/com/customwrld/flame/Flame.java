@@ -1,12 +1,11 @@
 package com.customwrld.flame;
 
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
 import com.customwrld.flame.chat.ChatFilter;
-import com.customwrld.flame.chat.ChatListener;
+import com.customwrld.flame.listeners.ChatListener;
 import com.customwrld.flame.listeners.GrantListener;
 import com.customwrld.flame.listeners.PunishmentListener;
 import com.customwrld.flame.listeners.AuthListener;
@@ -31,11 +30,8 @@ import java.util.UUID;
 @Getter
 public final class Flame extends JavaPlugin {
 
-    // TODO: Add a /grants command for players that only does it for them, it will also remove a lot of elements like who added and removed it etc
-    // TODO: Add a /punishments command for players that only does it for them, it will also remove a lot of elements like who added and removed it etc
+    // TODO: Replace NamedTextColor with MC.CC.XXXX
     // TODO: /mypunishments and /mygrants
-    // TODO: For each pigeon broadcast make sure to run the code on the current server also if the player is on
-    // TODO: Add if (profile == null || !profile.isLoaded()) { to Profile.getByUuid instances
 
     @Getter private static Flame flame;
 

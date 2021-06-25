@@ -1,12 +1,9 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.commonlib.modules.profile.Profile;
-import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.CustomArgument;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -69,6 +66,23 @@ public class Arguments {
         });
 
         argument.overrideSuggestions(Collections.emptyList());
+
+        return argument;
+    }
+
+    public static CustomArgument<Player> playerArgument(String nodeName) {
+        CustomArgument<Player> argument = new CustomArgument<>(nodeName, (input) -> {
+
+            Player player = Bukkit.getPlayer(input);
+
+            if(player == null) {
+                throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("That player is currently not online."));
+            } else {
+                return player;
+            }
+        });
+
+        argument.overrideSuggestions(sender -> Bukkit.getServer().getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));
 
         return argument;
     }

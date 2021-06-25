@@ -7,8 +7,9 @@ import com.customwrld.commonlib.modules.bukkit.events.PunishmentRemoveEvent;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.FlameAPI;
+import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -16,7 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerKickEvent;
 
 public class PunishmentListener implements Listener {
 
@@ -24,14 +24,14 @@ public class PunishmentListener implements Listener {
         Bukkit.getOnlinePlayers()
                 .forEach(player -> {
                     if (player.hasPermission("flame.staff")) {
-                        player.sendMessage(Minecraft.Style.SEPARATOR);
-                        player.sendMessage(Minecraft.Style.getMessageComponent("Punishment", FlameAPI.getColoredName(profile)
+                        player.sendMessage(MC.Style.SEPARATOR);
+                        player.sendMessage(MC.Chat.notificationMessage("Punishment", FlameAPI.getColoredName(profile)
                                 .append(Component.text(" has been " + punishment.api().getContext() + " by ")
                                         .color(NamedTextColor.GRAY))
                                 .append(punishment.getAddedByUUID() != null ?
                                         FlameAPI.getColoredName(Profile.getProfile(null, punishment.getAddedByUUID())) :
-                                        Minecraft.Style.CONSOLE)));
-                        player.sendMessage(Minecraft.Style.SEPARATOR);
+                                        MC.Style.CONSOLE)));
+                        player.sendMessage(MC.Style.SEPARATOR);
                     }
                 });
     }
@@ -53,9 +53,9 @@ public class PunishmentListener implements Listener {
 
         if(player != null && !punishment.isRemoved()) {
             if (punishment.getType() == Punishment.Type.BAN || punishment.getType() == Punishment.Type.BLACKLIST) {
-                player.kick(Component.join(Component.newline(), punishment.api().getPunishmentMessage()));
+                player.kick(Component.join(Component.newline(), Util.getPunishmentMessage(punishment)));
             } else if (punishment.getType() == Punishment.Type.MUTE) {
-                punishment.api().getPunishmentMessage().forEach(player::sendMessage);
+                Util.getPunishmentMessage(punishment).forEach(player::sendMessage);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 0.1F);
             }
         }

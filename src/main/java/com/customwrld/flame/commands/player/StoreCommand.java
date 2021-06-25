@@ -1,6 +1,6 @@
 package com.customwrld.flame.commands.player;
 
-import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.util.Command;
@@ -40,12 +40,12 @@ public class StoreCommand extends Command {
                                     .color(NamedTextColor.AQUA)
                                     .decoration(TextDecoration.UNDERLINED, true));
 
-                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(MC.Style.SEPARATOR);
                     sender.sendMessage(component
                             .color(NamedTextColor.GREEN)
                             .hoverEvent(HoverEvent.showText(Component.text("Click to open the store!")))
                             .clickEvent(ClickEvent.openUrl(domain)));
-                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+                    sender.sendMessage(MC.Style.SEPARATOR);
                 });
     }
 }

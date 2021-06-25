@@ -8,18 +8,13 @@ import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.commonlib.util.TimeUtil;
-import com.customwrld.flame.Flame;
+import com.customwrld.customlib.util.MC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.logging.Level;
 
 public class GrantListener implements Listener {
 
@@ -38,12 +33,12 @@ public class GrantListener implements Listener {
         Rank rank = grant.api().getRank();
 
         if(player != null && rank != null) {
-            player.sendMessage(Minecraft.Style.SEPARATOR);
-            player.sendMessage(Minecraft.Style.getMessageComponent("Grant",
+            player.sendMessage(MC.Style.SEPARATOR);
+            player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("A '" + rank.getName() + "' grant has been applied to you " +
                             (grant.getDuration() == Integer.MAX_VALUE ? "permanently" : "for " + TimeUtil.millisToRoundedTime(grant.getDuration())) + "."))
                     .color(NamedTextColor.GRAY));
-            player.sendMessage(Minecraft.Style.SEPARATOR);
+            player.sendMessage(MC.Style.SEPARATOR);
         }
     }
 
@@ -62,11 +57,11 @@ public class GrantListener implements Listener {
         Rank rank = grant.api().getRank();
 
         if(player != null && rank != null) {
-            player.sendMessage(Minecraft.Style.SEPARATOR);
-            player.sendMessage(Minecraft.Style.getMessageComponent("Grant",
+            player.sendMessage(MC.Style.SEPARATOR);
+            player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("Your '" + rank.getName() + "' grant has been removed.")
                             .color(NamedTextColor.GRAY)));
-            player.sendMessage(Minecraft.Style.SEPARATOR);
+            player.sendMessage(MC.Style.SEPARATOR);
         }
     }
 
@@ -85,11 +80,11 @@ public class GrantListener implements Listener {
         Rank rank = grant.api().getRank();
 
         if(player != null && rank != null) {
-            player.sendMessage(Minecraft.Style.SEPARATOR);
-            player.sendMessage(Minecraft.Style.getMessageComponent("Grant",
+            player.sendMessage(MC.Style.SEPARATOR);
+            player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("Your '" + rank.getName() + "' grant has expired.")
                             .color(NamedTextColor.GRAY)));
-            player.sendMessage(Minecraft.Style.SEPARATOR);
+            player.sendMessage(MC.Style.SEPARATOR);
         }
     }
 

@@ -1,7 +1,6 @@
 package com.customwrld.flame.menus.general;
 
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -9,6 +8,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -49,7 +49,7 @@ public class RankListMenu implements InventoryProvider {
 
         for (Rank rank : sortedRanks) {
             List<Component> lore = new ArrayList<>();
-            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(MC.Style.MENU_SEPARATOR);
             lore.add(Component.text()
                     .append(Component.text("Weight: ")
                             .color(NamedTextColor.GRAY))
@@ -59,9 +59,9 @@ public class RankListMenu implements InventoryProvider {
             lore.add(Component.text()
                     .append(Component.text("Prefix: ")
                             .color(NamedTextColor.GRAY))
-                    .append(Minecraft.Style.fromLegacy(rank.getPrefix()))
+                    .append(MC.Style.fromLegacy(rank.getPrefix()))
                     .build());
-//            lore.add(Minecraft.Style.MENU_SEPARATOR);
+//            lore.add(MC.Style.MENU_SEPARATOR);
 //            List<String> permissions = rank.api().getAllPermissions();
 
 //            lore.add(Component.text("Permissions [" + permissions.size() + "]")
@@ -85,10 +85,10 @@ public class RankListMenu implements InventoryProvider {
 //                lore.addAll(TextSplitter.split(46, StringUtils.join(rankNames, " "), "", ", "));
 //            }
 
-            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(MC.Style.MENU_SEPARATOR);
             lore.add(Component.text("Click to view rank permissions.")
                     .color(NamedTextColor.DARK_AQUA));
-            lore.add(Minecraft.Style.MENU_SEPARATOR);
+            lore.add(MC.Style.MENU_SEPARATOR);
 
             items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
                     .setLeatherColor(Color.fromRGB(rank.getColor().getRed(), rank.getColor().getGreen(), rank.getColor().getBlue()))

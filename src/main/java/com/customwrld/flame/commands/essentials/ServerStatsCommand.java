@@ -1,13 +1,11 @@
 //package com.customwrld.flame.commands.essentials;
 //
-//import com.customwrld.commonlib.util.Minecraft;
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.customlib.util.MathUtil;
 //import com.customwrld.customlib.util.ServerUtil;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.util.Command;
 //import dev.jorel.commandapi.CommandAPICommand;
-//import net.minecraft.server.v1_16_R3.MinecraftServer;
+//import net.MC.server.v1_16_R3.MinecraftServer;
 //import org.bukkit.entity.Player;
 //
 //import java.text.DecimalFormat;
@@ -37,7 +35,7 @@
 //                    Runtime runtime = Runtime.getRuntime();
 //                    DecimalFormat format = new DecimalFormat("###.##");
 //
-//                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+//                    sender.sendMessage(MC.Style.SEPARATOR);
 //                    // TODO: Convert These
 ////                    sender.sendMessage(CC.AQUA + "- Server Memory Stats");
 ////                    sender.sendMessage(CC.WHITE + "   Max Memory: " + CC.BLUE + MathUtil.readableBytes(runtime.maxMemory()));
@@ -52,7 +50,7 @@
 ////                    sender.sendMessage(CC.WHITE + "   Entities in World: " + CC.BLUE + player.getWorld().getEntities().size());
 ////                    sender.sendMessage(" ");
 ////                    sender.sendMessage(CC.AQUA + "TPS from last 1m, 5m, 15m: " + ServerUtil.formatTPS(tps[0]) + ", " + ServerUtil.formatTPS(tps[1]) + ", " + ServerUtil.formatTPS(tps[2]));
-//                    sender.sendMessage(Minecraft.Style.SEPARATOR);
+//                    sender.sendMessage(MC.Style.SEPARATOR);
 //                });
 //    }
 //}

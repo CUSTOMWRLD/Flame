@@ -3,11 +3,11 @@ package com.customwrld.flame.listeners;
 import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
+import com.customwrld.flame.util.Util;
 import com.google.common.hash.Hashing;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,11 +19,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ProfileListener implements Listener {
@@ -60,7 +58,7 @@ public class ProfileListener implements Listener {
         Punishment punishment = profile.api().getActiveBan();
 
         if (punishment != null && !isElevated) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.join(Component.newline(), punishment.api().getPunishmentMessage()));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.join(Component.newline(), Util.getPunishmentMessage(punishment)));
             return;
         }
 
@@ -116,11 +114,6 @@ public class ProfileListener implements Listener {
         }
 
         Profile.getProfiles().put(profile.getId(), profile);
-        System.out.println("Added Profile! Profile List: " + Profile.getProfiles().values().stream()
-                .map(Profile::getName)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())
-                .toString());
     }
 
     @EventHandler
@@ -163,11 +156,6 @@ public class ProfileListener implements Listener {
         }
 
         Profile.getProfiles().remove(profile.getId());
-        System.out.println("Removed Profile! Profile List: " + Profile.getProfiles().values().stream()
-                .map(Profile::getName)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())
-                .toString());
     }
 
 }

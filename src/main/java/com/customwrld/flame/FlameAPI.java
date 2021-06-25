@@ -2,13 +2,12 @@ package com.customwrld.flame;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.commonlib.util.Minecraft;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,18 +30,18 @@ public class FlameAPI {
         }
     }
 
-    public static TextComponent getChatFormat(Profile profile) {
+    public static Component getChatFormat(Profile profile) {
         return getColoredPrefix(profile).append(getColoredName(profile));
     }
 
-    public static TextComponent getColoredName(Profile profile) {
+    public static Component getColoredName(Profile profile) {
         Rank rank = profile.api().getActiveGrant().api().getRank();
         return Component.text(profile.getName()).color(TextColor.color(rank.getColor().getRGB()));
     }
 
-    public static TextComponent getColoredPrefix(Profile profile) {
+    public static Component getColoredPrefix(Profile profile) {
         Rank rank = profile.api().getActiveGrant().api().getRank();
-        return rank.getPrefix() != null ? Minecraft.Style.fromLegacy(rank.getPrefix()) : Component.empty();
+        return rank.getPrefix() != null ? MC.Style.fromLegacy(rank.getPrefix()) : Component.empty();
     }
 
 }

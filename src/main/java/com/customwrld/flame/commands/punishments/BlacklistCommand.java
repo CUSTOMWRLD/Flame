@@ -1,12 +1,10 @@
 package com.customwrld.flame.commands.punishments;
 
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.flame.Config;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
-import com.customwrld.flame.util.Util;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import net.kyori.adventure.text.Component;

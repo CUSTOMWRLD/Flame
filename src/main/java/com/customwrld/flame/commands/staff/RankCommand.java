@@ -2,7 +2,7 @@ package com.customwrld.flame.commands.staff;
 
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.CustomLib;
-import com.customwrld.customlib.util.CC;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
 import com.customwrld.flame.pigeon.payloads.rank.ReloadRankPayload;
@@ -11,7 +11,6 @@ import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.ChatColorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
@@ -77,6 +76,9 @@ public class RankCommand extends Command {
                     rank.getPermissions().add(permission);
                     rank.save();
 
+                    sender.sendMessage(Component.text("You have added '" + permission + "' as a permission to '" + rank.getName() + "'")
+                            .color(MC.CC.GREEN.getTextColor()));
+
                     pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
@@ -99,6 +101,9 @@ public class RankCommand extends Command {
                         rank.getPermissions().remove(permission);
                         rank.save();
 
+                        sender.sendMessage(Component.text("You have removed the '" + permission + "' permission from '" + rank.getName() + "'")
+                                .color(MC.CC.GREEN.getTextColor()));
+
                         pigeon.broadcast(new ReloadRankPayload(rank));
                     }
                 });
@@ -118,6 +123,9 @@ public class RankCommand extends Command {
                     if (parent.api().canInherit(child)) {
                         parent.getInherited().add(child);
                         parent.save();
+
+                        sender.sendMessage(Component.text("You have added the '" + child.getName() + "' rank as an inherit to '" + parent.getName() + "'")
+                                .color(MC.CC.GREEN.getTextColor()));
 
                         pigeon.broadcast(new ReloadRankPayload(parent));
                     } else {
@@ -141,6 +149,9 @@ public class RankCommand extends Command {
                     if (parent.getInherited().remove(child)) {
                         parent.save();
 
+                        sender.sendMessage(Component.text("You have removed the '" + child.getName() + "' inherit from '" + parent.getName() + "'")
+                                .color(MC.CC.GREEN.getTextColor()));
+
                         pigeon.broadcast(new ReloadRankPayload(parent));
                     } else {
                         sender.sendMessage(Component.text("The parent rank does not inherit the child rank.")
@@ -163,7 +174,8 @@ public class RankCommand extends Command {
                     rank.setColor(color.asBungee().getColor());
                     rank.save();
 
-                    sender.sendMessage(Component.text("You have set the '" + rank.getName() + "' rank's color to '" + color.name() + "'"));
+                    sender.sendMessage(Component.text("You have set the '" + rank.getName() + "' rank's color to '" + color.name() + "'")
+                            .color(MC.CC.GREEN.getTextColor()));
 
                     pigeon.broadcast(new ReloadRankPayload(rank));
                 });
@@ -199,6 +211,9 @@ public class RankCommand extends Command {
                     rank.setWeight(weight);
                     rank.save();
 
+                    sender.sendMessage(Component.text("You have set the '" + rank.getName() + "' rank's weight to '" + weight + "'")
+                            .color(MC.CC.GREEN.getTextColor()));
+
                     pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
@@ -221,6 +236,9 @@ public class RankCommand extends Command {
                     Rank rank = new Rank(rankName, 0, "", Color.WHITE);
                     rank.save();
 
+                    sender.sendMessage(Component.text("You have created a rank with the name '" + rankName + "'")
+                            .color(MC.CC.GREEN.getTextColor()));
+
                     pigeon.broadcast(new ReloadRankPayload(rank));
                 });
     }
@@ -235,6 +253,9 @@ public class RankCommand extends Command {
                     Rank rank = (Rank) args[0];
 
                     rank.delete();
+
+                    sender.sendMessage(Component.text("You have delete the '" + rank.getName() + "' rank")
+                            .color(MC.CC.GREEN.getTextColor()));
 
                     pigeon.broadcast(new RemoveRankPayload(rank.getUuid()));
                 });
@@ -253,6 +274,14 @@ public class RankCommand extends Command {
 
                     rank.setPrefix(prefix);
                     rank.save();
+
+                    sender.sendMessage(Component.text()
+                            .append(Component.text("You have set the '" + rank.getName() + "' rank's prefix to '")
+                                    .color(MC.CC.GREEN.getTextColor()))
+                            .append(MC.Style.fromLegacy(rank.getPrefix()))
+                            .append(Component.text("'")
+                                    .color(MC.CC.GREEN.getTextColor()))
+                            .build());
 
                     pigeon.broadcast(new ReloadRankPayload(rank));
                 });

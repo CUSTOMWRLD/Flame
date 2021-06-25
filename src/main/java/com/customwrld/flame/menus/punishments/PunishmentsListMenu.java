@@ -1,7 +1,7 @@
 package com.customwrld.flame.menus.punishments;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.commonlib.util.Minecraft;
 import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
@@ -9,10 +9,9 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
@@ -37,7 +36,7 @@ public class PunishmentsListMenu implements InventoryProvider {
         inventory = SmartInventory.builder()
                 .provider(this)
                 .size(5, 9)
-                .title(profile.getName() + "'s " + type.getTypeData().getReadable()).build();
+                .title(profile.getName() + "'s " + type.getReadable() + "s").build();
         inventory.open(player, 0);
     }
 
@@ -82,7 +81,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(Minecraft.Style.MENU_SEPARATOR);
+                lore.add(MC.Style.MENU_SEPARATOR);
                 lore.add(Component.text().append(Component.text("Added By: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(addedBy)
@@ -115,10 +114,10 @@ public class PunishmentsListMenu implements InventoryProvider {
                         .decoration(TextDecoration.ITALIC, false));
 
                 if (punishment.isRemoved()) {
-                    lore.add(Minecraft.Style.MENU_SEPARATOR);
+                    lore.add(MC.Style.MENU_SEPARATOR);
                     lore.add(Component.text().append(Component.text("Removed On: ")
                             .color(NamedTextColor.GRAY))
-                            .append(Component.text(TimeUtil.dateToString(new Date(punishment.getRemovedAt())))
+                            .append(Component.text(TimeUtil.dateToString(new Date(punishment.getRemovedAt()), true))
                                     .color(NamedTextColor.DARK_AQUA))
                             .build()
                             .decoration(TextDecoration.ITALIC, false));
@@ -136,7 +135,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                             .decoration(TextDecoration.ITALIC, false));
                 } else {
                     if (!punishment.api().hasExpired() && punishment.getType().isRemovable() && FlameAPI.canStartProcedure(player)) {
-                        lore.add(Minecraft.Style.MENU_SEPARATOR);
+                        lore.add(MC.Style.MENU_SEPARATOR);
 
                         if (player.hasPermission("flame.punishment.remove")) {
                             lore.add(Component.text("Click to pardon this punishment")
@@ -145,7 +144,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                     }
                 }
 
-                lore.add(Minecraft.Style.MENU_SEPARATOR);
+                lore.add(MC.Style.MENU_SEPARATOR);
 
                 Material material = Material.BOOK;
 
@@ -154,7 +153,8 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 items[i] = ClickableItem.of(new ItemFactory(material)
-                                .setName(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()))).color(NamedTextColor.DARK_AQUA))
+                                .setName(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()), true))
+                                        .color(NamedTextColor.DARK_AQUA))
                                 .setLore(lore)
                                 .build(),
                         e -> {
@@ -162,7 +162,8 @@ public class PunishmentsListMenu implements InventoryProvider {
                                 PunishmentProcedure procedure = new PunishmentProcedure(player, profile, PunishmentProcedure.Type.REMOVE, PunishmentProcedure.Stage.REQUIRE_TEXT);
                                 procedure.setPunishment(punishment);
 
-                                player.sendMessage(CC.GREEN + "Type a reason for pardoning this punishment in chat...");
+                                player.sendMessage(Component.text("Type a reason for pardoning this punishment in chat...")
+                                        .color(MC.CC.GREEN.getTextColor()));
                                 player.closeInventory();
                             }
                         });

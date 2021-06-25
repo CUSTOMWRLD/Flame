@@ -1,21 +1,23 @@
-package com.customwrld.flame.chat;
+package com.customwrld.flame.listeners;
 
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.CC;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.flame.chat.ChatFilter;
+import com.customwrld.flame.chat.ChatProcedure;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
+import com.customwrld.flame.util.Util;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -61,14 +63,15 @@ public class ChatListener implements Listener {
             Punishment punishment = senderProfile.api().getActivePunishmentByType(Punishment.Type.MUTE);
 
             if (FlameAPI.isChatMuted()) {
-                sender.sendMessage(CC.CHAT_BAR);
-                sender.sendMessage(CC.RED + "The chat is currently muted! Please try again later.");
-                sender.sendMessage(CC.CHAT_BAR);
+                sender.sendMessage(MC.Style.SEPARATOR);
+                sender.sendMessage(Component.text("The chat is currently muted! Please try again later.")
+                        .color(MC.CC.RED.getTextColor()));
+                sender.sendMessage(MC.Style.SEPARATOR);
                 return;
             }
 
             if (punishment != null) {
-                punishment.api().getPunishmentMessage().forEach(sender::sendMessage);
+                Util.getPunishmentMessage(punishment).forEach(sender::sendMessage);
                 return;
             }
 
@@ -101,14 +104,14 @@ public class ChatListener implements Listener {
     }
 
     public TextComponent formatChat(Profile profile, Component message) {
-        TextComponent chatFormat = FlameAPI.getChatFormat(profile);
+        Component chatFormat = FlameAPI.getChatFormat(profile);
         Rank rank = profile.api().getActiveGrant().api().getRank();
 
         return Component.text()
                 .append(chatFormat)
                 .append(Component.text(" » ")
                         .color(NamedTextColor.DARK_GRAY))
-                .append(message.color(TextColor.color(bleach(profile.api().getActiveGrant().api().getRank().getColor(), 0.85))))
+                .append(message.color(TextColor.color(bleach(profile.api().getActiveGrant().api().getRank().getColor(), 0.80))))
                 .hoverEvent(HoverEvent.showText(Component.text()
                         .append(chatFormat
                                 .append(Component.newline()))

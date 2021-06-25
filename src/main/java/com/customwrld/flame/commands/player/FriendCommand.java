@@ -1,7 +1,6 @@
 //package com.customwrld.flame.commands.player;
 //
 //import com.customwrld.customlib.CustomLib;
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.pigeon.payloads.CreateFriendRequestPayload;
 //import com.customwrld.commonlib.modules.profile.Profile;

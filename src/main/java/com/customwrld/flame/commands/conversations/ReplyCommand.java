@@ -1,6 +1,5 @@
 //package com.customwrld.flame.commands.conversations;
 //
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.flame.Config;
 //import com.customwrld.commonlib.modules.profile.Profile;
 //import com.customwrld.flame.profile.conversation.Conversation;

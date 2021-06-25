@@ -1,7 +1,6 @@
 package com.customwrld.flame.commands.essentials;
 
-import com.customwrld.commonlib.util.Minecraft;
-import com.customwrld.customlib.util.CC;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -22,7 +21,7 @@ public class BroadcastCommand extends Command {
                 .executes((sender, args) -> {
                     String message = (String) args[0];
 
-                    Bukkit.broadcast(Minecraft.Style.fromLegacy(message));
+                    Bukkit.broadcast(MC.Style.fromLegacy(message));
                 });
     }
 }

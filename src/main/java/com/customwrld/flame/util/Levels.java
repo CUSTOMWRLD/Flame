@@ -1,15 +1,13 @@
 package com.customwrld.flame.util;
 
-import com.customwrld.customlib.util.ComponentFormatting;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.util.noise.SimplexNoiseGenerator;
 
 import java.awt.*;
 
 public class Levels {
     public static final String EXP_SUFFIX = "EXP";
-    public static final ComponentFormatting EXP_FORMAT = ComponentFormatting.builder().color(ChatColor.AQUA).build();
-    public static final ComponentFormatting LEVELS_FORMAT = EXP_FORMAT;
+//    public static final ComponentFormatting EXP_FORMAT = ComponentFormatting.builder().color(ChatColor.AQUA).build();
+//    public static final ComponentFormatting LEVELS_FORMAT = EXP_FORMAT;
     private static final SimplexNoiseGenerator noiseGenerator = new SimplexNoiseGenerator(3371012348295728621L);
 
     public static String getLevelAffix(int amount) {

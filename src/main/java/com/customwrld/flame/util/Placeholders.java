@@ -1,9 +1,10 @@
 package com.customwrld.flame.util;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.commonlib.modules.profile.Profile;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -44,18 +45,17 @@ public class Placeholders extends PlaceholderExpansion {
         return version;
     }
 
-    // TODO: Placeholders
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
-//        Profile profile = Profile.getProfile(null, player.getUniqueId());
-//        Rank rank = profile.api().getActiveGrant().api().getRank();
+        Profile profile = Profile.getProfile(null, player.getUniqueId());
+        Rank rank = profile.api().getActiveGrant().api().getRank();
         return switch (identifier) {
-//            case ("format") -> FlameAPI.getChatFormat(profile);
-//            case ("name") -> FlameAPI.getColoredName(profile);
-//            case ("prefix") -> FlameAPI.getColoredPrefix(profile);
-//            case ("rank") -> ChatColor.of(rank.getColor()) + rank.getName();
-//            case ("server") -> Config.SERVER_NAME.format();
-//            case ("weight") -> String.valueOf(rank.getWeight());
+            case ("format") -> MC.Style.toLegacy(FlameAPI.getChatFormat(profile));
+            case ("name") -> MC.Style.toLegacy(FlameAPI.getColoredName(profile));
+            case ("prefix") -> MC.Style.toLegacy(FlameAPI.getColoredPrefix(profile));
+            case ("rank") -> ChatColor.of(rank.getColor()) + rank.getName();
+            case ("server") -> Config.SERVER_NAME.format();
+            case ("weight") -> String.valueOf(rank.getWeight());
             default -> null;
         };
     }

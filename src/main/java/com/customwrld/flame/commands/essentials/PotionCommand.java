@@ -1,7 +1,6 @@
 // TODO: Improve Code and look at why lingering time is different, also move potion enum to either here or potion util in custom lib
 //package com.customwrld.flame.commands.essentials;
 //
-//import com.customwrld.customlib.util.CC;
 //import com.customwrld.customlib.util.PotionUtil;
 //import com.customwrld.flame.Config;
 //import com.customwrld.flame.util.Arguments;

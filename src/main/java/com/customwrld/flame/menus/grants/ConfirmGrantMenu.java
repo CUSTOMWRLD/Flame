@@ -6,10 +6,10 @@ import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.SlotPos;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -52,7 +52,8 @@ public class ConfirmGrantMenu implements InventoryProvider {
                 this.procedure.finish();
                 this.inventory.close(player);
 
-                player.sendMessage(CC.GREEN + "You have updated " + profile.getName() + CC.GREEN + "'s rank to " + rank.getName());
+                player.sendMessage(Component.text("You have updated " + profile.getName() + "'s rank to " + rank.getName())
+                        .color(MC.CC.GREEN.getTextColor()));
             }));
 
         for (int i = 5; i <= 7; i++)
@@ -65,7 +66,8 @@ public class ConfirmGrantMenu implements InventoryProvider {
                 procedure.cancel();
                 inventory.close(player);
 
-                player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+                player.sendMessage(Component.text("Cancelled the grant procedure.")
+                        .color(MC.CC.RED.getTextColor()));
             }));
     }
 
@@ -75,7 +77,8 @@ public class ConfirmGrantMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_CONFIRMATION) {
             procedure.cancel();
-            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+            player.sendMessage(Component.text("Cancelled the grant procedure.")
+                    .color(MC.CC.RED.getTextColor()));
         }
     }
 

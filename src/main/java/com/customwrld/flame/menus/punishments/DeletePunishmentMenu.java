@@ -1,15 +1,13 @@
 package com.customwrld.flame.menus.punishments;
 
-import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
-import com.customwrld.customlib.util.CC;
 import com.customwrld.customlib.util.ItemFactory;
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
@@ -54,7 +52,8 @@ public class DeletePunishmentMenu implements InventoryProvider {
 
                         procedure.finish();
                         inventory.close(player);
-                        player.sendMessage(CC.GREEN + "The punishment has been pardoned.");
+                        player.sendMessage(Component.text("The punishment has been pardoned.")
+                                .color(MC.CC.GREEN.getTextColor()));
                     }));
             contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_STAINED_GLASS_PANE)
                             .setName(Component.text("Cancel Punishment Removal Procedure")
@@ -64,7 +63,8 @@ public class DeletePunishmentMenu implements InventoryProvider {
                     e -> {
                         inventory.close(player);
                         procedure.cancel();
-                        player.sendMessage(CC.RED + "Cancelled the punishment procedure.");
+                        player.sendMessage(Component.text("Cancelled the punishment procedure.")
+                                .color(MC.CC.RED.getTextColor()));
                     }));
         }
     }
@@ -75,7 +75,8 @@ public class DeletePunishmentMenu implements InventoryProvider {
 
         if (punishmentProcedure != null) {
             punishmentProcedure.cancel();
-            player.sendMessage(CC.RED + "Cancelled the grant procedure.");
+            player.sendMessage(Component.text("Cancelled the punishment procedure.")
+                    .color(MC.CC.RED.getTextColor()));
         }
     }
 
