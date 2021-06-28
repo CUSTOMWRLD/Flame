@@ -1,11 +1,5 @@
 # TODO TURN EVERYTHING INTO A CONIFG LIKE STOREMANAGER AND TEBEX
 
-SERVER:
-  ADDRESS: "127.0.0.1"
-  PORT: "25565"
-  NAME: "Lobby-1"
-  TYPE: "LOBBY"
-
 CHAT:
   SERVER_ONLINE: "&8[&bProxy&8] &a{0} has came Online."
   SERVER_OFFLINE: "&8[&bProxy&8] &c{0} has went Offline."

@@ -1,5 +1,6 @@
 package com.customwrld.flame.commands.essentials;
 
+import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
@@ -35,12 +36,10 @@ public class PingCommand extends Command {
                         player = (Player) args[0];
                     }
 
-                    if (!(sender instanceof Player) && !(sender.getName().equals(player.getName()))) {
-                        sender.sendMessage(Component.text(player.getName() + "'s ping is " + ((CraftPlayer) player).getHandle().ping + "ms")
-                                .color(NamedTextColor.AQUA));
+                    if (!sender.getName().equals(player.getName())) {
+                        sender.sendMessage(Component.text(player.getName() + "'s ping is " + ((CraftPlayer) player).getHandle().ping + "ms", MC.CC.BRAND.getTextColor()));
                     } else {
-                        sender.sendMessage(Component.text("Your ping is " + ((CraftPlayer) player).getHandle().ping + "ms")
-                                .color(NamedTextColor.AQUA));
+                        sender.sendMessage(Component.text("Your ping is " + ((CraftPlayer) player).getHandle().ping + "ms", MC.CC.BRAND.getTextColor()));
                     }
                 });
     }

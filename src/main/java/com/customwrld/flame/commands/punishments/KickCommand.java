@@ -41,11 +41,11 @@ public class KickCommand extends Command {
                     Component playerName = MC.Style.CONSOLE;
 
                     if (sender instanceof Player) {
-                        playerName = FlameAPI.getColoredName(Profile.getProfile(null, ((Player) sender).getUniqueId()));
+                        playerName = FlameAPI.getColoredName(Profile.getProfile(((Player) sender).getUniqueId()));
                     }
 
                     Component punishmentMessage = MC.Chat.notificationMessage("Punishment", Component.text()
-                            .append(FlameAPI.getColoredName(Profile.getProfile(null, player.getUniqueId())))
+                            .append(FlameAPI.getColoredName(Profile.getProfile(player.getUniqueId())))
                             .append(Component.text(" has been kicked by ")
                                     .color(NamedTextColor.GRAY))
                             .append(playerName)

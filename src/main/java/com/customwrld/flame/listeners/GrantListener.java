@@ -1,26 +1,30 @@
 package com.customwrld.flame.listeners;
 
-import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
-import com.customwrld.commonlib.modules.bukkit.events.GrantAddEvent;
-import com.customwrld.commonlib.modules.bukkit.events.GrantExpireEvent;
-import com.customwrld.commonlib.modules.bukkit.events.GrantRemoveEvent;
+import com.customwrld.commonlib.modules.api.GrantProvider;
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.util.MC;
+import com.customwrld.flame.design.Tab;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 
-public class GrantListener implements Listener {
+public class GrantListener implements GrantProvider {
 
-    @EventHandler
-    public void onGrantAdd(GrantAddEvent event) {
-        Grant grant = event.getGrant();
+    @Override
+    public void grantAdd(Grant grant) {
+        Player player = Bukkit.getPlayer(grant.getPlayerUUID());
+
+        if(player == null) {
+            return;
+        }
+
+        Tab.updateTeam(player);
+
         Profile profile = ProfileAPI.getCachedProfile(grant.getPlayerUUID());
 
         if (profile == null) {
@@ -29,10 +33,9 @@ public class GrantListener implements Listener {
 
         profile.load();
 
-        Player player = BukkitAPI.getPlayer(profile);
         Rank rank = grant.api().getRank();
 
-        if(player != null && rank != null) {
+        if(rank != null) {
             player.sendMessage(MC.Style.SEPARATOR);
             player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("A '" + rank.getName() + "' grant has been applied to you " +
@@ -42,9 +45,16 @@ public class GrantListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onGrantRemove(GrantRemoveEvent event) {
-        Grant grant = event.getGrant();
+    @Override
+    public void grantExpire(Grant grant) {
+        Player player = Bukkit.getPlayer(grant.getPlayerUUID());
+
+        if(player == null) {
+            return;
+        }
+
+        Tab.updateTeam(player);
+
         Profile profile = ProfileAPI.getCachedProfile(grant.getPlayerUUID());
 
         if (profile == null) {
@@ -53,33 +63,9 @@ public class GrantListener implements Listener {
 
         profile.load();
 
-        Player player = BukkitAPI.getPlayer(profile);
         Rank rank = grant.api().getRank();
 
-        if(player != null && rank != null) {
-            player.sendMessage(MC.Style.SEPARATOR);
-            player.sendMessage(MC.Chat.notificationMessage("Grant",
-                    Component.text("Your '" + rank.getName() + "' grant has been removed.")
-                            .color(NamedTextColor.GRAY)));
-            player.sendMessage(MC.Style.SEPARATOR);
-        }
-    }
-
-    @EventHandler
-    public void onGrantExpire(GrantExpireEvent event) {
-        Grant grant = event.getGrant();
-        Profile profile = ProfileAPI.getCachedProfile(grant.getPlayerUUID());
-
-        if (profile == null) {
-            return;
-        }
-
-        profile.load();
-
-        Player player = BukkitAPI.getPlayer(profile);
-        Rank rank = grant.api().getRank();
-
-        if(player != null && rank != null) {
+        if(rank != null) {
             player.sendMessage(MC.Style.SEPARATOR);
             player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("Your '" + rank.getName() + "' grant has expired.")
@@ -88,4 +74,32 @@ public class GrantListener implements Listener {
         }
     }
 
+    @Override
+    public void grantRemove(Grant grant) {
+        Player player = Bukkit.getPlayer(grant.getPlayerUUID());
+
+        if(player == null) {
+            return;
+        }
+
+        Tab.updateTeam(player);
+
+        Profile profile = ProfileAPI.getCachedProfile(grant.getPlayerUUID());
+
+        if (profile == null) {
+            return;
+        }
+
+        profile.load();
+
+        Rank rank = grant.api().getRank();
+
+        if(rank != null) {
+            player.sendMessage(MC.Style.SEPARATOR);
+            player.sendMessage(MC.Chat.notificationMessage("Grant",
+                    Component.text("Your '" + rank.getName() + "' grant has been removed.")
+                            .color(NamedTextColor.GRAY)));
+            player.sendMessage(MC.Style.SEPARATOR);
+        }
+    }
 }

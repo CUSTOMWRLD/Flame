@@ -11,17 +11,43 @@ import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Flame;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class Util {
+
+    public static Color getRankColor(String string) {
+        return ChatColor.valueOf(string).asBungee().getColor();
+    }
+
+    public static TextColor getPunishmentColor(Punishment punishment) {
+        switch (punishment.getType()) {
+            case BLACKLIST -> {
+                return MC.CC.RED.getTextColor();
+            }
+            case BAN -> {
+                return MC.CC.GOLD.getTextColor();
+            }
+            case MUTE -> {
+                return MC.CC.GREEN.getTextColor();
+            }
+            case WARN -> {
+                return MC.CC.BLUE.getTextColor();
+            }
+        }
+
+        return MC.CC.WHITE.getTextColor();
+    }
 
     public static final ItemStack NEXT_PAGE = new ItemFactory(Material.GRAY_CARPET)
             .setName(Component.text().append(Component.text("Next Page ")

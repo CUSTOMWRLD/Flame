@@ -23,10 +23,11 @@ public class ConversationMessagePayload extends BasePayload {
         this.initiator = initiator;
         this.target = target;
         this.message = message;
+
+        System.out.println("Attempting to send payload -------");
     }
 
     @Override
-    public void receive() {
-    }
+    public void receive() {}
 
 }

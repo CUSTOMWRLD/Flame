@@ -21,7 +21,7 @@ public class RemoveRankPayload extends BasePayload {
         this();
         this.rank = rank;
 
-        FlameAPI.refreshPlayerGrants();
+        FlameAPI.refreshPlayers(this.rank);
     }
 
     @Override

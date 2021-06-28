@@ -3,10 +3,12 @@ package com.customwrld.flame.listeners;
 import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.customlib.util.NMSUtil;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
+import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.util.Util;
 import com.google.common.hash.Hashing;
 import net.kyori.adventure.text.Component;
@@ -130,6 +132,17 @@ public class ProfileListener implements Listener {
             player.setOp(true);
         }
 
+        Tab.getTeamMap().values().forEach(scoreboardTeam -> {
+            try {
+                NMSUtil.setValue(scoreboardTeam, "i", 0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            NMSUtil.sendPacket(player, scoreboardTeam);
+        });
+
+        Tab.createTeam(player);
     }
 
     @EventHandler
@@ -156,6 +169,8 @@ public class ProfileListener implements Listener {
         }
 
         Profile.getProfiles().remove(profile.getId());
+
+        Tab.deleteTeam(player);
     }
 
 }

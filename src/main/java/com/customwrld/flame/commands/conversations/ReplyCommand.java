@@ -1,47 +1,35 @@
-//package com.customwrld.flame.commands.conversations;
-//
-//import com.customwrld.flame.Config;
-//import com.customwrld.commonlib.modules.profile.Profile;
-//import com.customwrld.flame.profile.conversation.Conversation;
-//import dev.jorel.commandapi.CommandAPICommand;
-//import dev.jorel.commandapi.arguments.GreedyStringArgument;
-//import org.bukkit.Bukkit;
-//import org.bukkit.entity.Player;
-//
-//public class ReplyCommand extends Command {
-//
-//    public static CommandAPICommand command() {
-//        return new CommandAPICommand("reply")
-//                .withArguments(new GreedyStringArgument("message"))
-//                .withAliases("r")
-//                .executes((sender, args) -> {
-//                    if (!(sender instanceof Player)) {
-//                        sender.sendMessage(Config.PLAYER_ONLY.format());
-//                        return;
-//                    }
-//
-//                    Player player = (Player) sender;
-//                    String message = (String) args[0];
-//
-//                    Profile playerProfile = Profile.getByUuid(player.getUniqueId());
-//                    Conversation conversation = playerProfile.getConversations().getLastRepliedConversation();
-//
-//                    if (conversation != null) {
-//                        Profile targetProfile = Profile.getByUuid(conversation.getTarget());
-//                        Player target = Bukkit.getPlayer(conversation.getPartner(player.getUniqueId()));
-//                        if (conversation.validate() && targetProfile.getConversations().canBeMessagedBy(target)) {
-//                            if (target == null || !target.isOnline()) {
-//                                player.sendMessage(CC.RED + "That player is offline.");
-//                                return;
-//                            }
-//                            conversation.sendMessage(player, target, message);
-//                        } else {
-//                            player.sendMessage(CC.RED + "You can no longer reply to that player.");
-//                        }
-//                    } else {
-//                        player.sendMessage(CC.RED + "You have nobody to reply to.");
-//                    }
-//                });
-//    }
-//
-//}
+package com.customwrld.flame.commands.conversations;
+
+import com.customwrld.customlib.CustomLib;
+import com.customwrld.flame.Config;
+import com.customwrld.flame.pigeon.payloads.conversation.ConversationReplyPayload;
+import com.customwrld.flame.util.Command;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import org.bukkit.entity.Player;
+
+public class ReplyCommand extends Command {
+
+    public ReplyCommand() {
+        this.command = "reply";
+        this.aliases = new String[]{"r"};
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand(this.command)
+                .withAliases(this.aliases)
+                .withArguments(new GreedyStringArgument("message"))
+                .executes((sender, args) -> {
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(Config.PLAYER_ONLY.format());
+                        return;
+                    }
+
+                    String message = (String) args[0];
+
+                    CustomLib.getCustomLib().getPigeon().broadcast(new ConversationReplyPayload(player.getUniqueId(), message));
+                });
+    }
+
+}

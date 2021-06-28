@@ -51,14 +51,16 @@ public class RankSelectionMenu implements InventoryProvider {
         int i = 0;
 
         List<Rank> sortedRanks = new ArrayList<>(Rank.getRanks().values());
-        sortedRanks.sort((rank1, rank2) -> rank2.getWeight() - rank1.getWeight());
+        sortedRanks.sort(Rank.COMPARATOR);
 
         for (Rank rank : sortedRanks) {
+            java.awt.Color color = Util.getRankColor(rank.getColor());
+
             if (!rank.api().isDefaultRank()) {
                 items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
-                                .setLeatherColor(Color.fromRGB(rank.getColor().getRed(), rank.getColor().getGreen(), rank.getColor().getBlue()))
+                                .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
                                 .setName(Component.text(rank.getName())
-                                        .color(TextColor.color(rank.getColor().getRGB()))
+                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB()))
                                         .decoration(TextDecoration.ITALIC, false))
                                 .setLore(
                                         MC.Style.MENU_SEPARATOR,
@@ -66,7 +68,7 @@ public class RankSelectionMenu implements InventoryProvider {
                                                 .append(Component.text("Click to grant ")
                                                         .color(NamedTextColor.GRAY))
                                                 .append(Component.text(rank.getName())
-                                                        .color(TextColor.color(rank.getColor().getRGB())))
+                                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
                                                 .append(Component.text(" to ")
                                                         .color(NamedTextColor.GRAY))
                                                 .append(FlameAPI.getColoredName(this.profile))

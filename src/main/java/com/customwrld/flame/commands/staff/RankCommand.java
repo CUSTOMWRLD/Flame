@@ -19,8 +19,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
-
 import static com.customwrld.flame.util.Arguments.rankArgument;
 
 public class RankCommand extends Command {
@@ -171,7 +169,7 @@ public class RankCommand extends Command {
                     Rank rank = (Rank) args[0];
                     ChatColor color = (ChatColor) args[1];
 
-                    rank.setColor(color.asBungee().getColor());
+                    rank.setColor(color.name());
                     rank.save();
 
                     sender.sendMessage(Component.text("You have set the '" + rank.getName() + "' rank's color to '" + color.name() + "'")
@@ -185,13 +183,11 @@ public class RankCommand extends Command {
         return new CommandAPICommand("list")
                 .withPermission(this.permission)
                 .executes((sender, args) -> {
-                    if (!(sender instanceof Player)) {
+                    if (!(sender instanceof Player player)) {
                         sender.sendMessage(Component.text(Config.PLAYER_ONLY.format())
                                 .color(NamedTextColor.RED));
                         return;
                     }
-
-                    Player player = (Player) sender;
 
                     new RankListMenu(player);
                 });
@@ -203,7 +199,7 @@ public class RankCommand extends Command {
         return new CommandAPICommand("setweight")
                 .withPermission(this.permission)
                 .withArguments(Arguments.rankArgument("rank"))
-                .withArguments(new IntegerArgument("weight"))
+                .withArguments(new IntegerArgument("weight", 0, 100))
                 .executes((sender, args) -> {
                     Rank rank = (Rank) args[0];
                     Integer weight = (Integer) args[1];
@@ -233,7 +229,7 @@ public class RankCommand extends Command {
                         return;
                     }
 
-                    Rank rank = new Rank(rankName, 0, "", Color.WHITE);
+                    Rank rank = new Rank(rankName, 0, "", "WHITE");
                     rank.save();
 
                     sender.sendMessage(Component.text("You have created a rank with the name '" + rankName + "'")

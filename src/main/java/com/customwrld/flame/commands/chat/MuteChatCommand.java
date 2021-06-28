@@ -29,7 +29,7 @@ public class MuteChatCommand extends Command {
                     if (sender instanceof Player) {
                         Player player = ((Player) sender);
 
-                        Profile profile = Profile.getProfile(null, player.getUniqueId());
+                        Profile profile = Profile.getProfile(player.getUniqueId());
 
                         if (profile == null) {
                             return;

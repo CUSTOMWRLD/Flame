@@ -1,9 +1,7 @@
 package com.customwrld.flame.listeners;
 
+import com.customwrld.commonlib.modules.api.PunishmentProvider;
 import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
-import com.customwrld.commonlib.modules.bukkit.events.PunishmentAddEvent;
-import com.customwrld.commonlib.modules.bukkit.events.PunishmentExpireEvent;
-import com.customwrld.commonlib.modules.bukkit.events.PunishmentRemoveEvent;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
@@ -15,10 +13,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 
-public class PunishmentListener implements Listener {
+public class PunishmentListener implements PunishmentProvider {
 
     public void announcePunishment(Profile profile, Punishment punishment) {
         Bukkit.getOnlinePlayers()
@@ -29,16 +25,15 @@ public class PunishmentListener implements Listener {
                                 .append(Component.text(" has been " + punishment.api().getContext() + " by ")
                                         .color(NamedTextColor.GRAY))
                                 .append(punishment.getAddedByUUID() != null ?
-                                        FlameAPI.getColoredName(Profile.getProfile(null, punishment.getAddedByUUID())) :
+                                        FlameAPI.getColoredName(Profile.getProfile(punishment.getAddedByUUID())) :
                                         MC.Style.CONSOLE)));
                         player.sendMessage(MC.Style.SEPARATOR);
                     }
                 });
     }
 
-    @EventHandler
-    public void onPunishmentAdd(PunishmentAddEvent event) {
-        Punishment punishment = event.getPunishment();
+    @Override
+    public void punishmentAdd(Punishment punishment) {
         Profile profile = ProfileAPI.getCachedProfile(punishment.getPlayerUUID());
 
         if (profile == null) {
@@ -61,9 +56,8 @@ public class PunishmentListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPunishmentRemove(PunishmentRemoveEvent event) {
-        Punishment punishment = event.getPunishment();
+    @Override
+    public void punishmentExpire(Punishment punishment) {
         Profile profile = ProfileAPI.getCachedProfile(punishment.getPlayerUUID());
 
         if (profile == null) {
@@ -75,9 +69,8 @@ public class PunishmentListener implements Listener {
         announcePunishment(profile, punishment);
     }
 
-    @EventHandler
-    public void onPunishmentExpire(PunishmentExpireEvent event) {
-        Punishment punishment = event.getPunishment();
+    @Override
+    public void punishmentRemove(Punishment punishment) {
         Profile profile = ProfileAPI.getCachedProfile(punishment.getPlayerUUID());
 
         if (profile == null) {
@@ -88,5 +81,4 @@ public class PunishmentListener implements Listener {
 
         announcePunishment(profile, punishment);
     }
-
 }

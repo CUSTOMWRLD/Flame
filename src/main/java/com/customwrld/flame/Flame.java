@@ -1,31 +1,34 @@
 package com.customwrld.flame;
 
+import com.customwrld.commonlib.CommonLib;
+import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
 import com.customwrld.flame.chat.ChatFilter;
-import com.customwrld.flame.listeners.ChatListener;
-import com.customwrld.flame.listeners.GrantListener;
-import com.customwrld.flame.listeners.PunishmentListener;
-import com.customwrld.flame.listeners.AuthListener;
-import com.customwrld.flame.listeners.ProfileListener;
-import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.flame.design.Tab;
+import com.customwrld.flame.listeners.*;
+import com.customwrld.flame.pigeon.Listeners;
+import com.customwrld.flame.pigeon.payloads.server.ServerUpdatePayload;
 import com.customwrld.flame.store.StoreManager;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.DisabledCommands;
-import com.customwrld.flame.util.Placeholders;
 import com.customwrld.pigeon.Pigeon;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 public final class Flame extends JavaPlugin {
@@ -40,8 +43,6 @@ public final class Flame extends JavaPlugin {
     private GoogleAuthenticator auth;
 
     private StoreManager storeManager;
-
-    private Placeholders placeholders;
 
     private List<UUID> elevatedStaff;
     private List<Command> registeredCommands;
@@ -72,6 +73,11 @@ public final class Flame extends JavaPlugin {
         this.storeManager = new StoreManager();
         this.storeManager.initialize();
 
+        CommonLib commonLib = CustomLib.getCustomLib().getCommonLib();
+
+        commonLib.getGrantProviders().add(new GrantListener());
+        commonLib.getPunishmentProviders().add(new PunishmentListener());
+
         Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
         pigeon.getConvertersRegistry()
@@ -80,8 +86,8 @@ public final class Flame extends JavaPlugin {
         pigeon.getPayloadsRegistry()
                 .registerPayloadsInPackage(Config.PAYLOAD_PACKAGE.format());
 
-        this.placeholders = new Placeholders("CUSTOMWRLD", "flame", flame.getDescription().getVersion());
-        this.placeholders.register();
+        pigeon.getListenersRegistry()
+                .registerListener(new Listeners());
 
         this.elevatedStaff = Arrays.asList(
                 UUID.fromString("239c8573-0675-4a78-82f3-d178c72d5dc9"), // oHate
@@ -99,8 +105,6 @@ public final class Flame extends JavaPlugin {
         }
 
         Arrays.asList(
-                new GrantListener(),
-                new PunishmentListener(),
                 new AuthListener(),
                 new ProfileListener(),
                 new ChatListener(),
@@ -109,6 +113,16 @@ public final class Flame extends JavaPlugin {
 
         ChatFilter.init();
 
+        // TODO: Punishment Expiration Task for Mutes
+
+        // Tab and Tab Sorting Task
+        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Flame.getFlame(), () -> {
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                Tab.updateTab(player);
+            }
+        }, 0L, 20L);
+
+        // Grant Expiration Task
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -122,15 +136,18 @@ public final class Flame extends JavaPlugin {
             }
         }.runTaskTimerAsynchronously(Flame.getFlame(), 0, 20);
 
+        // Server Update Task
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (FlameAPI.isShuttingDown()) {
-                    this.cancel();
-                    return;
-                }
-
-//                CustomLib.getCustomLib().getPigeon().broadcast(new ServerUpdatePayload(getFlameServer()));
+                CustomLib.getCustomLib().getPigeon().broadcast(new ServerUpdatePayload(
+                        Config.SERVER_NAME.format(),
+                        Config.SERVER_TYPE.format(),
+                        ManagementFactory.getRuntimeMXBean().getUptime(),
+                        Bukkit.getServer().getTPS()[0],
+                        Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()),
+                        Bukkit.getMaxPlayers()
+                ));
             }
         }.runTaskTimerAsynchronously(this, 0, 20 * 5);
 
@@ -141,16 +158,5 @@ public final class Flame extends JavaPlugin {
     public void onDisable() {
         Bukkit.getServer().shutdown();
     }
-
-//    public Server getFlameServer() {
-//        return new Server(
-//                Config.SERVER_NAME.format(),
-//                Server.Type.valueOf(Config.SERVER_TYPE.format()),
-//                ManagementFactory.getRuntimeMXBean().getUptime(),
-//                Bukkit.getServer().getTPS()[0],
-//                Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()),
-//                Bukkit.getMaxPlayers()
-//        );
-//    }
 
 }

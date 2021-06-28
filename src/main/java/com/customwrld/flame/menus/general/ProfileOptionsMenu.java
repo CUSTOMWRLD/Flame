@@ -16,7 +16,7 @@
 //    private boolean modified = false;
 //
 //    public ProfileOptionsMenu(Player player) {
-//        this.profile = Profile.getProfile(null, player.getUniqueId());
+//        this.profile = Profile.getProfile(player.getUniqueId());
 //        SmartInventory inventory = SmartInventory.builder()
 //                .provider(this)
 //                .size(3, 9)

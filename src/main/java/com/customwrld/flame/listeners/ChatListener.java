@@ -111,7 +111,7 @@ public class ChatListener implements Listener {
                 .append(chatFormat)
                 .append(Component.text(" » ")
                         .color(NamedTextColor.DARK_GRAY))
-                .append(message.color(TextColor.color(bleach(profile.api().getActiveGrant().api().getRank().getColor(), 0.80))))
+                .append(message.color(TextColor.color(bleach(Util.getRankColor(rank.getColor()), 0.80))))
                 .hoverEvent(HoverEvent.showText(Component.text()
                         .append(chatFormat
                                 .append(Component.newline()))
@@ -128,7 +128,7 @@ public class ChatListener implements Listener {
                                 .append(Component.text("Rank: ")
                                         .color(NamedTextColor.GRAY))
                                 .append(Component.text(rank.getName())
-                                        .color(TextColor.color(rank.getColor().getRGB())))
+                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
                         )
                 ))
                 .build();

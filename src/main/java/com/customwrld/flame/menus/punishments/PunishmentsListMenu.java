@@ -16,6 +16,7 @@ import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -56,12 +57,14 @@ public class PunishmentsListMenu implements InventoryProvider {
 
         for (Punishment punishment : sortedPunishments) {
             if (punishment.getType() == this.type) {
+                TextColor textColor = Util.getPunishmentColor(punishment);
+
                 String addedBy = "Console";
 
                 if (punishment.getAddedByUUID() != null) {
                     addedBy = "Could not fetch...";
 
-                    Profile addedByProfile = Profile.getProfile(null, punishment.getAddedByUUID());
+                    Profile addedByProfile = Profile.getProfile(punishment.getAddedByUUID());
 
                     if (addedByProfile != null) {
                         addedBy = addedByProfile.getName();
@@ -73,7 +76,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                 if (punishment.getRemovedByUUID() != null) {
                     removedBy = "Could not fetch...";
 
-                    Profile removedByProfile = Profile.getProfile(null, punishment.getRemovedByUUID());
+                    Profile removedByProfile = Profile.getProfile(punishment.getRemovedByUUID());
 
                     if (removedByProfile != null) {
                         removedBy = removedByProfile.getName();
@@ -81,17 +84,22 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(MC.Style.MENU_SEPARATOR);
+                lore.add(Component.text().append(Component.text("Added On: ")
+                        .color(NamedTextColor.GRAY))
+                        .append(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()), true))
+                                .color(textColor))
+                        .build()
+                        .decoration(TextDecoration.ITALIC, false));
                 lore.add(Component.text().append(Component.text("Added By: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(addedBy)
-                                .color(NamedTextColor.DARK_AQUA))
+                                .color(textColor))
                         .build()
                         .decoration(TextDecoration.ITALIC, false));
                 lore.add(Component.text().append(Component.text("Added Reason: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(punishment.getAddedReason())
-                                .color(NamedTextColor.DARK_AQUA))
+                                .color(textColor))
                         .build()
                         .decoration(TextDecoration.ITALIC, false));
 
@@ -100,7 +108,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                         lore.add(Component.text().append(Component.text("Remaining: ")
                                 .color(NamedTextColor.GRAY))
                                 .append(Component.text(punishment.api().getTimeRemaining())
-                                        .color(NamedTextColor.DARK_AQUA))
+                                        .color(textColor))
                                 .build()
                                 .decoration(TextDecoration.ITALIC, false));
                     }
@@ -109,7 +117,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                 lore.add(Component.text().append(Component.text("Duration: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(punishment.api().getDurationText())
-                                .color(NamedTextColor.DARK_AQUA))
+                                .color(textColor))
                         .build()
                         .decoration(TextDecoration.ITALIC, false));
 
@@ -118,19 +126,19 @@ public class PunishmentsListMenu implements InventoryProvider {
                     lore.add(Component.text().append(Component.text("Removed On: ")
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(TimeUtil.dateToString(new Date(punishment.getRemovedAt()), true))
-                                    .color(NamedTextColor.DARK_AQUA))
+                                    .color(textColor))
                             .build()
                             .decoration(TextDecoration.ITALIC, false));
                     lore.add(Component.text().append(Component.text("Removed By: ")
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(removedBy)
-                                    .color(NamedTextColor.DARK_AQUA))
+                                    .color(textColor))
                             .build()
                             .decoration(TextDecoration.ITALIC, false));
                     lore.add(Component.text().append(Component.text("Removed Reason: ")
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(punishment.getRemovedReason())
-                                    .color(NamedTextColor.DARK_AQUA))
+                                    .color(textColor))
                             .build()
                             .decoration(TextDecoration.ITALIC, false));
                 } else {
@@ -138,8 +146,8 @@ public class PunishmentsListMenu implements InventoryProvider {
                         lore.add(MC.Style.MENU_SEPARATOR);
 
                         if (player.hasPermission("flame.punishment.remove")) {
-                            lore.add(Component.text("Click to pardon this punishment")
-                                    .color(NamedTextColor.DARK_AQUA));
+                            lore.add(Component.text("Click to pardon this Punishment")
+                                    .color(textColor));
                         }
                     }
                 }
@@ -153,8 +161,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 items[i] = ClickableItem.of(new ItemFactory(material)
-                                .setName(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()), true))
-                                        .color(NamedTextColor.DARK_AQUA))
+                                .setName(MC.Style.MENU_SEPARATOR)
                                 .setLore(lore)
                                 .build(),
                         e -> {

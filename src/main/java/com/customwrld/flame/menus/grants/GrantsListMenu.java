@@ -16,7 +16,6 @@ import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -72,12 +71,14 @@ public class GrantsListMenu implements InventoryProvider {
         sortedGrants.addAll(removedGrants);
 
         for (Grant grant : sortedGrants) {
+            TextColor textColor = TextColor.color(Util.getRankColor(grant.api().getRank().getColor()).getRGB());
+
             String addedBy = "Console";
 
             if (grant.getAddedByUUID() != null) {
                 addedBy = "Could not fetch...";
 
-                Profile addedByProfile = Profile.getProfile(null, grant.getAddedByUUID());
+                Profile addedByProfile = Profile.getProfile(grant.getAddedByUUID());
 
                 if (addedByProfile != null) {
                     addedBy = addedByProfile.getName();
@@ -89,7 +90,7 @@ public class GrantsListMenu implements InventoryProvider {
             if (grant.getRemovedByUUID() != null) {
                 removedBy = "Could not fetch...";
 
-                Profile removedByProfile = Profile.getProfile(null, grant.getRemovedByUUID());
+                Profile removedByProfile = Profile.getProfile(grant.getRemovedByUUID());
 
                 if (removedByProfile != null) {
                     removedBy = removedByProfile.getName();
@@ -98,81 +99,52 @@ public class GrantsListMenu implements InventoryProvider {
 
             List<Component> lore = new ArrayList<>();
 
-            lore.add(MC.Style.MENU_SEPARATOR);
-            lore.add(Component.text().append(Component.text("Rank: ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(grant.api().getRank().getName())
-                            .color(NamedTextColor.DARK_AQUA))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.text().append(Component.text("Added On: ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt()), true))
-                            .color(NamedTextColor.DARK_AQUA))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.text().append(Component.text("Added By: ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(addedBy)
-                            .color(NamedTextColor.DARK_AQUA))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.text().append(Component.text("Added Reason: ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(grant.getAddedReason())
-                            .color(NamedTextColor.DARK_AQUA))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text().append(Component.text("Added On: ", MC.CC.GRAY.getTextColor()))
+                    .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt()), true), textColor))
+                    .build());
+
+            lore.add(Component.text().append(Component.text("Added By: ", MC.CC.GRAY.getTextColor()))
+                    .append(Component.text(addedBy, textColor))
+                    .build());
+
+            lore.add(Component.text().append(Component.text("Added Reason: ", MC.CC.GRAY.getTextColor()))
+                    .append(Component.text(grant.getAddedReason(), textColor))
+                    .build());
 
             if (!grant.api().isPermanent() && grant.getDuration() != -1L) {
                 if (!grant.api().isActive()) {
-                    lore.add(Component.text().append(Component.text("Remaining: ")
-                            .color(NamedTextColor.GRAY))
-                            .append(Component.text(grant.api().getTimeRemaining())
-                                    .color(NamedTextColor.DARK_AQUA))
-                            .build()
-                            .decoration(TextDecoration.ITALIC, false));
+                    lore.add(Component.text().append(Component.text("Remaining: ", MC.CC.GRAY.getTextColor()))
+                            .append(Component.text(grant.api().getTimeRemaining(), textColor))
+                            .build());
                 }
             }
 
-            lore.add(Component.text().append(Component.text("Duration: ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(grant.api().getDurationText())
-                            .color(NamedTextColor.DARK_AQUA))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text().append(Component.text("Duration: ", MC.CC.GRAY.getTextColor()))
+                    .append(Component.text(grant.api().getDurationText(), textColor))
+                    .build());
 
             if (grant.isRemoved()) {
                 lore.add(MC.Style.MENU_SEPARATOR);
-                lore.add(Component.text().append(Component.text("Removed On: ")
-                        .color(NamedTextColor.GRAY))
-                        .append(Component.text(TimeUtil.dateToString(new Date(grant.getRemovedAt()), true))
-                                .color(NamedTextColor.DARK_AQUA))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
-                lore.add(Component.text().append(Component.text("Removed By: ")
-                        .color(NamedTextColor.GRAY))
-                        .append(Component.text(removedBy)
-                                .color(NamedTextColor.DARK_AQUA))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
-                lore.add(Component.text().append(Component.text("Removed Reason: ")
-                        .color(NamedTextColor.GRAY))
-                        .append(Component.text(grant.getRemovedReason())
-                                .color(NamedTextColor.DARK_AQUA))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
+                lore.add(Component.text().append(Component.text("Removed On: ", MC.CC.GRAY.getTextColor()))
+                        .append(Component.text(TimeUtil.dateToString(new Date(grant.getRemovedAt()), true), textColor))
+                        .build());
+
+                lore.add(Component.text().append(Component.text("Removed By: ", MC.CC.GRAY.getTextColor()))
+                        .append(Component.text(removedBy, textColor))
+                        .build());
+
+                lore.add(Component.text().append(Component.text("Removed Reason: ", MC.CC.GRAY.getTextColor()))
+                        .append(Component.text(grant.getRemovedReason(), textColor))
+                        .build());
             } else {
                 if (!grant.api().getRank().api().isDefaultRank() && !grant.api().hasExpired() && FlameAPI.canStartProcedure(player)) {
                     if (player.hasPermission("flame.rank.remove")) {
                         lore.add(MC.Style.MENU_SEPARATOR);
-                        lore.add(Component.text().append(Component.text("Click to remove this grant.")
-                                .color(NamedTextColor.DARK_AQUA))
-                                .build()
-                                .decoration(TextDecoration.ITALIC, false));
+                        lore.add(Component.text("Click to remove this Grant", textColor));
                     }
                 }
             }
+
             lore.add(MC.Style.MENU_SEPARATOR);
 
             Material material = Material.BOOK;
@@ -181,11 +153,13 @@ public class GrantsListMenu implements InventoryProvider {
                 material = Material.ENCHANTED_BOOK;
             }
 
+            List<Component> fixedLore = new ArrayList<>();
+
+            lore.forEach(component -> fixedLore.add(component.decoration(TextDecoration.ITALIC, false)));
+
             items[i] = ClickableItem.of(new ItemFactory(material)
-                            .setName(Component.text(grant.api().getRank().getName())
-                                    .color(TextColor.color(grant.api().getRank().getColor().getRGB()))
-                                    .decoration(TextDecoration.ITALIC, false))
-                            .setLore(lore)
+                            .setName(Component.text(grant.api().getRank().getName(), textColor))
+                            .setLore(fixedLore)
                             .build(),
                     e -> {
                         if (!grant.isRemoved() && !grant.api().hasExpired() && !grant.api().getRank().api().isDefaultRank() && FlameAPI.canStartProcedure(player)) {
@@ -193,8 +167,7 @@ public class GrantsListMenu implements InventoryProvider {
                                 GrantProcedure procedure = new GrantProcedure(player, profile, GrantProcedure.Type.REMOVE, GrantProcedure.Stage.REQUIRE_REASON);
                                 procedure.setGrant(grant);
 
-                                player.sendMessage(Component.text("Type a reason for removing this grant in chat...")
-                                        .color(MC.CC.GREEN.getTextColor()));
+                                player.sendMessage(Component.text("Type a reason for removing this grant in chat...", MC.CC.GREEN.getTextColor()));
                                 player.closeInventory();
                             }
                         }

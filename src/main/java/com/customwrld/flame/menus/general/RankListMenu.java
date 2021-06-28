@@ -90,13 +90,15 @@ public class RankListMenu implements InventoryProvider {
                     .color(NamedTextColor.DARK_AQUA));
             lore.add(MC.Style.MENU_SEPARATOR);
 
+            java.awt.Color color = Util.getRankColor(rank.getColor());
+
             items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
-                    .setLeatherColor(Color.fromRGB(rank.getColor().getRed(), rank.getColor().getGreen(), rank.getColor().getBlue()))
+                    .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
                     .setName(Component.text(rank.getName())
-                            .color(TextColor.color(rank.getColor().getRGB()))
+                            .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB()))
                             .decoration(TextDecoration.ITALIC, false))
                     .setName(Component.text(rank.getName())
-                            .color(TextColor.color(rank.getColor().getRGB())))
+                            .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
                     .setLore(lore)
                     .build(), e -> {
             });
