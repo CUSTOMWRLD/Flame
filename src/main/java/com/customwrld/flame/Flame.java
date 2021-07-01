@@ -4,9 +4,12 @@ import com.customwrld.commonlib.CommonLib;
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.CustomLib;
+import com.customwrld.customlib.assemble.Assemble;
+import com.customwrld.customlib.assemble.AssembleStyle;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
 import com.customwrld.flame.chat.ChatFilter;
+import com.customwrld.flame.design.ScoreboardAdapter;
 import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.listeners.*;
 import com.customwrld.flame.pigeon.Listeners;
@@ -38,6 +41,8 @@ public final class Flame extends JavaPlugin {
 
     @Getter private static Flame flame;
 
+    private Assemble assemble;
+
     private ConfigurationFile mainConfig;
 
     private GoogleAuthenticator auth;
@@ -65,6 +70,10 @@ public final class Flame extends JavaPlugin {
     @Override
     public void onEnable() {
         flame = this;
+
+        this.assemble = new Assemble(this, new ScoreboardAdapter());
+        assemble.setTicks(20);
+        assemble.setAssembleStyle(AssembleStyle.KOHI);
 
         this.mainConfig = new ConfigurationFile(this, "config");
 

@@ -99,6 +99,8 @@ public class GrantsListMenu implements InventoryProvider {
 
             List<Component> lore = new ArrayList<>();
 
+            lore.add(MC.Style.MENU_SEPARATOR);
+
             lore.add(Component.text().append(Component.text("Added On: ", MC.CC.GRAY.getTextColor()))
                     .append(Component.text(TimeUtil.dateToString(new Date(grant.getAddedAt()), true), textColor))
                     .build());
@@ -158,7 +160,8 @@ public class GrantsListMenu implements InventoryProvider {
             lore.forEach(component -> fixedLore.add(component.decoration(TextDecoration.ITALIC, false)));
 
             items[i] = ClickableItem.of(new ItemFactory(material)
-                            .setName(Component.text(grant.api().getRank().getName(), textColor))
+                            .setName(Component.text(grant.api().getRank().getName() + " Grant (" + grant.getId() + ")", textColor)
+                                    .decoration(TextDecoration.ITALIC, false))
                             .setLore(fixedLore)
                             .build(),
                     e -> {

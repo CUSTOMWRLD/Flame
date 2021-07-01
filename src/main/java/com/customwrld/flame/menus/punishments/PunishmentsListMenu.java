@@ -37,7 +37,7 @@ public class PunishmentsListMenu implements InventoryProvider {
         inventory = SmartInventory.builder()
                 .provider(this)
                 .size(5, 9)
-                .title(profile.getName() + "'s " + type.getReadable() + "s").build();
+                .title(profile.getName() + "'s " + type.getReadable() + "s " + "(" + profile.api().getPunishmentCountByType(this.type) + ")").build();
         inventory.open(player, 0);
     }
 
@@ -84,24 +84,23 @@ public class PunishmentsListMenu implements InventoryProvider {
                 }
 
                 List<Component> lore = new ArrayList<>();
+
+                lore.add(MC.Style.MENU_SEPARATOR);
                 lore.add(Component.text().append(Component.text("Added On: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(TimeUtil.dateToString(new Date(punishment.getAddedAt()), true))
                                 .color(textColor))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
+                        .build());
                 lore.add(Component.text().append(Component.text("Added By: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(addedBy)
                                 .color(textColor))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
+                        .build());
                 lore.add(Component.text().append(Component.text("Added Reason: ")
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(punishment.getAddedReason())
                                 .color(textColor))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
+                        .build());
 
                 if (!punishment.api().isPermanent() && punishment.getDuration() != -1L) {
                     if (punishment.api().isActive()) {
@@ -109,8 +108,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                                 .color(NamedTextColor.GRAY))
                                 .append(Component.text(punishment.api().getTimeRemaining())
                                         .color(textColor))
-                                .build()
-                                .decoration(TextDecoration.ITALIC, false));
+                                .build());
                     }
                 }
 
@@ -118,8 +116,7 @@ public class PunishmentsListMenu implements InventoryProvider {
                         .color(NamedTextColor.GRAY))
                         .append(Component.text(punishment.api().getDurationText())
                                 .color(textColor))
-                        .build()
-                        .decoration(TextDecoration.ITALIC, false));
+                        .build());
 
                 if (punishment.isRemoved()) {
                     lore.add(MC.Style.MENU_SEPARATOR);
@@ -127,20 +124,17 @@ public class PunishmentsListMenu implements InventoryProvider {
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(TimeUtil.dateToString(new Date(punishment.getRemovedAt()), true))
                                     .color(textColor))
-                            .build()
-                            .decoration(TextDecoration.ITALIC, false));
+                            .build());
                     lore.add(Component.text().append(Component.text("Removed By: ")
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(removedBy)
                                     .color(textColor))
-                            .build()
-                            .decoration(TextDecoration.ITALIC, false));
+                            .build());
                     lore.add(Component.text().append(Component.text("Removed Reason: ")
                             .color(NamedTextColor.GRAY))
                             .append(Component.text(punishment.getRemovedReason())
                                     .color(textColor))
-                            .build()
-                            .decoration(TextDecoration.ITALIC, false));
+                            .build());
                 } else {
                     if (!punishment.api().hasExpired() && punishment.getType().isRemovable() && FlameAPI.canStartProcedure(player)) {
                         lore.add(MC.Style.MENU_SEPARATOR);
@@ -160,9 +154,14 @@ public class PunishmentsListMenu implements InventoryProvider {
                     material = Material.ENCHANTED_BOOK;
                 }
 
+                List<Component> fixedLore = new ArrayList<>();
+
+                lore.forEach(component -> fixedLore.add(component.decoration(TextDecoration.ITALIC, false)));
+
                 items[i] = ClickableItem.of(new ItemFactory(material)
-                                .setName(MC.Style.MENU_SEPARATOR)
-                                .setLore(lore)
+                                .setName(Component.text(punishment.getType().getReadable() + " (" + punishment.getId() + ")", textColor)
+                                        .decoration(TextDecoration.ITALIC, false))
+                                .setLore(fixedLore)
                                 .build(),
                         e -> {
                             if (!punishment.isRemoved() && !punishment.api().hasExpired() && punishment.getType().isRemovable() && player.hasPermission("flame.punishment.remove") && FlameAPI.canStartProcedure(player)) {

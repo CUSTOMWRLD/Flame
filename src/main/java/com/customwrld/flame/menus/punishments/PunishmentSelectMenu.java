@@ -34,11 +34,11 @@ public class PunishmentSelectMenu implements InventoryProvider {
 
         contents.set(1, 1, ClickableItem.of(new ItemFactory(Material.RED_CONCRETE)
                         .setName(Component.text("Blacklists")
-                                .color(TextColor.color(MC.CC.RED.getTextColor()))
+                                .color(MC.CC.RED.getTextColor())
                                 .decoration(TextDecoration.BOLD, true)
                                 .decoration(TextDecoration.ITALIC, false))
                         .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BLACKLIST) + " Blacklists on record.")
-                                .color(MC.CC.WHITE.getTextColor())
+                                .color(MC.CC.RED.getTextColor())
                                 .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
@@ -49,11 +49,11 @@ public class PunishmentSelectMenu implements InventoryProvider {
 
         contents.set(1, 3, ClickableItem.of(new ItemFactory(Material.ORANGE_CONCRETE)
                         .setName(Component.text("Bans")
-                                .color(TextColor.color(MC.CC.GOLD.getTextColor()))
+                                .color(MC.CC.GOLD.getTextColor())
                                 .decoration(TextDecoration.BOLD, true)
                                 .decoration(TextDecoration.ITALIC, false))
                         .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.BAN) + " Bans on record.")
-                                .color(MC.CC.WHITE.getTextColor())
+                                .color(MC.CC.GOLD.getTextColor())
                                 .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
@@ -64,11 +64,11 @@ public class PunishmentSelectMenu implements InventoryProvider {
 
         contents.set(1, 5, ClickableItem.of(new ItemFactory(Material.LIME_CONCRETE)
                         .setName(Component.text("Mutes")
-                                .color(TextColor.color(MC.CC.GREEN.getTextColor()))
+                                .color(MC.CC.GREEN.getTextColor())
                                 .decoration(TextDecoration.BOLD, true)
                                 .decoration(TextDecoration.ITALIC, false))
                         .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.MUTE) + " Mutes on record.")
-                                .color(MC.CC.WHITE.getTextColor())
+                                .color(MC.CC.GREEN.getTextColor())
                                 .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
@@ -78,12 +78,12 @@ public class PunishmentSelectMenu implements InventoryProvider {
                 }));
 
         contents.set(1, 7, ClickableItem.of(new ItemFactory(Material.LIGHT_BLUE_CONCRETE)
-                        .setName(Component.text("Warn")
-                                .color(TextColor.color(MC.CC.BLUE.getTextColor()))
+                        .setName(Component.text("Warns")
+                                .color(MC.CC.BLUE.getTextColor())
                                 .decoration(TextDecoration.BOLD, true)
                                 .decoration(TextDecoration.ITALIC, false))
                         .setLore(Component.text(this.profile.api().getPunishmentCountByType(Punishment.Type.WARN) + " Warns on record.")
-                                .color(MC.CC.WHITE.getTextColor())
+                                .color(MC.CC.BLUE.getTextColor())
                                 .decoration(TextDecoration.ITALIC, false))
                         .build(),
                 e -> {
