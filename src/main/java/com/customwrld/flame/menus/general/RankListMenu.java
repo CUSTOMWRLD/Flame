@@ -8,7 +8,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -90,15 +90,15 @@ public class RankListMenu implements InventoryProvider {
                     .color(NamedTextColor.DARK_AQUA));
             lore.add(MC.Style.MENU_SEPARATOR);
 
-            java.awt.Color color = Util.getRankColor(rank.getColor());
+            java.awt.Color color = rank.api().getRankColor();
 
             items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
                     .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
                     .setName(Component.text(rank.getName())
-                            .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB()))
+                            .color(TextColor.color(color.getRGB()))
                             .decoration(TextDecoration.ITALIC, false))
                     .setName(Component.text(rank.getName())
-                            .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
+                            .color(TextColor.color(color.getRGB())))
                     .setLore(lore)
                     .build(), e -> {
             });

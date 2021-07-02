@@ -3,7 +3,7 @@ package com.customwrld.flame.listeners;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
@@ -106,12 +106,13 @@ public class ChatListener implements Listener {
     public TextComponent formatChat(Profile profile, Component message) {
         Component chatFormat = FlameAPI.getChatFormat(profile);
         Rank rank = profile.api().getActiveGrant().api().getRank();
+        Color color = rank.api().getRankColor();
 
         return Component.text()
                 .append(chatFormat)
                 .append(Component.text(" » ")
                         .color(NamedTextColor.DARK_GRAY))
-                .append(message.color(TextColor.color(bleach(Util.getRankColor(rank.getColor()), 0.80))))
+                .append(message.color(TextColor.color(bleach(color, 0.80))))
                 .hoverEvent(HoverEvent.showText(Component.text()
                         .append(chatFormat
                                 .append(Component.newline()))
@@ -128,7 +129,7 @@ public class ChatListener implements Listener {
                                 .append(Component.text("Rank: ")
                                         .color(NamedTextColor.GRAY))
                                 .append(Component.text(rank.getName())
-                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
+                                        .color(TextColor.color(color.getRGB())))
                         )
                 ))
                 .build();

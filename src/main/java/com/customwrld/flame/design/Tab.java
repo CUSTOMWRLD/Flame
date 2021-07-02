@@ -2,7 +2,7 @@ package com.customwrld.flame.design;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.util.NMSUtil;
 import com.customwrld.flame.FlameAPI;
 import lombok.Getter;

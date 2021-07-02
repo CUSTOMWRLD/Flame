@@ -2,7 +2,7 @@ package com.customwrld.flame.pigeon;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.pigeon.payloads.MessagePlayerPayload;
@@ -161,7 +161,7 @@ public class Listeners implements Listener {
     public void onMessagePlayer(MessagePlayerPayload payload) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getUniqueId().equals(payload.getPlayer())) {
-                player.sendMessage(MC.Style.translateLegacy(payload.getMessage()));
+                player.sendMessage(payload.getMessage());
                 return;
             }
         }

@@ -1,24 +1,27 @@
 package com.customwrld.flame.util;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.MC;
 import com.customwrld.flame.Flame;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,9 +29,26 @@ import java.util.UUID;
 
 public class Util {
 
-    public static Color getRankColor(String string) {
-        return ChatColor.valueOf(string).asBungee().getColor();
-    }
+    public static final ItemStack NEXT_PAGE = new ItemFactory(Material.GRAY_CARPET)
+            .setName(Component.text().append(Component.text("Next Page ")
+                    .color(NamedTextColor.GRAY))
+                    .append(Component.text(">")
+                            .color(NamedTextColor.DARK_GRAY)
+                            .decoration(TextDecoration.BOLD, true))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false))
+            .build();
+    public static final ItemStack PREVIOUS_PAGE = new ItemFactory(Material.GRAY_CARPET)
+            .setName(Component.text().append(Component.text("< ")
+                    .color(NamedTextColor.DARK_GRAY)
+                    .decoration(TextDecoration.BOLD, true))
+                    .append(Component.text("Previous Page")
+                            .color(NamedTextColor.GRAY))
+                    .build()
+                    .decoration(TextDecoration.ITALIC, false))
+            .build();
+    public static final ItemStack FILLER = new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
+            .setName(Component.empty()).build();
 
     public static TextColor getPunishmentColor(Punishment punishment) {
         switch (punishment.getType()) {
@@ -48,29 +68,6 @@ public class Util {
 
         return MC.CC.WHITE.getTextColor();
     }
-
-    public static final ItemStack NEXT_PAGE = new ItemFactory(Material.GRAY_CARPET)
-            .setName(Component.text().append(Component.text("Next Page ")
-                    .color(NamedTextColor.GRAY))
-                    .append(Component.text(">")
-                            .color(NamedTextColor.DARK_GRAY)
-                            .decoration(TextDecoration.BOLD, true))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false))
-            .build();
-
-    public static final ItemStack PREVIOUS_PAGE = new ItemFactory(Material.GRAY_CARPET)
-            .setName(Component.text().append(Component.text("< ")
-                    .color(NamedTextColor.DARK_GRAY)
-                    .decoration(TextDecoration.BOLD, true))
-                    .append(Component.text("Previous Page")
-                            .color(NamedTextColor.GRAY))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false))
-            .build();
-
-    public static final ItemStack FILLER = new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
-            .setName(Component.empty()).build();
 
     public static List<Component> getPunishmentMessage(Punishment punishment) {
         Date date = new Date(punishment.getAddedAt());
@@ -114,7 +111,7 @@ public class Util {
         if (!Flame.getFlame().getElevatedStaff().contains(player)) {
             return false;
         } else {
-            initiator.sendMessage(Component.text("You cannot use that command on that player.")
+            initiator.sendMessage(Component.text("You cannot use that command in this context.")
                     .color(MC.CC.RED.getTextColor()));
             return true;
         }
@@ -128,6 +125,32 @@ public class Util {
 
         contents.set(0, 8, ClickableItem.of(NEXT_PAGE,
                 e -> inventory.open(player, pagination.next().getPage())));
+    }
+
+    public static void setupBukkitPlayer(Profile profile) {
+        Player player = Bukkit.getPlayer(profile.getId());
+
+        Plugin plugin = Flame.getFlame();
+
+        if (player != null) {
+            player.setOp(profile.getStaffProfile().isOperator());
+
+            for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
+                if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(plugin)) {
+                    continue;
+                }
+
+                attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> attachmentInfo.getAttachment().unsetPermission(permission));
+            }
+
+            PermissionAttachment attachment = player.addAttachment(plugin);
+
+            for (String permission : profile.api().getAllPermissions()) {
+                attachment.setPermission(permission, true);
+            }
+
+            player.recalculatePermissions();
+        }
     }
 
 }

@@ -7,7 +7,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;

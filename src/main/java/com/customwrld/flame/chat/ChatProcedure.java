@@ -2,7 +2,7 @@ package com.customwrld.flame.chat;
 
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.menus.grants.ConfirmGrantMenu;
 import com.customwrld.flame.menus.grants.DeleteGrantMenu;

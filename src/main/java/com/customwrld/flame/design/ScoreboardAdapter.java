@@ -4,7 +4,7 @@ import com.customwrld.commonlib.modules.balance.Levels;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.assemble.AssembleAdapter;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;

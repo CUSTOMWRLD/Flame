@@ -2,7 +2,7 @@ package com.customwrld.flame.commands.player;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Util;
@@ -49,7 +49,7 @@ public class ListCommand extends Command {
                     List<Component> rankComponents = new ArrayList<>();
 
                     for (Rank rank : sortedRanks) {
-                        rankComponents.add(Component.text(rank.getName()).color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())));
+                        rankComponents.add(Component.text(rank.getName()).color(TextColor.color(rank.api().getRankColor().getRGB())));
                     }
 
                     sender.sendMessage(MC.Style.SEPARATOR);

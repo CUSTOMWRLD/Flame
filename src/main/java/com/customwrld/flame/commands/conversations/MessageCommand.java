@@ -2,7 +2,7 @@ package com.customwrld.flame.commands.conversations;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.customlib.CustomLib;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.pigeon.payloads.conversation.ConversationMessagePayload;
 import com.customwrld.flame.util.Arguments;

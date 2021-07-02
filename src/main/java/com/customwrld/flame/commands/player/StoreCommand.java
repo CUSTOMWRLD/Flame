@@ -1,6 +1,6 @@
 package com.customwrld.flame.commands.player;
 
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.util.Command;

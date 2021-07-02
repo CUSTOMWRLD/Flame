@@ -1,7 +1,7 @@
 package com.customwrld.flame.commands.chat;
 
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;

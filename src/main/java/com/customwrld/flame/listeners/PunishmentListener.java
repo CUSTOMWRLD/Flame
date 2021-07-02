@@ -5,7 +5,7 @@ import com.customwrld.commonlib.modules.bukkit.BukkitAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
@@ -44,7 +44,7 @@ public class PunishmentListener implements PunishmentProvider {
 
         announcePunishment(profile, punishment);
 
-        Player player = BukkitAPI.getPlayer(profile);
+        Player player = Bukkit.getPlayer(profile.getId());
 
         if(player != null && !punishment.isRemoved()) {
             if (punishment.getType() == Punishment.Type.BAN || punishment.getType() == Punishment.Type.BLACKLIST) {

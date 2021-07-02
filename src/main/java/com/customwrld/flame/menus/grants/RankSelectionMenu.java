@@ -10,7 +10,7 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
@@ -54,13 +54,13 @@ public class RankSelectionMenu implements InventoryProvider {
         sortedRanks.sort(Rank.COMPARATOR);
 
         for (Rank rank : sortedRanks) {
-            java.awt.Color color = Util.getRankColor(rank.getColor());
+            java.awt.Color color = rank.api().getRankColor();
 
             if (!rank.api().isDefaultRank()) {
                 items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
                                 .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
                                 .setName(Component.text(rank.getName())
-                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB()))
+                                        .color(TextColor.color(color.getRGB()))
                                         .decoration(TextDecoration.ITALIC, false))
                                 .setLore(
                                         MC.Style.MENU_SEPARATOR,
@@ -68,7 +68,7 @@ public class RankSelectionMenu implements InventoryProvider {
                                                 .append(Component.text("Click to grant ")
                                                         .color(NamedTextColor.GRAY))
                                                 .append(Component.text(rank.getName())
-                                                        .color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB())))
+                                                        .color(TextColor.color(color.getRGB())))
                                                 .append(Component.text(" to ")
                                                         .color(NamedTextColor.GRAY))
                                                 .append(FlameAPI.getColoredName(this.profile))

@@ -125,7 +125,7 @@ public class ProfileListener implements Listener {
         Profile profile = Profile.getProfile(player.getName(), player.getUniqueId());
         event.joinMessage(null);
 
-        BukkitAPI.setupBukkitPlayer(Flame.getFlame(), profile);
+        Util.setupBukkitPlayer(profile);
 
         boolean isElevated = Flame.getFlame().getElevatedStaff().contains(player.getUniqueId());
 

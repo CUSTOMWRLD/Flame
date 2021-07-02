@@ -2,7 +2,7 @@ package com.customwrld.flame.commands.staff;
 
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.CustomLib;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.menus.general.RankListMenu;
 import com.customwrld.flame.pigeon.payloads.rank.ReloadRankPayload;

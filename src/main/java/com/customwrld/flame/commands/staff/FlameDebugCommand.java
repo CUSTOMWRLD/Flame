@@ -1,7 +1,7 @@
 package com.customwrld.flame.commands.staff;
 
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;

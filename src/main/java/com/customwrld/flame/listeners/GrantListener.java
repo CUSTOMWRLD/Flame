@@ -6,8 +6,9 @@ import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.TimeUtil;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.design.Tab;
+import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -35,7 +36,7 @@ public class GrantListener implements GrantProvider {
 
         Rank rank = grant.api().getRank();
 
-        if(rank != null) {
+        if(rank != null && !rank.api().isDefaultRank()) {
             player.sendMessage(MC.Style.SEPARATOR);
             player.sendMessage(MC.Chat.notificationMessage("Grant",
                     Component.text("A '" + rank.getName() + "' grant has been applied to you " +
@@ -43,6 +44,8 @@ public class GrantListener implements GrantProvider {
                     .color(NamedTextColor.GRAY));
             player.sendMessage(MC.Style.SEPARATOR);
         }
+
+        Util.setupBukkitPlayer(profile);
     }
 
     @Override
@@ -72,6 +75,8 @@ public class GrantListener implements GrantProvider {
                             .color(NamedTextColor.GRAY)));
             player.sendMessage(MC.Style.SEPARATOR);
         }
+
+        Util.setupBukkitPlayer(profile);
     }
 
     @Override
@@ -101,5 +106,7 @@ public class GrantListener implements GrantProvider {
                             .color(NamedTextColor.GRAY)));
             player.sendMessage(MC.Style.SEPARATOR);
         }
+
+        Util.setupBukkitPlayer(profile);
     }
 }

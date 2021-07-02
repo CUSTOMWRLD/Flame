@@ -2,7 +2,7 @@ package com.customwrld.flame;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
@@ -46,7 +46,7 @@ public class FlameAPI {
 
     public static Component getColoredName(Profile profile) {
         Rank rank = profile.api().getActiveGrant().api().getRank();
-        return Component.text(profile.getName()).color(TextColor.color(Util.getRankColor(rank.getColor()).getRGB()));
+        return Component.text(profile.getName()).color(TextColor.color(rank.api().getRankColor().getRGB()));
     }
 
     public static Component getColoredPrefix(Profile profile) {
