@@ -38,18 +38,17 @@ public class PartyCommand extends Command {
         Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
         return new CommandAPICommand("debug")
+                .withPermission("flame.staff")
                 .executes((sender, args) -> {
-                    if (!(sender instanceof Player player)) {
+                    if (!(sender instanceof Player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
                         return;
                     }
 
-                    if(player.hasPermission("flame.staff")) {
-                        sender.sendMessage(Component.text("Debug Message has been printed on the Atom Console.")
-                                .color(MC.CC.GREEN.getTextColor()));
+                    sender.sendMessage(Component.text("Debug Message has been printed on the Atom Console.")
+                            .color(MC.CC.GREEN.getTextColor()));
 
-                        pigeon.broadcast(new PartyDebugPayload());
-                    }
+                    pigeon.broadcast(new PartyDebugPayload());
                 });
     }
 

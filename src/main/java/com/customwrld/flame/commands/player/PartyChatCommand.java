@@ -20,7 +20,8 @@ public class PartyChatCommand extends Command {
     public CommandAPICommand command() {
         Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
-        return new CommandAPICommand("chat")
+        return new CommandAPICommand(this.command)
+                .withAliases(this.aliases)
                 .withArguments(new GreedyStringArgument("message"))
                 .executes((sender, args) -> {
                     if (!(sender instanceof Player player)) {
