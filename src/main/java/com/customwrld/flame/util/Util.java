@@ -35,8 +35,7 @@ public class Util {
                     .append(Component.text(">")
                             .color(NamedTextColor.DARK_GRAY)
                             .decoration(TextDecoration.BOLD, true))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false))
+                    .build())
             .build();
     public static final ItemStack PREVIOUS_PAGE = new ItemFactory(Material.GRAY_CARPET)
             .setName(Component.text().append(Component.text("< ")
@@ -44,8 +43,7 @@ public class Util {
                     .decoration(TextDecoration.BOLD, true))
                     .append(Component.text("Previous Page")
                             .color(NamedTextColor.GRAY))
-                    .build()
-                    .decoration(TextDecoration.ITALIC, false))
+                    .build())
             .build();
     public static final ItemStack FILLER = new ItemFactory(Material.GRAY_STAINED_GLASS_PANE)
             .setName(Component.empty()).build();

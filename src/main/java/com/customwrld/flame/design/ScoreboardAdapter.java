@@ -3,13 +3,11 @@ package com.customwrld.flame.design;
 import com.customwrld.commonlib.modules.balance.Levels;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
-import com.customwrld.customlib.assemble.AssembleAdapter;
 import com.customwrld.commonlib.util.MC;
-import com.customwrld.flame.FlameAPI;
+import com.customwrld.customlib.assemble.AssembleAdapter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ import java.util.List;
 
 public class ScoreboardAdapter implements AssembleAdapter {
 
-    @Override // #58BAFF&lCUSTOMWRLD &8| #99D6FFPractice
+    @Override
     public Component getTitle(Player player) {
         return Component.text()
                 .append(Component.text("CUSTOMWRLD", MC.CC.BRAND.getTextColor(), TextDecoration.BOLD))

@@ -2,16 +2,14 @@ package com.customwrld.flame.menus.grants;
 
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -35,9 +33,7 @@ public class GrantReasonMenu implements InventoryProvider {
         Grant grant = this.procedure.getGrant();
 
         contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
-                        .setName(Component.text("Promoted")
-                                .color(NamedTextColor.GREEN)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Promoted", MC.CC.GREEN.getTextColor()))
                         .build(),
                 e -> {
                     grant.setAddedReason("Promoted");
@@ -49,9 +45,7 @@ public class GrantReasonMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
-                        .setName(Component.text("Demoted")
-                                .color(NamedTextColor.YELLOW)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Demoted", MC.CC.YELLOW.getTextColor()))
                         .build(),
                 e -> {
                     grant.setAddedReason("Demoted");
@@ -63,9 +57,7 @@ public class GrantReasonMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
-                        .setName(Component.text("Granted")
-                                .color(NamedTextColor.GOLD)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Granted", MC.CC.GOLD.getTextColor()))
                         .build(),
                 e -> {
 
@@ -78,9 +70,7 @@ public class GrantReasonMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
-                        .setName(Component.text("Custom")
-                                .color(NamedTextColor.RED)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Custom", MC.CC.RED.getTextColor()))
                         .build(),
                 e -> {
                     procedure.setGrant(grant);
@@ -88,8 +78,7 @@ public class GrantReasonMenu implements InventoryProvider {
                     procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_REASON);
 
                     player.closeInventory();
-                    player.sendMessage(Component.text("Type a reason for adding this grant in chat...")
-                            .color(MC.CC.GREEN.getTextColor()));
+                    player.sendMessage(Component.text("Type a reason for adding this grant in chat...", MC.CC.GREEN.getTextColor()));
                 }));
 
     }
@@ -100,8 +89,7 @@ public class GrantReasonMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_REASON) {
             procedure.cancel();
-            player.sendMessage(Component.text("Cancelled the grant procedure.")
-                    .color(MC.CC.RED.getTextColor()));
+            player.sendMessage(Component.text("Cancelled the grant procedure.", MC.CC.RED.getTextColor()));
         }
     }
 

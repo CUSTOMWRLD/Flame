@@ -3,6 +3,7 @@ package com.customwrld.flame.menus.grants;
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.grant.GrantAPI;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.commonlib.util.TimeUtil;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
@@ -11,13 +12,11 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -155,14 +154,9 @@ public class GrantsListMenu implements InventoryProvider {
                 material = Material.ENCHANTED_BOOK;
             }
 
-            List<Component> fixedLore = new ArrayList<>();
-
-            lore.forEach(component -> fixedLore.add(component.decoration(TextDecoration.ITALIC, false)));
-
             items[i] = ClickableItem.of(new ItemFactory(material)
-                            .setName(Component.text(grant.api().getRank().getName() + " Grant (" + grant.getId() + ")", textColor)
-                                    .decoration(TextDecoration.ITALIC, false))
-                            .setLore(fixedLore)
+                            .setName(Component.text(grant.api().getRank().getName() + " Grant (" + grant.getId() + ")", textColor))
+                            .setLore(lore)
                             .build(),
                     e -> {
                         if (!grant.isRemoved() && !grant.api().hasExpired() && !grant.api().getRank().api().isDefaultRank() && FlameAPI.canStartProcedure(player)) {

@@ -1,6 +1,7 @@
 package com.customwrld.flame.menus.general;
 
 import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -8,12 +9,10 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -95,8 +94,7 @@ public class RankListMenu implements InventoryProvider {
             items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
                     .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
                     .setName(Component.text(rank.getName())
-                            .color(TextColor.color(color.getRGB()))
-                            .decoration(TextDecoration.ITALIC, false))
+                            .color(TextColor.color(color.getRGB())))
                     .setName(Component.text(rank.getName())
                             .color(TextColor.color(color.getRGB())))
                     .setLore(lore)

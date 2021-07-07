@@ -1,17 +1,15 @@
 package com.customwrld.flame.menus.grants;
 
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -40,28 +38,22 @@ public class DeleteGrantMenu implements InventoryProvider {
 
         for (int x = 0; x < 4; x++) {
             contents.set(0, x, ClickableItem.of(new ItemFactory(Material.LIME_CONCRETE)
-                            .setName(Component.text("Confirm Grant Removal Procedure")
-                                    .color(NamedTextColor.GREEN)
-                                    .decoration(TextDecoration.ITALIC, false))
+                            .setName(Component.text("Confirm Grant Removal Procedure", MC.CC.GREEN.getTextColor()))
                             .build(),
                     e -> {
                         profile.api().removeGrant(procedure.getGrant(), player.getUniqueId(), System.currentTimeMillis(), this.removeReason);
 
                         procedure.finish();
                         inventory.close(player);
-                        player.sendMessage(Component.text("The grant has been removed.")
-                                .color(MC.CC.GREEN.getTextColor()));
+                        player.sendMessage(Component.text("The grant has been removed.", MC.CC.GREEN.getTextColor()));
                     }));
             contents.set(0, 5 + x, ClickableItem.of(new ItemFactory(Material.RED_CONCRETE)
-                            .setName(Component.text("Cancel Grant Removal Procedure")
-                                    .color(NamedTextColor.RED)
-                                    .decoration(TextDecoration.ITALIC, false))
+                            .setName(Component.text("Cancel Grant Removal Procedure", MC.CC.RED.getTextColor()))
                             .build(),
                     e -> {
                         inventory.close(player);
                         procedure.cancel();
-                        player.sendMessage(Component.text("Cancelled the grant procedure.")
-                                .color(MC.CC.RED.getTextColor()));
+                        player.sendMessage(Component.text("Cancelled the grant procedure.", MC.CC.RED.getTextColor()));
                     }));
         }
     }
@@ -72,8 +64,7 @@ public class DeleteGrantMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_CONFIRMATION) {
             procedure.cancel();
-            player.sendMessage(Component.text("Cancelled the grant removal procedure.")
-                    .color(MC.CC.RED.getTextColor()));
+            player.sendMessage(Component.text("Cancelled the grant removal procedure.", MC.CC.RED.getTextColor()));
         }
     }
 

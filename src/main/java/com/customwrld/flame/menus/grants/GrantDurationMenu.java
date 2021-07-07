@@ -1,24 +1,21 @@
 package com.customwrld.flame.menus.grants;
 
 import com.customwrld.commonlib.modules.grant.Grant;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Duration;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class GrantDurationMenu implements InventoryProvider {
 
     private final GrantProcedure procedure;
-
 
     public GrantDurationMenu(Player player, GrantProcedure procedure) {
         this.procedure = procedure;
@@ -35,9 +32,7 @@ public class GrantDurationMenu implements InventoryProvider {
         Grant grant = procedure.getGrant();
 
         contents.set(0, 1, ClickableItem.of(new ItemFactory(Material.LIME_WOOL)
-                        .setName(Component.text("7 Days")
-                                .color(NamedTextColor.GREEN)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("7 Days", MC.CC.GREEN.getTextColor()))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("7d");
@@ -51,9 +46,7 @@ public class GrantDurationMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 3, ClickableItem.of(new ItemFactory(Material.YELLOW_WOOL)
-                        .setName(Component.text("30 Days")
-                                .color(NamedTextColor.YELLOW)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("30 Days", MC.CC.YELLOW.getTextColor()))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("30d");
@@ -67,9 +60,7 @@ public class GrantDurationMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 5, ClickableItem.of(new ItemFactory(Material.ORANGE_WOOL)
-                        .setName(Component.text("Permanent")
-                                .color(NamedTextColor.GOLD)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Permanent", MC.CC.GOLD.getTextColor()))
                         .build(),
                 e -> {
                     Duration duration = Duration.fromString("perm");
@@ -83,16 +74,13 @@ public class GrantDurationMenu implements InventoryProvider {
                 }));
 
         contents.set(0, 7, ClickableItem.of(new ItemFactory(Material.RED_WOOL)
-                        .setName(Component.text("Custom")
-                                .color(NamedTextColor.RED)
-                                .decoration(TextDecoration.ITALIC, false))
+                        .setName(Component.text("Custom", MC.CC.RED.getTextColor()))
                         .build(),
                 e -> {
                     procedure.setStage(GrantProcedure.Stage.PROVIDE_CUSTOM_TIME);
 
                     player.closeInventory();
-                    player.sendMessage(Component.text("Type the amount of time you would like to grant this rank for...")
-                            .color(MC.CC.GREEN.getTextColor()));
+                    player.sendMessage(Component.text("Type the amount of time you would like to grant this rank for...", MC.CC.GREEN.getTextColor()));
                 }));
     }
 
@@ -102,8 +90,7 @@ public class GrantDurationMenu implements InventoryProvider {
 
         if (procedure != null && procedure.getStage() == GrantProcedure.Stage.REQUIRE_TIME) {
             procedure.cancel();
-            player.sendMessage(Component.text("Cancelled the grant procedure.")
-                    .color(MC.CC.RED.getTextColor()));
+            player.sendMessage(Component.text("Cancelled the grant procedure.", MC.CC.RED.getTextColor()));
         }
     }
 

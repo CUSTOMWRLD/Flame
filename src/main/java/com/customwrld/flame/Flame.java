@@ -84,8 +84,7 @@ public final class Flame extends JavaPlugin {
 
         CommonLib commonLib = CustomLib.getCustomLib().getCommonLib();
 
-        commonLib.getGrantProviders().add(new GrantListener());
-        commonLib.getPunishmentProviders().add(new PunishmentListener());
+        commonLib.getApiProviders().add(new APIListener());
 
         Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
@@ -114,7 +113,7 @@ public final class Flame extends JavaPlugin {
         }
 
         Arrays.asList(
-                new AuthListener(),
+//                new AuthListener(),
                 new ProfileListener(),
                 new ChatListener(),
                 new DisabledCommands()

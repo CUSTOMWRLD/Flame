@@ -1,12 +1,12 @@
 package com.customwrld.flame.listeners;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.profile.ProfileAPI;
 import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.Config;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.flame.chat.ChatFilter;
 import com.customwrld.flame.chat.ChatProcedure;
 import com.customwrld.flame.profile.grant.GrantProcedure;
@@ -95,7 +95,7 @@ public class ChatListener implements Listener {
                 .filter(player -> {
                     Profile playerProfile = ProfileAPI.getCachedProfile(player.getUniqueId());
 
-                    if(playerProfile != null) {
+                    if (playerProfile != null) {
                         return playerProfile.getOptionsProfile().isReceivingPublicChat();
                     }
 
@@ -109,11 +109,7 @@ public class ChatListener implements Listener {
         Color color = rank.api().getRankColor();
 
         return Component.text()
-                .append(chatFormat)
-                .append(Component.text(" » ")
-                        .color(NamedTextColor.DARK_GRAY))
-                .append(message.color(TextColor.color(bleach(color, 0.80))))
-                .hoverEvent(HoverEvent.showText(Component.text()
+                .append(chatFormat.hoverEvent(HoverEvent.showText(Component.text()
                         .append(chatFormat
                                 .append(Component.newline()))
                         .append(Component.text()
@@ -131,7 +127,10 @@ public class ChatListener implements Listener {
                                 .append(Component.text(rank.getName())
                                         .color(TextColor.color(color.getRGB())))
                         )
-                ))
+                )))
+                .append(Component.text(" » ")
+                        .color(NamedTextColor.DARK_GRAY))
+                .append(message.color(TextColor.color(bleach(color, 0.80))))
                 .build();
     }
 

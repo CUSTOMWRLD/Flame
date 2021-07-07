@@ -3,6 +3,7 @@ package com.customwrld.flame.menus.grants;
 import com.customwrld.commonlib.modules.grant.Grant;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
@@ -10,14 +11,11 @@ import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.smartinvs.content.Pagination;
 import com.customwrld.customlib.smartinvs.content.SlotIterator;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.FlameAPI;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -59,21 +57,15 @@ public class RankSelectionMenu implements InventoryProvider {
             if (!rank.api().isDefaultRank()) {
                 items[i] = ClickableItem.of(new ItemFactory(Material.LEATHER_CHESTPLATE)
                                 .setLeatherColor(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()))
-                                .setName(Component.text(rank.getName())
-                                        .color(TextColor.color(color.getRGB()))
-                                        .decoration(TextDecoration.ITALIC, false))
+                                .setName(Component.text(rank.getName(), TextColor.color(color.getRGB())))
                                 .setLore(
                                         MC.Style.MENU_SEPARATOR,
                                         Component.text()
-                                                .append(Component.text("Click to grant ")
-                                                        .color(NamedTextColor.GRAY))
-                                                .append(Component.text(rank.getName())
-                                                        .color(TextColor.color(color.getRGB())))
-                                                .append(Component.text(" to ")
-                                                        .color(NamedTextColor.GRAY))
+                                                .append(Component.text("Click to grant ", MC.CC.GRAY.getTextColor()))
+                                                .append(Component.text(rank.getName(), TextColor.color(color.getRGB())))
+                                                .append(Component.text(" to ", MC.CC.GRAY.getTextColor()))
                                                 .append(FlameAPI.getColoredName(this.profile))
-                                                .build()
-                                                .decoration(TextDecoration.ITALIC, false),
+                                                .build(),
                                         MC.Style.MENU_SEPARATOR)
                                 .build(),
                         e -> {
