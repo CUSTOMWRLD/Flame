@@ -1,9 +1,9 @@
 package com.customwrld.flame.util;
 
+import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.Config;
-import com.customwrld.commonlib.modules.profile.Profile;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

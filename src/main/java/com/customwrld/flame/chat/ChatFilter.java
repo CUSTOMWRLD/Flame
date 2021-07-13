@@ -2,7 +2,6 @@ package com.customwrld.flame.chat;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TextReplacementConfig;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

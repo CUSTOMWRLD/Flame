@@ -2,12 +2,12 @@ package com.customwrld.flame.menus.punishments;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.smartinvs.ClickableItem;
 import com.customwrld.customlib.smartinvs.SmartInventory;
 import com.customwrld.customlib.smartinvs.content.InventoryContents;
 import com.customwrld.customlib.smartinvs.content.InventoryProvider;
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
 import com.customwrld.flame.util.Util;
 import net.kyori.adventure.text.Component;
