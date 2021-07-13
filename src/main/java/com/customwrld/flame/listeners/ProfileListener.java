@@ -2,12 +2,14 @@ package com.customwrld.flame.listeners;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.util.NMSUtil;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.Flame;
 import com.customwrld.flame.FlameAPI;
+import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
-import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.util.Util;
 import com.google.common.hash.Hashing;
 import net.kyori.adventure.text.Component;
@@ -23,153 +25,153 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class ProfileListener implements Listener {
 
     @EventHandler
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        Flame flame = Flame.getFlame();
-        Player player = Bukkit.getPlayer(event.getUniqueId());
+        try {
+            Flame flame = Flame.getFlame();
 
-        if (FlameAPI.isStartingUp()) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    Component.text("Server is currently starting up. Please join back soon.")
-                            .color(NamedTextColor.RED));
-            return;
-        }
+            if(FlameAPI.isStartingUp()) {
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                        Component.text("Server is currently starting up. Please join back soon.")
+                                .color(NamedTextColor.RED));
+                return;
+            }
 
-        if (player != null && player.isOnline()) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    Component.text("You tried to login too quickly after disconnecting.")
-                            .color(NamedTextColor.RED)
-                            .append(Component.newline())
-                            .append(Component.text("Please try again in a few seconds.")
-                                    .color(NamedTextColor.RED)));
+            var uuid = event.getUniqueId();
 
-            flame.getServer().getScheduler().runTask(flame, () -> player.kick(Component.text("You logged in from another location!")
-                    .color(NamedTextColor.RED)));
-            return;
-        }
+            Player player = Bukkit.getPlayer(uuid);
 
-        boolean isElevated = flame.getElevatedStaff().contains(event.getUniqueId());
+            if(player != null && player.isOnline()) {
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                        Component.text("You tried to login too quickly after disconnecting.", MC.CC.RED.getTextColor())
+                                .append(Component.newline())
+                                .append(Component.text("Please try again in a few seconds.", MC.CC.RED.getTextColor())));
 
-        Profile profile = Profile.getProfile(event.getName(), event.getUniqueId());
+                flame.getServer().getScheduler().runTask(flame, () ->
+                        player.kick(Component.text("You logged in from another location!", MC.CC.RED.getTextColor())));
+                return;
+            }
 
-        Punishment punishment = profile.api().getActiveBan();
+            boolean isElevated = Util.isElevatedStaff(uuid);
 
-        if (punishment != null && !isElevated) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.join(Component.newline(), Util.getPunishmentMessage(punishment)));
-            return;
-        }
+            var name = event.getName();
 
-        profile.setName(event.getName());
-        profile.setSearchableName(event.getName());
+            Profile profile = ProfileUtil.getProfile(name, uuid).get(10, TimeUnit.SECONDS);
 
-        if (profile.getFirstSeen() == null) {
-            profile.setFirstSeen(System.currentTimeMillis());
-        }
+            Punishment punishment = profile.api().getActiveBan();
 
-        profile.setLastSeen(System.currentTimeMillis());
+            if(punishment != null && !isElevated) {
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                        Component.join(Component.newline(), Util.getPunishmentMessage(punishment)));
+                return;
+            }
 
-        String hashedIP = Hashing.sha1().hashString(event.getAddress().getHostAddress(), StandardCharsets.UTF_8).toString();
+            profile.setName(name);
+            profile.setSearchableName(name);
 
-        if (profile.getCurrentAddress() == null) {
-            profile.setCurrentAddress(hashedIP);
-        }
+            if(profile.getFirstSeen() == null)
+                profile.setFirstSeen(System.currentTimeMillis());
 
-        Profile.Staff staff = profile.getStaffProfile();
+            profile.setLastSeen(System.currentTimeMillis());
 
-        if (!profile.getCurrentAddress().equals(hashedIP)) {
-            if (staff.isTwoFactor()) {
-                if (!staff.isLocked()) {
+            String hashedIP = Hashing.sha1().hashString(event.getAddress().getHostAddress(), StandardCharsets.UTF_8).toString();
+
+            if(profile.getCurrentAddress() == null)
+                profile.setCurrentAddress(hashedIP);
+
+            Profile.Staff staff = profile.getStaffProfile();
+
+            if(!profile.getCurrentAddress().equals(hashedIP)) {
+                if(staff.isTwoFactor() && !staff.isLocked())
                     staff.setLocked(true);
+
+                profile.setCurrentAddress(hashedIP);
+            }
+
+            profile.update();
+
+            Server server = Bukkit.getServer();
+
+            if(server.hasWhitelist()) {
+                if(server.getWhitelistedPlayers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList()).contains(uuid) || isElevated) {
+                    event.allow();
+                } else {
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
+                            Component.text("The server is currently whitelisted.", MC.CC.RED.getTextColor()));
+                    return;
                 }
             }
 
-            profile.setCurrentAddress(hashedIP);
-        }
-
-        profile.save();
-
-        Server server = Bukkit.getServer();
-
-        if (server.hasWhitelist()) {
-            if (server.getWhitelistedPlayers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList()).contains(event.getUniqueId()) || isElevated) {
-                event.allow();
-            } else {
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, Component.text("The server is currently whitelisted.")
-                        .color(NamedTextColor.RED));
-                return;
+            if(Bukkit.getOnlinePlayers().size() >= Bukkit.getMaxPlayers()) {
+                if(profile.api().getAllPermissions().contains("flame.staff") || isElevated) {
+                    event.allow();
+                } else {
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL,
+                            Component.text("The server is currently full.", MC.CC.RED.getTextColor()));
+                }
             }
+        } catch(ExecutionException | InterruptedException | TimeoutException e) {
+            Thread.currentThread().interrupt();
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                    Component.text("Failed to load your profile. Try again later.", MC.CC.RED.getTextColor()));
+            e.printStackTrace();
         }
-
-        if (Bukkit.getOnlinePlayers().size() >= Bukkit.getMaxPlayers()) {
-            if (profile.api().getAllPermissions().contains("flame.staff") || isElevated) {
-                event.allow();
-            } else {
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, Component.text("The server is currently full.")
-                        .color(NamedTextColor.RED));
-                return;
-            }
-        }
-
-        Profile.getProfiles().put(profile.getId(), profile);
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Profile profile = Profile.getProfile(player.getName(), player.getUniqueId());
         event.joinMessage(null);
 
-        Util.setupBukkitPlayer(profile);
+        ProfileUtil.getAssociatedProfile(player).thenAccept(profile -> {
+            Util.setupBukkitPlayer(profile);
 
-        boolean isElevated = Flame.getFlame().getElevatedStaff().contains(player.getUniqueId());
+            if (Util.isElevatedStaff(player.getUniqueId()))
+                player.setOp(true);
 
-        if (isElevated) {
-            player.setOp(true);
-        }
+            Tab.getTeamMap().values().forEach(scoreboardTeam -> {
+                try {
+                    NMSUtil.setValue(scoreboardTeam, "i", 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-        Tab.getTeamMap().values().forEach(scoreboardTeam -> {
-            try {
-                NMSUtil.setValue(scoreboardTeam, "i", 0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                NMSUtil.sendPacket(player, scoreboardTeam);
+            });
 
-            NMSUtil.sendPacket(player, scoreboardTeam);
+            Tab.createTeam(player);
         });
-
-        Tab.createTeam(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Profile profile = Profile.getProfiles().remove(player.getUniqueId());
-
         event.quitMessage(null);
 
-        profile.setLastSeen(System.currentTimeMillis());
+        ProfileUtil.getAssociatedProfile(player).thenAccept(profile -> {
+            profile.setLastSeen(System.currentTimeMillis());
 
-        profile.save();
+            profile.update();
 
-        GrantProcedure grantProcedure = GrantProcedure.getByPlayer(event.getPlayer());
+            GrantProcedure grantProcedure = GrantProcedure.getByPlayer(event.getPlayer());
 
-        if (grantProcedure != null) {
-            grantProcedure.cancel();
-        }
+            if (grantProcedure != null)
+                grantProcedure.cancel();
 
-        PunishmentProcedure punishmentProcedure = PunishmentProcedure.getByPlayer(event.getPlayer());
+            PunishmentProcedure punishmentProcedure = PunishmentProcedure.getByPlayer(event.getPlayer());
 
-        if (punishmentProcedure != null) {
-            punishmentProcedure.cancel();
-        }
+            if (punishmentProcedure != null)
+                punishmentProcedure.cancel();
 
-        Profile.getProfiles().remove(profile.getId());
-
-        Tab.deleteTeam(player);
+            Tab.deleteTeam(player);
+        });
     }
 
 }

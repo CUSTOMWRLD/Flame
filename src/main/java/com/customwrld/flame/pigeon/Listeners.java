@@ -1,20 +1,18 @@
 package com.customwrld.flame.pigeon;
 
+import com.customwrld.commonlib.modules.pigeon.payloads.conversation.ConversationFromPayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.conversation.ConversationToPayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.minecraft.MessagePlayerPayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.network.ServerOfflinePayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.network.ServerOnlinePayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.rank.RankReloadPayload;
+import com.customwrld.commonlib.modules.pigeon.payloads.rank.RankRemovePayload;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.MC;
-import com.customwrld.flame.Flame;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.FlameAPI;
-import com.customwrld.flame.pigeon.payloads.MessagePlayerPayload;
-import com.customwrld.flame.pigeon.payloads.conversation.ConversationFromPayload;
-import com.customwrld.flame.pigeon.payloads.conversation.ConversationToPayload;
-import com.customwrld.flame.pigeon.payloads.proxy.StaffConnectPayload;
-import com.customwrld.flame.pigeon.payloads.proxy.StaffDisconnectPayload;
-import com.customwrld.flame.pigeon.payloads.proxy.StaffSwitchPayload;
-import com.customwrld.flame.pigeon.payloads.rank.ReloadRankPayload;
-import com.customwrld.flame.pigeon.payloads.rank.RemoveRankPayload;
-import com.customwrld.flame.pigeon.payloads.server.ServerOfflinePayload;
-import com.customwrld.flame.pigeon.payloads.server.ServerOnlinePayload;
+import com.customwrld.flame.listeners.ChatListener;
 import com.customwrld.pigeon.annotations.PayloadHandler;
 import com.customwrld.pigeon.annotations.PayloadListener;
 import com.customwrld.pigeon.listeners.Listener;
@@ -51,7 +49,7 @@ public class Listeners implements Listener {
     }
 
     @PayloadHandler
-    public void onReloadRank(ReloadRankPayload payload) {
+    public void onReloadRank(RankReloadPayload payload) {
         Rank rank = Rank.getRank(payload.getRank(), false);
 
         Rank.getRanks().remove(payload.getRank());
@@ -64,7 +62,7 @@ public class Listeners implements Listener {
     }
 
     @PayloadHandler
-    public void onRemoveRank(RemoveRankPayload payload) {
+    public void onRemoveRank(RankRemovePayload payload) {
         UUID rank = payload.getRank();
 
         Rank.getRanks().remove(rank);
@@ -73,87 +71,40 @@ public class Listeners implements Listener {
     }
 
     @PayloadHandler
-    public void onStaffConnect(StaffConnectPayload payload) {
-        Profile staff = Profile.getProfile(payload.getUuid());
-
-        if (staff != null) {
-            Bukkit.getScheduler().runTaskLater(Flame.getFlame(), () -> Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> player.hasPermission("flame.staff"))
-                    .forEach(player -> player.sendMessage(MC.Chat.notificationMessage("Proxy",
-                            Component.text()
-                                    .append(FlameAPI.getColoredName(staff))
-                                    .append(Component.text(" has connected to " + payload.getServer() + ".")
-                                            .color(MC.CC.GRAY.getTextColor()))
-                                    .build()))), 20L);
-        }
-    }
-
-    @PayloadHandler
-    public void onStaffDisconnect(StaffDisconnectPayload payload) {
-        Profile staff = Profile.getProfile(payload.getUuid());
-
-        if (staff != null) {
-            Bukkit.getScheduler().runTaskLater(Flame.getFlame(), () -> Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> player.hasPermission("flame.staff"))
-                    .forEach(player -> player.sendMessage(MC.Chat.notificationMessage("Proxy",
-                            Component.text()
-                                    .append(FlameAPI.getColoredName(staff))
-                                    .append(Component.text(" has disconnected from " + payload.getServer() + ".")
-                                            .color(MC.CC.GRAY.getTextColor()))
-                                    .build()))), 20L);
-        }
-
-    }
-
-    @PayloadHandler
-    public void onStaffSwitch(StaffSwitchPayload payload) {
-        Profile staff = Profile.getProfile(payload.getUuid());
-
-        if (staff != null) {
-            Bukkit.getScheduler().runTaskLater(Flame.getFlame(), () -> Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> player.hasPermission("flame.staff"))
-                    .forEach(player -> player.sendMessage(MC.Chat.notificationMessage("Proxy",
-                            Component.text()
-                                    .append(FlameAPI.getColoredName(staff))
-                                    .append(Component.text(" has switched to " + payload.getServerTo() + " from " + payload.getServerFrom() + ".")
-                                            .color(MC.CC.GRAY.getTextColor()))
-                                    .build()))), 20L);
-        }
-
-    }
-
-    @PayloadHandler
     public void onConversationTo(ConversationToPayload payload) {
-        Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getUniqueId().equals(payload.getInitiator()))
-                .forEach(player -> player.sendMessage(Component.text()
-                        .append(Component.text("(To ")
-                                .color(MC.CC.GRAY.getTextColor()))
-                        .append(FlameAPI.getColoredName(Profile.getProfile(payload.getTarget())))
-                        .append(Component.text(") " + payload.getMessage())
-                                .color(MC.CC.GRAY.getTextColor()))
-                        .build()));
+        var initiator = Bukkit.getPlayer(payload.getInitiator());
+        if(initiator == null || !initiator.isOnline()) { return; }
+
+        Profile.getProfile(payload.getTarget()).thenAccept(targetProfile -> {
+            if(targetProfile == null) { return; }
+            initiator.sendMessage(
+                    Component.text("(To ", MC.CC.GRAY.getTextColor())
+                            .append(ChatListener.hoverableFormat(targetProfile))
+                            .append(Component.text(") " + payload.getMessage(), MC.CC.GRAY.getTextColor())));
+        });
     }
 
     @PayloadHandler
     public void onConversationFrom(ConversationFromPayload payload) {
-        Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getUniqueId().equals(payload.getTarget()))
-                .forEach(player -> {
-                    player.sendMessage(Component.text()
+        var target = Bukkit.getPlayer(payload.getTarget());
+        if(target == null || !target.isOnline()) { return; }
+
+        Profile.getProfile(payload.getInitiator())
+                .thenAccept(initiatorProfile -> {
+                    if(initiatorProfile == null) { return; }
+                    target.sendMessage(Component.text()
                             .append(Component.text("(From ")
                                     .color(MC.CC.GRAY.getTextColor()))
-                            .append(FlameAPI.getColoredName(Profile.getProfile(payload.getInitiator())))
+                            .append(ChatListener.hoverableFormat(initiatorProfile))
                             .append(Component.text(") " + payload.getMessage())
                                     .color(MC.CC.GRAY.getTextColor()))
                             .build());
-                    Profile profile = Profile.getProfile(payload.getTarget());
 
-                    if (profile != null) {
-                        if (profile.getOptionsProfile().isReceivingMessageSounds()) {
-                            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100F, 0F);
-                        }
-                    }
+                    ProfileUtil.getAssociatedProfile(target)
+                            .thenAccept(targetProfile -> {
+                                if(targetProfile.getOptionsProfile().isReceivingMessageSounds())
+                                    target.playSound(target.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100F, 0F);
+                            });
                 });
     }
 

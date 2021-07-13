@@ -1,7 +1,8 @@
 package com.customwrld.flame.commands.punishments;
 
-import com.customwrld.commonlib.modules.punishment.Punishment;
 import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.punishment.Punishment;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Duration;
@@ -35,10 +36,10 @@ public class BanCommand extends Command {
 
                     UUID addedBy = null;
 
-                    if (sender instanceof Player) {
-                        Player executor = (Player) sender;
-
-                        if (Util.isElevatedStaff(executor, profile.getId())) {
+                    if (sender instanceof Player executor) {
+                        if (Util.isElevatedStaff(profile.getId())) {
+                            executor.sendMessage(Component.text("You cannot use that command in this context.")
+                                    .color(MC.CC.RED.getTextColor()));
                             return;
                         }
 
@@ -46,7 +47,7 @@ public class BanCommand extends Command {
                     }
 
                     if (profile.api().getActivePunishmentByType(Punishment.Type.BAN) != null) {
-                        sender.sendMessage(Component.text("That player already has an pre-existing punishment.")
+                        sender.sendMessage(Component.text("That player already has a pre-existing punishment.")
                                 .color(NamedTextColor.RED));
                         return;
                     }

@@ -44,7 +44,7 @@ public class ClearPunishmentsCommand extends Command {
                     }
 
                     profile.getPunishments().clear();
-                    profile.save();
+                    profile.update();
 
                     sender.sendMessage(Component.text("Cleared all punishments for ")
                             .color(NamedTextColor.GREEN)

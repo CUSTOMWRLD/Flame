@@ -2,13 +2,15 @@ package com.customwrld.flame.commands.chat;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.util.MC;
-import com.customwrld.flame.FlameAPI;
+import com.customwrld.customlib.util.ProfileUtil;
+import com.customwrld.flame.listeners.ChatListener;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ClearChatCommand extends Command {
 
@@ -30,26 +32,27 @@ public class ClearChatCommand extends Command {
                         }
                     }
 
-                    Component playerName = MC.Style.CONSOLE;
-
-                    if (sender instanceof Player) {
-                        Player player = ((Player) sender);
-
-                        Profile profile = Profile.getProfile(player.getUniqueId());
-
-                        if (profile == null) {
-                            return;
-                        }
-
-                        playerName = FlameAPI.getColoredName(profile);
+                    CompletableFuture<Profile> future;
+                    if(sender instanceof Player player) {
+                        future = ProfileUtil.getAssociatedProfile(player);
+                    } else {
+                        future = CompletableFuture.completedFuture(null);
                     }
 
-                    Bukkit.broadcast(MC.Style.SEPARATOR);
-                    Bukkit.broadcast(MC.Chat.notificationMessage("Chat",
-                            Component.text("Chat has been cleared by ")
-                                    .color(NamedTextColor.GRAY)
-                                    .append(playerName)));
-                    Bukkit.broadcast(MC.Style.SEPARATOR);
+                    future.thenAccept(profile -> {
+                        Component playerName = profile != null ? ChatListener.hoverableFormat(profile) : MC.Style.CONSOLE;
+
+                        var component = Component.text()
+                                .append(MC.Style.SEPARATOR)
+                                .append(MC.Chat.notificationMessage("Chat",
+                                        Component.text("Chat has been cleared by ", MC.CC.GRAY.getTextColor())
+                                                .append(playerName)))
+                                .append(MC.Style.SEPARATOR)
+                                .build();
+
+                        Bukkit.broadcast(component);
+                    });
+
                 });
     }
 

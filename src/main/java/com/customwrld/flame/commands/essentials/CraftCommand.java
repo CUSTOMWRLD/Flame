@@ -17,12 +17,11 @@ public class CraftCommand extends Command {
         return new CommandAPICommand(this.command)
                 .withPermission(this.permission)
                 .executes((sender, args) -> {
-                    if (!(sender instanceof Player)) {
+                    if (!(sender instanceof Player player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
                         return;
                     }
 
-                    Player player = (Player) sender;
                     player.openWorkbench(null, true);
                 });
     }

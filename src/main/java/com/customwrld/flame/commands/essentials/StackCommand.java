@@ -23,12 +23,10 @@ public class StackCommand extends Command {
                 .withPermission(this.permission)
                 .withOptionalArgument(new IntegerArgument("amount", 1, 127), () -> 64)
                 .executes((sender, args) -> {
-                    if (!(sender instanceof Player)) {
+                    if (!(sender instanceof Player player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
                         return;
                     }
-
-                    Player player = (Player) sender;
 
                     int amount = (Integer) args[0];
 

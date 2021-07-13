@@ -2,16 +2,18 @@ package com.customwrld.flame.commands.punishments;
 
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.util.MC;
-import com.customwrld.flame.FlameAPI;
+import com.customwrld.customlib.util.ProfileUtil;
+import com.customwrld.flame.listeners.ChatListener;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.Util;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.CompletableFuture;
 
 public class KickCommand extends Command {
 
@@ -27,40 +29,47 @@ public class KickCommand extends Command {
                 .withArguments(new PlayerArgument("player"))
                 .withArguments(new GreedyStringArgument("reason"))
                 .executes((sender, args) -> {
-                    Player player = (Player) args[0];
+                    Player target = (Player) args[0];
                     String reason = (String) args[1];
 
-                    if (sender instanceof Player) {
-                        Player executor = (Player) sender;
-
-                        if (Util.isElevatedStaff(executor, player.getUniqueId())) {
+                    if (sender instanceof Player executor) {
+                        if (Util.isElevatedStaff(target.getUniqueId())) {
+                            executor.sendMessage(Component.text("You cannot use that command in this context.")
+                                    .color(MC.CC.RED.getTextColor()));
                             return;
                         }
                     }
 
-                    Component playerName = MC.Style.CONSOLE;
-
-                    if (sender instanceof Player) {
-                        playerName = FlameAPI.getColoredName(Profile.getProfile(((Player) sender).getUniqueId()));
+                    CompletableFuture<Profile> future;
+                    if(sender instanceof Player player) {
+                        future = ProfileUtil.getAssociatedProfile(player);
+                    } else {
+                        future = CompletableFuture.completedFuture(null);
                     }
 
-                    Component punishmentMessage = MC.Chat.notificationMessage("Punishment", Component.text()
-                            .append(FlameAPI.getColoredName(Profile.getProfile(player.getUniqueId())))
-                            .append(Component.text(" has been kicked by ")
-                                    .color(NamedTextColor.GRAY))
-                            .append(playerName)
-                            .build());
+                    future.thenAccept(senderProfile -> {
+                        ProfileUtil.getAssociatedProfile(target).thenAccept(targetProfile -> {
+                            Component senderName = senderProfile != null ? ChatListener.hoverableFormat(senderProfile) : MC.Style.CONSOLE;
 
-                    Bukkit.getOnlinePlayers()
-                            .forEach(staff -> {
-                                if (player.hasPermission("flame.staff")) {
-                                    player.sendMessage(MC.Style.SEPARATOR);
-                                    player.sendMessage(punishmentMessage);
-                                    player.sendMessage(MC.Style.SEPARATOR);
-                                }
-                            });
+                            Component component = Component.text()
+                                    .append(MC.Style.SEPARATOR)
+                                    .append(MC.Chat.notificationMessage("Punishment", Component.text()
+                                            .append(ChatListener.hoverableFormat(targetProfile))
+                                            .append(Component.text(" has been kicked by ", MC.CC.GRAY.getTextColor())
+                                                    .append(senderName))
+                                            .build()))
+                                    .append(MC.Style.SEPARATOR)
+                                    .build();
 
-                    player.kick(MC.Style.fromLegacy(reason));
+                            Bukkit.getOnlinePlayers()
+                                    .forEach(staff -> {
+                                        if (target.hasPermission("flame.staff"))
+                                            target.sendMessage(component);
+                                    });
+                        });
+                    });
+
+                    target.kick(MC.Style.fromLegacy(reason));
                 });
 
     }

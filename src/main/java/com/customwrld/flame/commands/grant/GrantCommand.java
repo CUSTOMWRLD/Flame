@@ -21,12 +21,11 @@ public class GrantCommand extends Command {
                 .withPermission(this.permission)
                 .withArguments(Arguments.profileArgument("player"))
                 .executes((sender, args) -> {
-                    if (!(sender instanceof Player)) {
+                    if (!(sender instanceof Player player)) {
                         sender.sendMessage(Config.PLAYER_ONLY.format());
                         return;
                     }
 
-                    Player player = (Player) sender;
                     Profile profile = (Profile) args[0];
 
                     new RankSelectionMenu(player, profile);

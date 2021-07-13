@@ -1,6 +1,7 @@
 package com.customwrld.flame.util;
 
 import com.customwrld.commonlib.modules.rank.Rank;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.Config;
 import com.customwrld.commonlib.modules.profile.Profile;
 import dev.jorel.commandapi.arguments.CustomArgument;
@@ -10,6 +11,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Arguments {
 
@@ -88,15 +92,20 @@ public class Arguments {
     }
 
     public static CustomArgument<Profile> profileArgument(String nodeName) {
-        CustomArgument<Profile> argument = new CustomArgument<>(nodeName, (input) -> {
+        CustomArgument<Profile> argument = new CustomArgument<>(nodeName, input -> {
+            try {
+                Profile profile = ProfileUtil.getProfile(input).get(10, TimeUnit.SECONDS);
 
-            Profile profile = Profile.getProfile(input);
 
-            if (profile == null) {
-                throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder(Config.COULD_NOT_RESOLVE_PLAYER.format()));
-            } else {
+                if (profile == null)
+                    throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder(Config.COULD_NOT_RESOLVE_PLAYER.format()));
+
                 return profile;
+            } catch(InterruptedException | ExecutionException | TimeoutException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
             }
+            return null;
         });
 
         argument.overrideSuggestions(sender -> Bukkit.getServer().getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));

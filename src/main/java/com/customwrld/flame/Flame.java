@@ -2,18 +2,21 @@ package com.customwrld.flame;
 
 import com.customwrld.commonlib.CommonLib;
 import com.customwrld.commonlib.modules.grant.Grant;
-import com.customwrld.commonlib.modules.profile.Profile;
+import com.customwrld.commonlib.modules.network.Gamemode;
+import com.customwrld.commonlib.modules.pigeon.payloads.network.ServerUpdatePayload;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.assemble.Assemble;
 import com.customwrld.customlib.assemble.AssembleStyle;
 import com.customwrld.customlib.configuration.type.ConfigurationFile;
 import com.customwrld.customlib.util.ClassUtils;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.chat.ChatFilter;
 import com.customwrld.flame.design.ScoreboardAdapter;
 import com.customwrld.flame.design.Tab;
-import com.customwrld.flame.listeners.*;
+import com.customwrld.flame.listeners.ChatListener;
+import com.customwrld.flame.listeners.CoreListener;
+import com.customwrld.flame.listeners.ProfileListener;
 import com.customwrld.flame.pigeon.Listeners;
-import com.customwrld.flame.pigeon.payloads.server.ServerUpdatePayload;
 import com.customwrld.flame.store.StoreManager;
 import com.customwrld.flame.util.Command;
 import com.customwrld.flame.util.DisabledCommands;
@@ -84,7 +87,7 @@ public final class Flame extends JavaPlugin {
 
         CommonLib commonLib = CustomLib.getCustomLib().getCommonLib();
 
-        commonLib.getApiProviders().add(new APIListener());
+        commonLib.getApiListeners().add(new CoreListener());
 
         Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
 
@@ -134,13 +137,16 @@ public final class Flame extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Profile profile : Profile.getProfiles().values()) {
-                    for (Grant grant : profile.getCachedGrants()) {
-                        if (grant.api().hasExpired() && !grant.isRemoved()) {
-                            profile.api().expireGrant(grant, System.currentTimeMillis());
-                        }
-                    }
-                }
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    ProfileUtil.getAssociatedProfile(player)
+                            .thenAccept(profile -> {
+                                for (Grant grant : profile.getCachedGrants()) {
+                                    if (grant.api().hasExpired() && !grant.isRemoved()) {
+                                        profile.api().expireGrant(grant, System.currentTimeMillis());
+                                    }
+                                }
+                            });
+                });
             }
         }.runTaskTimerAsynchronously(Flame.getFlame(), 0, 20);
 
@@ -150,7 +156,7 @@ public final class Flame extends JavaPlugin {
             public void run() {
                 CustomLib.getCustomLib().getPigeon().broadcast(new ServerUpdatePayload(
                         Config.SERVER_NAME.format(),
-                        Config.SERVER_TYPE.format(),
+                        Gamemode.getByName(Config.SERVER_TYPE.format()),
                         ManagementFactory.getRuntimeMXBean().getUptime(),
                         Bukkit.getServer().getTPS()[0],
                         Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()),

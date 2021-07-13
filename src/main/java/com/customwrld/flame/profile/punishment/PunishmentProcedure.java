@@ -42,7 +42,7 @@ public class PunishmentProcedure {
     }
 
     public void finish() {
-        this.recipient.save();
+        this.recipient.update();
         procedures.remove(this);
     }
 

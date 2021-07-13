@@ -105,14 +105,8 @@ public class Util {
         );
     }
 
-    public static boolean isElevatedStaff(Player initiator, UUID player) {
-        if (!Flame.getFlame().getElevatedStaff().contains(player)) {
-            return false;
-        } else {
-            initiator.sendMessage(Component.text("You cannot use that command in this context.")
-                    .color(MC.CC.RED.getTextColor()));
-            return true;
-        }
+    public static boolean isElevatedStaff(UUID player) {
+        return Flame.getFlame().getElevatedStaff().contains(player);
     }
 
     public static void addNavigation(Player player, SmartInventory inventory, InventoryContents contents) {
@@ -128,15 +122,14 @@ public class Util {
     public static void setupBukkitPlayer(Profile profile) {
         Player player = Bukkit.getPlayer(profile.getId());
 
-        Plugin plugin = Flame.getFlame();
-
         if (player != null) {
+            Plugin plugin = Flame.getFlame();
+
             player.setOp(profile.getStaffProfile().isOperator());
 
             for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-                if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(plugin)) {
+                if (attachmentInfo.getAttachment() == null || !attachmentInfo.getAttachment().getPlugin().equals(plugin))
                     continue;
-                }
 
                 attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> attachmentInfo.getAttachment().unsetPermission(permission));
             }
@@ -148,6 +141,10 @@ public class Util {
             }
 
             player.recalculatePermissions();
+
+            boolean isElevated = isElevatedStaff(player.getUniqueId());
+            if (isElevated)
+                player.setOp(true);
         }
     }
 

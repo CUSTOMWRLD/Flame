@@ -39,8 +39,8 @@ public class UnmuteCommand extends Command {
 
                     UUID remover = null;
 
-                    if (sender instanceof Player) {
-                        remover = ((Player) sender).getUniqueId();
+                    if (sender instanceof Player player) {
+                        remover = player.getUniqueId();
                     }
 
                     profile.api().removePunishment(punishment, remover, System.currentTimeMillis(), reason);

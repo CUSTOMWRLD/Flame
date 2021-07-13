@@ -4,6 +4,7 @@ import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.util.NMSUtil;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.FlameAPI;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -64,51 +65,45 @@ public class Tab {
     }
 
     public static void updateTeam(Player player) {
-        System.out.println("Updating " + player.getName() + "'s team!");
         deleteTeam(player);
         createTeam(player);
     }
 
     public static void createTeam(Player player) {
-        Profile profile = Profile.getProfile(player.getUniqueId());
+        ProfileUtil.getAssociatedProfile(player)
+                .thenAccept(profile -> {
+                    Rank rank = profile.api().getActiveGrant().api().getRank();
 
-        if(profile != null) {
-            Rank rank = profile.api().getActiveGrant().api().getRank();
+                    PacketPlayOutScoreboardTeam scoreboardTeam = new PacketPlayOutScoreboardTeam();
 
-            PacketPlayOutScoreboardTeam scoreboardTeam = new PacketPlayOutScoreboardTeam();
+                    try {
+                        NMSUtil.setValue(scoreboardTeam, "a", getTeamName(profile));
+                        NMSUtil.setValue(scoreboardTeam, "c", new ChatComponentText(MC.Style.toLegacy(FlameAPI.getColoredPrefix(profile))));
+                        NMSUtil.setValue(scoreboardTeam, "g", EnumChatFormat.valueOf(rank.getColor()));
+                        NMSUtil.setValue(scoreboardTeam, "h", Collections.singletonList(player.getName()));
+                        NMSUtil.setValue(scoreboardTeam, "i", 0);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
-            try {
-                NMSUtil.setValue(scoreboardTeam, "a", getTeamName(profile));
-                NMSUtil.setValue(scoreboardTeam, "c", new ChatComponentText(MC.Style.toLegacy(FlameAPI.getColoredPrefix(profile))));
-                NMSUtil.setValue(scoreboardTeam, "g", EnumChatFormat.valueOf(rank.getColor()));
-                NMSUtil.setValue(scoreboardTeam, "h", Collections.singletonList(player.getName()));
-                NMSUtil.setValue(scoreboardTeam, "i", 0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                    teamMap.put(player.getUniqueId(), scoreboardTeam);
 
-            teamMap.put(player.getUniqueId(), scoreboardTeam);
-
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> NMSUtil.sendPacket(onlinePlayer, scoreboardTeam));
-        }
+                    Bukkit.getOnlinePlayers().forEach(onlinePlayer -> NMSUtil.sendPacket(onlinePlayer, scoreboardTeam));
+                });
     }
 
     public static void deleteTeam(Player player) {
-        Profile profile = Profile.getProfile(player.getUniqueId());
+        PacketPlayOutScoreboardTeam scoreboardTeam = teamMap.get(player.getUniqueId());
 
-        if(profile != null) {
-            PacketPlayOutScoreboardTeam scoreboardTeam = teamMap.get(player.getUniqueId());
-
-            try {
-                NMSUtil.setValue(scoreboardTeam, "i", 1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            teamMap.remove(player.getUniqueId());
-
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> NMSUtil.sendPacket(onlinePlayer, scoreboardTeam));
+        try {
+            NMSUtil.setValue(scoreboardTeam, "i", 1);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        teamMap.remove(player.getUniqueId());
+
+        Bukkit.getOnlinePlayers().forEach(onlinePlayer -> NMSUtil.sendPacket(onlinePlayer, scoreboardTeam));
     }
 
 }

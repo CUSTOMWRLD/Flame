@@ -1,17 +1,14 @@
 package com.customwrld.flame.commands.player;
 
+import com.customwrld.commonlib.modules.pigeon.payloads.party.*;
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.pigeon.payloads.party.*;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
-import com.customwrld.flame.util.Util;
 import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 public class PartyCommand extends Command {
@@ -27,29 +24,10 @@ public class PartyCommand extends Command {
                 .withAliases(this.aliases)
                 .withSubcommand(chat())
                 .withSubcommand(disband())
-                .withSubcommand(debug())
                 .withSubcommand(invite())
                 .withSubcommand(join())
                 .withSubcommand(kick())
                 .withSubcommand(leave());
-    }
-
-    private CommandAPICommand debug() {
-        Pigeon pigeon = CustomLib.getCustomLib().getPigeon();
-
-        return new CommandAPICommand("debug")
-                .withPermission("flame.staff")
-                .executes((sender, args) -> {
-                    if (!(sender instanceof Player)) {
-                        sender.sendMessage(Config.PLAYER_ONLY.format());
-                        return;
-                    }
-
-                    sender.sendMessage(Component.text("Debug Message has been printed on the Atom Console.")
-                            .color(MC.CC.GREEN.getTextColor()));
-
-                    pigeon.broadcast(new PartyDebugPayload());
-                });
     }
 
     private CommandAPICommand chat() {

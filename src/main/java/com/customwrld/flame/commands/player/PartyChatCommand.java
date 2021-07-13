@@ -1,8 +1,8 @@
 package com.customwrld.flame.commands.player;
 
+import com.customwrld.commonlib.modules.pigeon.payloads.party.PartyChatPayload;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.pigeon.payloads.party.PartyChatPayload;
 import com.customwrld.flame.util.Command;
 import com.customwrld.pigeon.Pigeon;
 import dev.jorel.commandapi.CommandAPICommand;

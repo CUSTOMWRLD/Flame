@@ -3,10 +3,10 @@ package com.customwrld.flame;
 import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.MC;
+import com.customwrld.customlib.util.ProfileUtil;
 import com.customwrld.flame.design.Tab;
 import com.customwrld.flame.profile.grant.GrantProcedure;
 import com.customwrld.flame.profile.punishment.PunishmentProcedure;
-import com.customwrld.flame.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -28,15 +28,13 @@ public class FlameAPI {
 
     public static void refreshPlayers(UUID rank) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            Profile profile = Profile.getProfile(player.getUniqueId());
-
-            if(profile != null) {
-                if(profile.api().getActiveGrant().getRankUUID().equals(rank)) {
-                    profile.api().getActiveGrant();
-
-                    Tab.updateTeam(player);
-                }
-            }
+            ProfileUtil.getAssociatedProfile(player)
+                    .thenAccept(profile -> {
+                        if(profile.api().getActiveGrant().getRankUUID().equals(rank)) {
+                            profile.api().getActiveGrant();
+                            Tab.updateTeam(player);
+                        }
+                    });
         }
     }
 

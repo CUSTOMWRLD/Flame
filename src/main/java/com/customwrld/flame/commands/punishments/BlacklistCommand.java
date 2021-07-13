@@ -44,8 +44,8 @@ public class BlacklistCommand extends Command {
 
                     UUID addedBy = null;
 
-                    if (sender instanceof Player) {
-                        addedBy = (((Player) sender).getUniqueId());
+                    if (sender instanceof Player player) {
+                        addedBy = player.getUniqueId();
                     }
 
                     Punishment punishment = new Punishment(

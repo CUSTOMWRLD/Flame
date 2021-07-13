@@ -1,10 +1,10 @@
 package com.customwrld.flame.design;
 
 import com.customwrld.commonlib.modules.balance.Levels;
-import com.customwrld.commonlib.modules.profile.Profile;
 import com.customwrld.commonlib.modules.rank.Rank;
 import com.customwrld.commonlib.util.MC;
 import com.customwrld.customlib.assemble.AssembleAdapter;
+import com.customwrld.customlib.util.ProfileUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ScoreboardAdapter implements AssembleAdapter {
 
@@ -28,9 +29,9 @@ public class ScoreboardAdapter implements AssembleAdapter {
     public List<Component> getLines(Player player) {
         final List<Component> toReturn = new ArrayList<>();
 
-        Profile profile = Profile.getProfile(player.getUniqueId());
+        try {
+            var profile = ProfileUtil.getAssociatedProfile(player).get();
 
-        if(profile != null) {
             Rank rank = profile.api().getActiveGrant().api().getRank();
             int level = Levels.getLevelFromExperience(profile.getExperience());
 
@@ -75,11 +76,14 @@ public class ScoreboardAdapter implements AssembleAdapter {
                     .append(Component.text(" \u258E customwrld.com", MC.CC.BRAND.getTextColor()))
                     .build());
             toReturn.add(MC.Style.SCOREBOARD_SEPARATOR);
-        } else {
-            toReturn.add(Component.text("There was an issue loading your profile", MC.CC.RED.getTextColor()));
+
+            return toReturn;
+        } catch(InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
         }
 
-        return toReturn;
+        return new ArrayList<>();
     }
 
 }

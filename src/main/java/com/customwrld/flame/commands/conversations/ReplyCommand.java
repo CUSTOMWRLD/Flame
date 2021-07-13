@@ -1,8 +1,8 @@
 package com.customwrld.flame.commands.conversations;
 
+import com.customwrld.commonlib.modules.pigeon.payloads.conversation.ConversationReplyPayload;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.pigeon.payloads.conversation.ConversationReplyPayload;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;

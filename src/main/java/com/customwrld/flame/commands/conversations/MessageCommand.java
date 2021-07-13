@@ -1,10 +1,10 @@
 package com.customwrld.flame.commands.conversations;
 
+import com.customwrld.commonlib.modules.pigeon.payloads.conversation.ConversationMessagePayload;
 import com.customwrld.commonlib.modules.profile.Profile;
-import com.customwrld.customlib.CustomLib;
 import com.customwrld.commonlib.util.MC;
+import com.customwrld.customlib.CustomLib;
 import com.customwrld.flame.Config;
-import com.customwrld.flame.pigeon.payloads.conversation.ConversationMessagePayload;
 import com.customwrld.flame.util.Arguments;
 import com.customwrld.flame.util.Command;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -30,23 +30,25 @@ public class MessageCommand extends Command {
                         return;
                     }
 
-                    Profile profile = Profile.getProfile(((Player) sender).getUniqueId());
                     Profile target = (Profile) args[0];
                     String message = (String) args[1];
 
-                    if (player.getUniqueId().equals(target.getId())) {
-                        player.sendMessage(Component.text("You cannot message yourself!")
-                                .color(MC.CC.RED.getTextColor()));
-                        return;
-                    }
+                    Profile.getProfile(((Player) sender).getUniqueId()).thenAccept(profile -> {
+                        if (player.getUniqueId().equals(target.getId())) {
+                            player.sendMessage(Component.text("You cannot message yourself!")
+                                    .color(MC.CC.RED.getTextColor()));
+                            return;
+                        }
 
-                    if (target.api().isIgnoring(profile) || !target.getOptionsProfile().isReceivingConversations()) {
-                        player.sendMessage(Component.text("That player is not receiving new conversations right now.")
-                                .color(MC.CC.RED.getTextColor()));
-                        return;
-                    }
+                        if (target.api().isIgnoring(profile) || !target.getOptionsProfile().isReceivingConversations()) {
+                            player.sendMessage(Component.text("That player is not receiving new conversations right now.")
+                                    .color(MC.CC.RED.getTextColor()));
+                            return;
+                        }
 
-                    CustomLib.getCustomLib().getPigeon().broadcast(new ConversationMessagePayload(player.getUniqueId(), target.getId(), message));
+                        CustomLib.getCustomLib().getPigeon().broadcast(new ConversationMessagePayload(player.getUniqueId(), target.getId(), message));
+                    });
+
                 });
     }
 

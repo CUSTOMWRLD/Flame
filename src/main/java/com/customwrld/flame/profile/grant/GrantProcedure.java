@@ -40,8 +40,7 @@ public class GrantProcedure {
     }
 
     public void finish() {
-        this.recipient.save();
-        this.recipient.load();
+        this.recipient.update();
 
         procedures.remove(this);
     }
