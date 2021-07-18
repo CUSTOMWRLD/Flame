@@ -88,7 +88,7 @@ public class GrantsListMenu implements InventoryProvider {
                     if(grant.getAddedByUUID() != null) {
                         addedBy = "Could not fetch...";
 
-                        Profile addedByProfile = ProfileUtil.getProfile(grant.getAddedByUUID()).get(10, TimeUnit.SECONDS);
+                        Profile addedByProfile = ProfileUtil.getProfileById(grant.getAddedByUUID()).get(10, TimeUnit.SECONDS);
                         if(addedByProfile != null)
                             addedBy = addedByProfile.getName();
                     }
@@ -98,7 +98,7 @@ public class GrantsListMenu implements InventoryProvider {
                     if(grant.getRemovedByUUID() != null) {
                         removedBy = "Could not fetch...";
 
-                        Profile removedByProfile = ProfileUtil.getProfile(grant.getRemovedByUUID()).get(10, TimeUnit.SECONDS);
+                        Profile removedByProfile = ProfileUtil.getProfileById(grant.getRemovedByUUID()).get(10, TimeUnit.SECONDS);
                         if(removedByProfile != null)
                             removedBy = removedByProfile.getName();
                     }

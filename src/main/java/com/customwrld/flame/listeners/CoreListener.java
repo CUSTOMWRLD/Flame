@@ -132,7 +132,7 @@ public class CoreListener implements APIListener {
 
     @Override
     public void punishmentExpire(Punishment punishment) {
-        ProfileUtil.getProfile(punishment.getPlayerUUID()).thenAccept(profile -> {
+        ProfileUtil.getProfileById(punishment.getPlayerUUID()).thenAccept(profile -> {
             if(profile == null) { return; }
             announcePunishment(profile, punishment);
         });
@@ -140,7 +140,7 @@ public class CoreListener implements APIListener {
 
     @Override
     public void punishmentRemove(Punishment punishment) {
-        ProfileUtil.getProfile(punishment.getPlayerUUID()).thenAccept(profile -> {
+        ProfileUtil.getProfileById(punishment.getPlayerUUID()).thenAccept(profile -> {
             if (profile == null) { return; }
             announcePunishment(profile, punishment);
         });

@@ -94,8 +94,7 @@ public class Arguments {
     public static CustomArgument<Profile> profileArgument(String nodeName) {
         CustomArgument<Profile> argument = new CustomArgument<>(nodeName, input -> {
             try {
-                Profile profile = ProfileUtil.getProfile(input).get(10, TimeUnit.SECONDS);
-
+                Profile profile = ProfileUtil.getProfileByName(input).get(10, TimeUnit.SECONDS);
 
                 if (profile == null)
                     throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder(Config.COULD_NOT_RESOLVE_PLAYER.format()));

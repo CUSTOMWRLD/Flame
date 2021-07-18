@@ -63,7 +63,7 @@ public class ProfileListener implements Listener {
 
             var name = event.getName();
 
-            Profile profile = ProfileUtil.getProfile(name, uuid).get(10, TimeUnit.SECONDS);
+            Profile profile = ProfileUtil.getProfileByBoth(name, uuid).get(10, TimeUnit.SECONDS);
 
             Punishment punishment = profile.api().getActiveBan();
 
